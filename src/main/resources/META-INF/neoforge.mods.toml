@@ -1,0 +1,42 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+
+[[mods]]
+    issueTrackerURL="https://github.com/BlakeBr0/MysticalAutomation/issues"
+    modId="mysticalautomation"
+    version="${mod_version}"
+    displayName="Mystical Automation"
+    updateJSONURL="https://api.blakesmods.com/v2/mods/mysticalautomation/1.21/updates"
+    displayURL="https://blakesmods.com/mystical-automation"
+    # logoFile="examplemod.png"
+    credits=""
+    authors="BlakeBr0"
+    description='''
+    Adds machines for automating different aspects of Mystical Agriculture!
+    '''
+
+    [[dependencies.mysticalautomation]]
+        modId="neoforge"
+        mandatory=true
+        versionRange="[21.0.0-beta,)"
+        ordering="NONE"
+        side="BOTH"
+    [[dependencies.mysticalautomation]]
+        modId="minecraft"
+        mandatory=true
+        versionRange="[1.21,1.21.1)"
+        ordering="NONE"
+        side="BOTH"
+    [[dependencies.mysticalautomation]]
+        modId="cucumber"
+        mandatory=true
+        versionRange="[${cucumber_version},)"
+        ordering="NONE"
+        side="BOTH"
+    [[dependencies.mysticalautomation]]
+        modId="mysticalagriculture"
+        mandatory=true
+        versionRange="[${mysticalagriculture_version},)"
+        ordering="NONE"
+        side="BOTH"
