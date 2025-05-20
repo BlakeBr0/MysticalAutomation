@@ -81,7 +81,11 @@ dependencies {
     implementation "com.blakebr0.mysticalagradditions:MysticalAgradditions:${mysticalagradditions_version}"
 
     runtimeOnly "curse.maven:jade-324717:${jade_version}"
+    runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
     runtimeOnly "mezz.jei:jei-${jei_mc_version}-neoforge:${jei_version}"
+
+    compileOnly "mezz.jei:jei-${jei_mc_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${jei_mc_version}-neoforge-api:${jei_version}"
 }
 
 tasks.withType(ProcessResources).configureEach {
