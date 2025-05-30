@@ -1,6 +1,7 @@
 package com.blakebr0.mysticalautomation;
 
 import com.blakebr0.mysticalautomation.client.ModMenuScreens;
+import com.blakebr0.mysticalautomation.handler.RegisterCapabilityHandler;
 import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.init.ModCreativeModeTabs;
 import com.blakebr0.mysticalautomation.init.ModItems;
@@ -26,10 +27,12 @@ public final class MysticalAutomation {
         bus.register(this);
 
         ModBlocks.REGISTRY.register(bus);
-        ModCreativeModeTabs.REGISTRY.register(bus);
         ModItems.REGISTRY.register(bus);
+        ModCreativeModeTabs.REGISTRY.register(bus);
         ModMenuTypes.REGISTRY.register(bus);
         ModTileEntities.REGISTRY.register(bus);
+
+        bus.register(new RegisterCapabilityHandler());
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             bus.register(new ModMenuScreens());

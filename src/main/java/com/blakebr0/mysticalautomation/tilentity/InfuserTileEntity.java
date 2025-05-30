@@ -4,14 +4,16 @@ import com.blakebr0.cucumber.energy.DynamicEnergyStorage;
 import com.blakebr0.cucumber.helper.StackHelper;
 import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
 import com.blakebr0.cucumber.inventory.OnContentsChangedFunction;
+import com.blakebr0.cucumber.inventory.SidedInventoryWrapper;
 import com.blakebr0.cucumber.tileentity.BaseInventoryTileEntity;
-import com.blakebr0.cucumber.util.Localizable;
-import com.blakebr0.mysticalagriculture.container.HarvesterContainer;
-import com.blakebr0.mysticalagriculture.container.inventory.UpgradeItemStackHandler;
-import com.blakebr0.mysticalagriculture.util.IUpgradeableMachine;
-import com.blakebr0.mysticalagriculture.util.MachineUpgradeTier;
+import com.blakebr0.cucumber.util.ContainerDataBuilder;
+import com.blakebr0.mysticalagriculture.api.machine.IUpgradeableMachine;
+import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
+import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeTier;
+import com.blakebr0.mysticalautomation.container.InfuserContainer;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -19,9 +21,15 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuProvider, IUpgradeableMachine {
     public static final int FUEL_TICK_MULTIPLIER = 20;
@@ -30,8 +38,11 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     public static final int FUEL_CAPACITY = 80000;
 
     private final BaseItemStackHandler inventory;
-    private final UpgradeItemStackHandler upgradeInventory;
+    private final MachineUpgradeItemStackHandler upgradeInventory;
     private final DynamicEnergyStorage energy;
+    private final SidedInventoryWrapper[] sidedInventoryWrappers;
+
+    private final ContainerData dataAccess;
 
     private MachineUpgradeTier tier;
     private int progress;
@@ -42,8 +53,18 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     public InfuserTileEntity(BlockPos pos, BlockState state) {
         super(ModTileEntities.INFUSER.get(), pos, state);
         this.inventory = createInventoryHandler((slot -> this.setChanged()));
-        this.upgradeInventory = new UpgradeItemStackHandler();
+        this.upgradeInventory = new MachineUpgradeItemStackHandler();
         this.energy = new DynamicEnergyStorage(FUEL_CAPACITY, this::setChangedFast);
+        this.sidedInventoryWrappers = SidedInventoryWrapper.create(this.inventory, List.of(Direction.UP, Direction.DOWN, Direction.NORTH), this::canInsertStackSided, null);
+
+        this.dataAccess = ContainerDataBuilder.builder()
+                .sync(this.energy::getEnergyStored, this.energy::setEnergyStored)
+                .sync(this.energy::getMaxEnergyStored, this.energy::setMaxEnergyStorage)
+                .sync(() -> this.fuelLeft, value -> this.fuelLeft = value)
+                .sync(() -> this.fuelItemValue, value -> this.fuelItemValue = value)
+                .sync(() -> this.progress, value -> this.progress = value)
+                .sync(this::getOperationTime, value -> {})
+                .build();
     }
 
     @Override
@@ -53,16 +74,16 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     @Override
     public Component getDisplayName() {
-        return Localizable.of("container.mysticalagriculture.harvester").build();
+        return Component.translatable("container.mysticalautomation.infuser");
     }
 
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        return HarvesterContainer.create(i, inventory, this.inventory, this.upgradeInventory, this.getBlockPos());
+        return InfuserContainer.create(i, inventory, this.inventory, this.upgradeInventory, this.dataAccess, this.getBlockPos());
     }
 
     @Override
-    public UpgradeItemStackHandler getUpgradeInventory() {
+    public MachineUpgradeItemStackHandler getUpgradeInventory() {
         return this.upgradeInventory;
     }
 
@@ -90,14 +111,14 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     public static void tick(Level level, BlockPos pos, BlockState state, InfuserTileEntity tile) {
         if (tile.energy.getEnergyStored() < tile.energy.getMaxEnergyStored()) {
-            var fuel = tile.inventory.getStackInSlot(0);
+            var fuel = tile.inventory.getStackInSlot(7);
 
             if (tile.fuelLeft <= 0 && !fuel.isEmpty()) {
                 tile.fuelItemValue = fuel.getBurnTime(null);
 
                 if (tile.fuelItemValue > 0) {
                     tile.fuelLeft = tile.fuelItemValue *= FUEL_TICK_MULTIPLIER;
-                    tile.inventory.setStackInSlot(0, StackHelper.shrink(fuel, 1, true));
+                    tile.inventory.setStackInSlot(7, StackHelper.shrink(fuel, 1, true));
 
                     tile.setChangedFast();
                 }
@@ -122,11 +143,18 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
                 if (tier == null) {
                     tile.energy.resetMaxEnergyStorage();
                 } else {
-                    tile.energy.setMaxEnergyStorage((int) (FUEL_CAPACITY * tier.getFuelCapacityMultiplier()));
+                    tile.energy.setMaxEnergyStorage(tier.getFuelCapacity(FUEL_CAPACITY));
                 }
 
                 tile.setChangedFast();
             }
+
+            // TODO: remove
+            tile.progress++;
+            if (tile.progress >= tile.getOperationTime()) {
+                tile.progress = 0;
+            }
+            tile.setChangedFast();
         }
     }
 
@@ -135,7 +163,19 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     }
 
     public static BaseItemStackHandler createInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
-        return BaseItemStackHandler.create(20);
+        return BaseItemStackHandler.create(9, onContentsChanged, builder -> {
+
+        });
+    }
+
+    public IItemHandler getSidedInventory(@Nullable Direction direction) {
+        if (direction == null) direction = Direction.NORTH;
+
+        return switch (direction) {
+            case UP -> this.sidedInventoryWrappers[0];
+            case DOWN -> this.sidedInventoryWrappers[1];
+            default -> this.sidedInventoryWrappers[2];
+        };
     }
 
     public DynamicEnergyStorage getEnergy() {
@@ -147,10 +187,7 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     }
 
     public int getOperationTime() {
-        if (this.tier == null)
-            return OPERATION_TIME;
-
-        return (int) (OPERATION_TIME * this.tier.getOperationTimeMultiplier());
+        return this.tier == null ? OPERATION_TIME : this.tier.getOperationTime(OPERATION_TIME);
     }
 
     public int getFuelLeft() {
@@ -162,9 +199,15 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     }
 
     public int getFuelUsage() {
-        if (this.tier == null)
-            return FUEL_USAGE;
+        return this.tier == null ? FUEL_USAGE : this.tier.getFuelUsage(FUEL_USAGE);
+    }
 
-        return (int) (FUEL_USAGE * this.tier.getFuelUsageMultiplier());
+    private boolean canInsertStackSided(int slot, ItemStack stack, Direction direction) {
+        if (direction == null)
+            return true;
+        if (slot == 6 && direction == Direction.NORTH)
+            return FurnaceBlockEntity.isFuel(stack);
+
+        return false;
     }
 }
