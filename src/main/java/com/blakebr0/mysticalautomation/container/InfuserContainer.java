@@ -5,6 +5,7 @@ import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
 import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
+import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
 import com.blakebr0.mysticalautomation.tilentity.InfuserTileEntity;
 import net.minecraft.core.BlockPos;
@@ -22,7 +23,7 @@ public class InfuserContainer extends BaseContainerMenu {
     private final ContainerData data;
 
     private InfuserContainer(MenuType<?> type, int id, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(type, id, playerInventory, InfuserTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(6), buffer.readBlockPos());
+        this(type, id, playerInventory, InfuserTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(8), buffer.readBlockPos());
     }
 
     private InfuserContainer(MenuType<?> type, int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
@@ -39,7 +40,7 @@ public class InfuserContainer extends BaseContainerMenu {
             this.addSlot(new BaseItemStackHandlerSlot(inventory, 1 + i, 102 + i * 18, 33));
         }
 
-        // mystical agradditions
+        // mystical agradditions essence slot
         this.addSlot(new BaseItemStackHandlerSlot(inventory, 6, 192, 33));
 
         // fuel slot
@@ -70,28 +71,27 @@ public class InfuserContainer extends BaseContainerMenu {
             var itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
 
-            if (index > 1) {
+            if (index > 9) {
                 if (itemstack1.getItem() instanceof IMachineUpgrade) {
                     if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY;
                     }
+                } else if (MysticalCompat.isEssence(itemstack1) || MysticalCompat.isInfusionCrystal(itemstack1)) {
+                    if (!this.moveItemStackTo(itemstack1, 1, 7, false)) {
+                        return ItemStack.EMPTY;
+                    }
                 } else if (itemstack1.getBurnTime(null) > 0) {
-                    if (!this.moveItemStackTo(itemstack1, 1, 2, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 7, 8, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (index < 44) {
-                    // these are the Harvester output slots
-                    if (index < 17) {
-                        if (!this.moveItemStackTo(itemstack1, 17, 53, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    } else if (!this.moveItemStackTo(itemstack1, 44, 53, false)) {
+                } else if (index < 37) {
+                    if (!this.moveItemStackTo(itemstack1, 37, 46, false)) {
                         return ItemStack.EMPTY;
                     }
-                } else if (index < 53 && !this.moveItemStackTo(itemstack1, 17, 44, false)) {
+                } else if (index < 46 && !this.moveItemStackTo(itemstack1, 10, 36, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (!this.moveItemStackTo(itemstack1, 17, 53, false)) {
+            } else if (!this.moveItemStackTo(itemstack1, 10, 46, false)) {
                 return ItemStack.EMPTY;
             }
 
@@ -141,5 +141,13 @@ public class InfuserContainer extends BaseContainerMenu {
 
     public int getOperationTime() {
         return this.data.get(5);
+    }
+
+    public int getProgressingIndex() {
+        return this.data.get(6);
+    }
+
+    public int getSelectedIndex() {
+        return this.data.get(7);
     }
 }

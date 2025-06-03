@@ -4,7 +4,7 @@ import com.blakebr0.cucumber.block.BaseTileEntityBlock;
 import com.blakebr0.cucumber.helper.BlockHelper;
 import com.blakebr0.cucumber.lib.Tooltips;
 import com.blakebr0.cucumber.util.Formatting;
-import com.blakebr0.mysticalagriculture.lib.ModTooltips;
+import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import com.blakebr0.mysticalautomation.tilentity.InfuserTileEntity;
 import net.minecraft.ChatFormatting;
@@ -100,9 +100,9 @@ public class InfuserBlock extends BaseTileEntityBlock {
             var fuelRate = Formatting.number(InfuserTileEntity.FUEL_USAGE).withStyle(ChatFormatting.WHITE);
             var fuelCapacity = Formatting.number(InfuserTileEntity.FUEL_CAPACITY).withStyle(ChatFormatting.WHITE);
 
-            tooltip.add(ModTooltips.MACHINE_SPEED.args(speed).build());
-            tooltip.add(ModTooltips.MACHINE_FUEL_RATE.args(fuelRate).build());
-            tooltip.add(ModTooltips.MACHINE_FUEL_CAPACITY.args(fuelCapacity).build());
+            tooltip.add(MysticalCompat.Tooltips.MACHINE_SPEED.args(speed).build());
+            tooltip.add(MysticalCompat.Tooltips.MACHINE_FUEL_RATE.args(fuelRate).build());
+            tooltip.add(MysticalCompat.Tooltips.MACHINE_FUEL_CAPACITY.args(fuelCapacity).build());
         } else {
             tooltip.add(Tooltips.HOLD_SHIFT_FOR_INFO.build());
         }

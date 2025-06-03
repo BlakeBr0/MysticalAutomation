@@ -10,8 +10,11 @@ import com.blakebr0.cucumber.util.ContainerDataBuilder;
 import com.blakebr0.mysticalagriculture.api.machine.IUpgradeableMachine;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeTier;
+import com.blakebr0.mysticalautomation.block.InfuserBlock;
+import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.container.InfuserContainer;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
+import com.blakebr0.mysticalautomation.util.EssenceTier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -27,11 +30,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
+import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuProvider, IUpgradeableMachine {
+    private static final int INFUSION_CRYSTAL_SLOT = 0;
+    private static final int[] INPUT_SLOTS = new int[] { 1, 2, 3, 4, 5, 6 };
+    private static final int FUEL_SLOT = 7;
+    private static final int OUTPUT_SLOT = 8;
+
     public static final int FUEL_TICK_MULTIPLIER = 20;
     public static final int OPERATION_TIME = 100;
     public static final int FUEL_USAGE = 40;
@@ -46,6 +55,8 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     private MachineUpgradeTier tier;
     private int progress;
+    private int progressingIndex;
+    private int selectedIndex;
     private int fuelLeft;
     private int fuelItemValue;
     private boolean isRunning;
@@ -64,6 +75,8 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
                 .sync(() -> this.fuelItemValue, value -> this.fuelItemValue = value)
                 .sync(() -> this.progress, value -> this.progress = value)
                 .sync(this::getOperationTime, value -> {})
+                .sync(() -> this.progressingIndex, value -> this.progressingIndex = value)
+                .sync(() -> this.selectedIndex, value -> this.selectedIndex = value)
                 .build();
     }
 
@@ -92,6 +105,8 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
         super.loadAdditional(tag, lookup);
 
         this.progress = tag.getInt("Progress");
+        this.progressingIndex = tag.getInt("ProgressingIndex");
+        this.selectedIndex = tag.getInt("SelectedIndex");
         this.fuelLeft = tag.getInt("FuelLeft");
         this.fuelItemValue = tag.getInt("FuelItemValue");
         this.energy.deserializeNBT(lookup, tag.get("Energy"));
@@ -103,6 +118,8 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
         super.saveAdditional(tag, lookup);
 
         tag.putInt("Progress", this.progress);
+        tag.putInt("ProgressingIndex", this.progressingIndex);
+        tag.putInt("SelectedIndex", this.selectedIndex);
         tag.putInt("FuelLeft", this.fuelLeft);
         tag.putInt("FuelItemValue", this.fuelItemValue);
         tag.putInt("Energy", this.energy.getEnergyStored());
@@ -111,14 +128,14 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     public static void tick(Level level, BlockPos pos, BlockState state, InfuserTileEntity tile) {
         if (tile.energy.getEnergyStored() < tile.energy.getMaxEnergyStored()) {
-            var fuel = tile.inventory.getStackInSlot(7);
+            var fuel = tile.inventory.getStackInSlot(FUEL_SLOT);
 
             if (tile.fuelLeft <= 0 && !fuel.isEmpty()) {
                 tile.fuelItemValue = fuel.getBurnTime(null);
 
                 if (tile.fuelItemValue > 0) {
                     tile.fuelLeft = tile.fuelItemValue *= FUEL_TICK_MULTIPLIER;
-                    tile.inventory.setStackInSlot(7, StackHelper.shrink(fuel, 1, true));
+                    tile.inventory.setStackInSlot(FUEL_SLOT, StackHelper.shrink(fuel, 1, true));
 
                     tile.setChangedFast();
                 }
@@ -149,12 +166,44 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
                 tile.setChangedFast();
             }
 
-            // TODO: remove
-            tile.progress++;
-            if (tile.progress >= tile.getOperationTime()) {
-                tile.progress = 0;
+            var wasRunning = tile.isRunning;
+            tile.isRunning = false;
+
+            if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
+                var crystal = tile.inventory.getStackInSlot(INFUSION_CRYSTAL_SLOT);
+                if (!crystal.isEmpty()) {
+                    var nextProgressingIndex = tile.getNextProgressingIndex();
+                    if (nextProgressingIndex != -1) {
+                        var essenceTier = EssenceTier.fromIndex(nextProgressingIndex);
+
+                        if (essenceTier != null && essenceTier.getNextTier() != null && essenceTier.getNextTier().getItem() != null) {
+                            tile.isRunning = true;
+                            tile.progress++;
+                            tile.progressingIndex = nextProgressingIndex;
+
+                            if (tile.progress >= tile.getOperationTime()) {
+                                var result = new ItemStack(essenceTier.getNextTier().getItem());
+                                var outputSlot = nextProgressingIndex == tile.selectedIndex ? OUTPUT_SLOT : INPUT_SLOTS[nextProgressingIndex + 1];
+                                var outputStack = tile.inventory.getStackInSlot(outputSlot);
+
+                                if (StackHelper.canCombineStacks(outputStack, result)) {
+                                    var processingStack = tile.getProcessingItemStack();
+
+                                    tile.inventory.setStackInSlot(outputSlot, StackHelper.combineStacks(outputStack, result));
+                                    tile.inventory.setStackInSlot(INPUT_SLOTS[nextProgressingIndex], StackHelper.shrink(processingStack, 4, false));
+                                    tile.inventory.setStackInSlot(INFUSION_CRYSTAL_SLOT, crystal.getCraftingRemainingItem());
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            tile.setChangedFast();
+
+            if (wasRunning != tile.isRunning) {
+                level.setBlock(pos, state.setValue(InfuserBlock.RUNNING, tile.isRunning), 3);
+
+                tile.setChangedFast();
+            }
         }
     }
 
@@ -164,7 +213,13 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     public static BaseItemStackHandler createInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
         return BaseItemStackHandler.create(9, onContentsChanged, builder -> {
+            for (var slot : INPUT_SLOTS) {
+                builder.addSlotLimit(slot, 512);
+            }
 
+            builder.setCanExtract(slot ->
+                    slot == OUTPUT_SLOT || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(builder.getStackInSlot(slot)))
+            );
         });
     }
 
@@ -202,10 +257,34 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
         return this.tier == null ? FUEL_USAGE : this.tier.getFuelUsage(FUEL_USAGE);
     }
 
-    private boolean canInsertStackSided(int slot, ItemStack stack, Direction direction) {
+    public void setSelectedIndex(int index) {
+        this.selectedIndex = index;
+        this.progress = 0;
+        this.setChangedFast();
+    }
+
+    private ItemStack getProcessingItemStack() {
+        return this.inventory.getStackInSlot(INPUT_SLOTS[this.progressingIndex]);
+    }
+
+    private int getNextProgressingIndex() {
+        for (var i = this.selectedIndex; i >= 0; i--) {
+            var stack = this.inventory.getStackInSlot(i + 1);
+            if (!stack.isEmpty() && stack.getCount() >= 4)
+                return i;
+        }
+
+        return 0;
+    }
+
+    private boolean canInsertStackSided(int slot, ItemStack stack, @Nullable Direction direction) {
         if (direction == null)
             return true;
-        if (slot == 6 && direction == Direction.NORTH)
+        if (slot == INFUSION_CRYSTAL_SLOT && direction == Direction.UP)
+            return MysticalCompat.isInfusionCrystal(stack);
+        if (ArrayUtils.contains(INPUT_SLOTS, slot) && direction == Direction.UP)
+            return MysticalCompat.isEssence(stack);
+        if (slot == FUEL_SLOT && direction == Direction.NORTH)
             return FurnaceBlockEntity.isFuel(stack);
 
         return false;
