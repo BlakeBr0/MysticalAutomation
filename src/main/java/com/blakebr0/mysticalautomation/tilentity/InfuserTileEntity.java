@@ -43,7 +43,7 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     public static final int FUEL_TICK_MULTIPLIER = 20;
     public static final int OPERATION_TIME = 100;
-    public static final int FUEL_USAGE = 40;
+    public static final int FUEL_USAGE = 20;
     public static final int FUEL_CAPACITY = 80000;
 
     private final BaseItemStackHandler inventory;
@@ -151,59 +151,67 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
                 tile.setChangedFast();
             }
+        }
 
-            var tier = tile.getMachineTier();
+        var tier = tile.getMachineTier();
 
-            if (tier != tile.tier) {
-                tile.tier = tier;
+        if (tier != tile.tier) {
+            tile.tier = tier;
 
-                if (tier == null) {
-                    tile.energy.resetMaxEnergyStorage();
-                } else {
-                    tile.energy.setMaxEnergyStorage(tier.getFuelCapacity(FUEL_CAPACITY));
-                }
-
-                tile.setChangedFast();
+            if (tier == null) {
+                tile.energy.resetMaxEnergyStorage();
+            } else {
+                tile.energy.setMaxEnergyStorage(tier.getFuelCapacity(FUEL_CAPACITY));
             }
 
-            var wasRunning = tile.isRunning;
-            tile.isRunning = false;
+            tile.setChangedFast();
+        }
 
-            if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
-                var crystal = tile.inventory.getStackInSlot(INFUSION_CRYSTAL_SLOT);
-                if (!crystal.isEmpty()) {
-                    var nextProgressingIndex = tile.getNextProgressingIndex();
-                    if (nextProgressingIndex != -1) {
-                        var essenceTier = EssenceTier.fromIndex(nextProgressingIndex);
+        var wasRunning = tile.isRunning;
+        tile.isRunning = false;
 
-                        if (essenceTier != null && essenceTier.getNextTier() != null && essenceTier.getNextTier().getItem() != null) {
-                            tile.isRunning = true;
-                            tile.progress++;
-                            tile.progressingIndex = nextProgressingIndex;
+        if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
+            var crystal = tile.inventory.getStackInSlot(INFUSION_CRYSTAL_SLOT);
+            // when selectedIndex is 0, that means were on the lowest tier already and aren't going to do anything
+            if (!crystal.isEmpty() && tile.selectedIndex > 0) {
+                tile.progressingIndex = tile.getNextProgressingIndex();
 
-                            if (tile.progress >= tile.getOperationTime()) {
-                                var result = new ItemStack(essenceTier.getNextTier().getItem());
-                                var outputSlot = nextProgressingIndex == tile.selectedIndex ? OUTPUT_SLOT : INPUT_SLOTS[nextProgressingIndex + 1];
-                                var outputStack = tile.inventory.getStackInSlot(outputSlot);
+                var processingStack = tile.getProcessingItemStack();
+                var essenceTier = EssenceTier.fromIndex(tile.progressingIndex);
 
-                                if (StackHelper.canCombineStacks(outputStack, result)) {
-                                    var processingStack = tile.getProcessingItemStack();
+                if (!processingStack.isEmpty() && essenceTier != null && essenceTier.getNextTier() != null && essenceTier.getNextTier().getItem() != null) {
+                    tile.isRunning = true;
 
-                                    tile.inventory.setStackInSlot(outputSlot, StackHelper.combineStacks(outputStack, result));
-                                    tile.inventory.setStackInSlot(INPUT_SLOTS[nextProgressingIndex], StackHelper.shrink(processingStack, 4, false));
-                                    tile.inventory.setStackInSlot(INFUSION_CRYSTAL_SLOT, crystal.getCraftingRemainingItem());
-                                }
-                            }
+                    if (tile.progress >= tile.getOperationTime()) {
+                        var result = new ItemStack(essenceTier.getNextTier().getItem());
+                        var outputSlot = tile.progressingIndex + 1 == tile.selectedIndex ? OUTPUT_SLOT : INPUT_SLOTS[tile.progressingIndex + 1];
+                        var outputStack = tile.inventory.getStackInSlot(outputSlot);
+
+                        if (StackHelper.canCombineStacks(result, outputStack)) {
+                            tile.inventory.setStackInSlot(outputSlot, StackHelper.combineStacks(result, outputStack));
+                            tile.inventory.setStackInSlot(INPUT_SLOTS[tile.progressingIndex], StackHelper.shrink(processingStack, 4, false));
+                            tile.inventory.setStackInSlot(INFUSION_CRYSTAL_SLOT, crystal.getCraftingRemainingItem());
+
+                            tile.progress = 0;
                         }
+                    } else {
+                        tile.progress++;
+                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
                     }
+
+                    tile.setChangedFast();
+                } else {
+                    tile.progress = 0;
                 }
+            } else {
+                tile.progress = 0;
             }
+        }
 
-            if (wasRunning != tile.isRunning) {
-                level.setBlock(pos, state.setValue(InfuserBlock.RUNNING, tile.isRunning), 3);
+        if (wasRunning != tile.isRunning) {
+            level.setBlock(pos, state.setValue(InfuserBlock.RUNNING, tile.isRunning), 3);
 
-                tile.setChangedFast();
-            }
+            tile.setChangedFast();
         }
     }
 
@@ -212,13 +220,25 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     }
 
     public static BaseItemStackHandler createInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
-        return BaseItemStackHandler.create(9, onContentsChanged, builder -> {
+        return BaseItemStackHandler.create(9, onContentsChanged, handler -> {
             for (var slot : INPUT_SLOTS) {
-                builder.addSlotLimit(slot, 512);
+                handler.addSlotLimit(slot, 512);
             }
 
-            builder.setCanExtract(slot ->
-                    slot == OUTPUT_SLOT || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(builder.getStackInSlot(slot)))
+            handler.setCanInsert((slot, stack) -> switch (slot) {
+                case 0 -> MysticalCompat.isInfusionCrystal(stack);
+                case 1 -> stack.is(MysticalCompat.Items.INFERIUM_ESSENCE);
+                case 2 -> stack.is(MysticalCompat.Items.PRUDENTIUM_ESSENCE);
+                case 3 -> stack.is(MysticalCompat.Items.TERTIUM_ESSENCE);
+                case 4 -> stack.is(MysticalCompat.Items.IMPERIUM_ESSENCE);
+                case 5 -> stack.is(MysticalCompat.Items.SUPREMIUM_ESSENCE);
+                case 6 -> MysticalCompat.Items.INSANIUM_ESSENCE.isBound() && stack.is(MysticalCompat.Items.INSANIUM_ESSENCE);
+                default -> true;
+            });
+
+            handler.setOutputSlots(OUTPUT_SLOT);
+            handler.setCanExtract(slot ->
+                    slot == OUTPUT_SLOT || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(handler.getStackInSlot(slot)))
             );
         });
     }
@@ -233,33 +253,10 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
         };
     }
 
-    public DynamicEnergyStorage getEnergy() {
-        return this.energy;
-    }
-
-    public int getProgress() {
-        return this.progress;
-    }
-
-    public int getOperationTime() {
-        return this.tier == null ? OPERATION_TIME : this.tier.getOperationTime(OPERATION_TIME);
-    }
-
-    public int getFuelLeft() {
-        return this.fuelLeft;
-    }
-
-    public int getFuelItemValue() {
-        return this.fuelItemValue;
-    }
-
-    public int getFuelUsage() {
-        return this.tier == null ? FUEL_USAGE : this.tier.getFuelUsage(FUEL_USAGE);
-    }
-
     public void setSelectedIndex(int index) {
-        this.selectedIndex = index;
-        this.progress = 0;
+        this.selectedIndex = Math.clamp(index, 0, INPUT_SLOTS.length - 1);
+        if (index < this.progressingIndex)
+            this.progress = 0;
         this.setChangedFast();
     }
 
@@ -267,9 +264,21 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
         return this.inventory.getStackInSlot(INPUT_SLOTS[this.progressingIndex]);
     }
 
+    private int getOperationTime() {
+        return this.tier == null ? OPERATION_TIME : this.tier.getOperationTime(OPERATION_TIME);
+    }
+
+    private int getFuelUsage() {
+        return this.tier == null ? FUEL_USAGE : this.tier.getFuelUsage(FUEL_USAGE);
+    }
+
     private int getNextProgressingIndex() {
-        for (var i = this.selectedIndex; i >= 0; i--) {
-            var stack = this.inventory.getStackInSlot(i + 1);
+        if (this.progress > 0) {
+            return this.progressingIndex;
+        }
+
+        for (var i = this.selectedIndex - 1; i >= 0; i--) {
+            var stack = this.inventory.getStackInSlot(INPUT_SLOTS[i]);
             if (!stack.isEmpty() && stack.getCount() >= 4)
                 return i;
         }

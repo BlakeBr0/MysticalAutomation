@@ -26,19 +26,19 @@ public class InfuserProgressWidget extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
-        var offset = this.getProgressScaled();
-
         gfx.blit(TEXTURE, this.getX(), this.getY(), 225, 0, this.width, this.height);
-        gfx.blit(TEXTURE, this.getX(), this.getY(), 225, this.height, offset, this.height);
+
+        if (this.isSelected.getAsBoolean()) {
+            var offset = this.getProgressScaled();
+
+            gfx.blit(TEXTURE, this.getX(), this.getY(), 225, this.height, offset, this.height);
+        }
     }
 
     @Override
     protected void updateWidgetNarration(NarrationElementOutput output) { }
 
     private int getProgressScaled() {
-        if (!this.isSelected.getAsBoolean())
-            return 0;
-
         int i = this.progress.getAsInt();
         int j = this.total.getAsInt();
         return j != 0 && i != 0 ? i * this.width / j : 0;

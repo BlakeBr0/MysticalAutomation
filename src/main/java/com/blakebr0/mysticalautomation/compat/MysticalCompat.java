@@ -33,7 +33,7 @@ public final class MysticalCompat {
                 || stack.is(Items.TERTIUM_ESSENCE)
                 || stack.is(Items.IMPERIUM_ESSENCE)
                 || stack.is(Items.SUPREMIUM_ESSENCE)
-                || stack.is(Items.INSANIUM_ESSENCE);
+                || (Items.INSANIUM_ESSENCE.isBound() && stack.is(Items.INSANIUM_ESSENCE));
     }
 
     public static boolean isInfusionCrystal(ItemStack stack) {

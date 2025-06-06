@@ -77,11 +77,11 @@ public class InfuserContainer extends BaseContainerMenu {
                         return ItemStack.EMPTY;
                     }
                 } else if (MysticalCompat.isEssence(itemstack1) || MysticalCompat.isInfusionCrystal(itemstack1)) {
-                    if (!this.moveItemStackTo(itemstack1, 1, 7, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 1, 8, false)) {
                         return ItemStack.EMPTY;
                     }
                 } else if (itemstack1.getBurnTime(null) > 0) {
-                    if (!this.moveItemStackTo(itemstack1, 7, 8, false)) {
+                    if (!this.moveItemStackTo(itemstack1, 8, 9, false)) {
                         return ItemStack.EMPTY;
                     }
                 } else if (index < 37) {
