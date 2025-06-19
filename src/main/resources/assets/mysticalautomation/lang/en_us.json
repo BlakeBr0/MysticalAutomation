@@ -2,6 +2,8 @@
   "itemGroup.mysticalautomation": "Mystical Automation",
 
   "block.mysticalautomation.infuser": "Infuser",
+  "block.mysticalautomation.crafter": "Crafter",
 
-  "container.mysticalautomation.infuser": "Infuser"
+  "container.mysticalautomation.infuser": "Infuser",
+  "container.mysticalautomation.crafter": "Crafter"
 }

@@ -13,7 +13,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -22,12 +21,12 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 public class InfuserContainer extends BaseContainerMenu {
     private final ContainerData data;
 
-    private InfuserContainer(MenuType<?> type, int id, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(type, id, playerInventory, InfuserTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(8), buffer.readBlockPos());
+    public InfuserContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
+        this(id, playerInventory, InfuserTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(8), buffer.readBlockPos());
     }
 
-    private InfuserContainer(MenuType<?> type, int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
-        super(type, id, pos);
+    public InfuserContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
+        super(ModMenuTypes.INFUSER.get(), id, pos);
         this.data = data;
 
         this.addSlot(new SlotItemHandler(upgradeInventory, 0, 192, 9));
@@ -109,14 +108,6 @@ public class InfuserContainer extends BaseContainerMenu {
         }
 
         return itemstack;
-    }
-
-    public static InfuserContainer create(int windowId, Inventory playerInventory, FriendlyByteBuf buffer) {
-        return new InfuserContainer(ModMenuTypes.INFUSER.get(), windowId, playerInventory, buffer);
-    }
-
-    public static InfuserContainer create(int windowId, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
-        return new InfuserContainer(ModMenuTypes.INFUSER.get(), windowId, playerInventory, inventory, upgradeInventory, data, pos);
     }
 
     public int getEnergyStored() {
