@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=east,running=false": { "model": "mysticalautomation:block/farmer", "y": 90 },
+    "facing=east,running=true": { "model": "mysticalautomation:block/farmer_on", "y": 90 },
+    "facing=north,running=false": { "model": "mysticalautomation:block/farmer" },
+    "facing=north,running=true": { "model": "mysticalautomation:block/farmer_on" },
+    "facing=south,running=false": { "model": "mysticalautomation:block/farmer", "y": 180 },
+    "facing=south,running=true": { "model": "mysticalautomation:block/farmer_on", "y": 180 },
+    "facing=west,running=false": { "model": "mysticalautomation:block/farmer", "y": 270 },
+    "facing=west,running=true": { "model": "mysticalautomation:block/farmer_on", "y": 270 }
+  }
+}

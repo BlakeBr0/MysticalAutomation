@@ -18,6 +18,11 @@ public final class ModCreativeModeTabs {
             .displayItems(FeatureFlagDisplayItemGenerator.create((parameters, output) -> {
                 output.accept(ModBlocks.INFUSER);
                 output.accept(ModBlocks.CRAFTER);
+                output.accept(ModBlocks.FARMER);
+                output.accept(ModBlocks.FERTILIZER);
+                output.accept(ModBlocks.INFUSION_ALTARNATOR);
+                output.accept(ModBlocks.AWAKENING_ALTARNATOR);
+                output.accept(ModBlocks.ENCHANTERNATOR);
             }))
             .build());
 }

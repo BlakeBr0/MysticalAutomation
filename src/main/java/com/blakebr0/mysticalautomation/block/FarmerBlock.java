@@ -6,7 +6,7 @@ import com.blakebr0.cucumber.lib.Tooltips;
 import com.blakebr0.cucumber.util.Formatting;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
-import com.blakebr0.mysticalautomation.tileentity.CrafterTileEntity;
+import com.blakebr0.mysticalautomation.tileentity.FarmerTileEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -37,18 +37,18 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
 
-public class CrafterBlock extends BaseTileEntityBlock {
+public class FarmerBlock extends BaseTileEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty RUNNING = BooleanProperty.create("running");
 
-    public CrafterBlock() {
+    public FarmerBlock() {
         super(SoundType.METAL, 3.5F, 3.5F, true);
         this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(RUNNING, false));
     }
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new CrafterTileEntity(pos, state);
+        return new FarmerTileEntity(pos, state);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class CrafterBlock extends BaseTileEntityBlock {
         if (!level.isClientSide()) {
             var tile = level.getBlockEntity(pos);
 
-            if (tile instanceof CrafterTileEntity machine) {
+            if (tile instanceof FarmerTileEntity machine) {
                 player.openMenu(machine, pos);
             }
         }
@@ -69,7 +69,7 @@ public class CrafterBlock extends BaseTileEntityBlock {
         if (state.getBlock() != newState.getBlock()) {
             var tile = level.getBlockEntity(pos);
 
-            if (tile instanceof CrafterTileEntity machine) {
+            if (tile instanceof FarmerTileEntity machine) {
                 Containers.dropContents(level, pos, machine.getInventory().getStacks());
                 Containers.dropContents(level, pos, machine.getUpgradeInventory().getStacks());
             }
@@ -96,9 +96,9 @@ public class CrafterBlock extends BaseTileEntityBlock {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         if (Screen.hasShiftDown()) {
-            var speed = Formatting.number(CrafterTileEntity.OPERATION_TIME).withStyle(ChatFormatting.WHITE);
-            var fuelRate = Formatting.number(CrafterTileEntity.FUEL_USAGE).withStyle(ChatFormatting.WHITE);
-            var fuelCapacity = Formatting.number(CrafterTileEntity.FUEL_CAPACITY).withStyle(ChatFormatting.WHITE);
+            var speed = Formatting.number(FarmerTileEntity.OPERATION_TIME).withStyle(ChatFormatting.WHITE);
+            var fuelRate = Formatting.number(FarmerTileEntity.FUEL_USAGE).withStyle(ChatFormatting.WHITE);
+            var fuelCapacity = Formatting.number(FarmerTileEntity.FUEL_CAPACITY).withStyle(ChatFormatting.WHITE);
 
             tooltip.add(MysticalCompat.Tooltips.MACHINE_SPEED.args(speed).build());
             tooltip.add(MysticalCompat.Tooltips.MACHINE_FUEL_RATE.args(fuelRate).build());
@@ -125,6 +125,6 @@ public class CrafterBlock extends BaseTileEntityBlock {
 
     @Override
     protected <T extends BlockEntity> BlockEntityTicker<T> getServerTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTicker(type, ModTileEntities.CRAFTER.get(), CrafterTileEntity::tick);
+        return createTicker(type, ModTileEntities.FARMER.get(), FarmerTileEntity::tick);
     }
 }

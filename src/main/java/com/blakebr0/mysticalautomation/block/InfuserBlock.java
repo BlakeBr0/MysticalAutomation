@@ -6,7 +6,7 @@ import com.blakebr0.cucumber.lib.Tooltips;
 import com.blakebr0.cucumber.util.Formatting;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
-import com.blakebr0.mysticalautomation.tilentity.InfuserTileEntity;
+import com.blakebr0.mysticalautomation.tileentity.InfuserTileEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;

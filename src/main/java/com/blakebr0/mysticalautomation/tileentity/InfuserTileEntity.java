@@ -1,4 +1,4 @@
-package com.blakebr0.mysticalautomation.tilentity;
+package com.blakebr0.mysticalautomation.tileentity;
 
 import com.blakebr0.cucumber.energy.DynamicEnergyStorage;
 import com.blakebr0.cucumber.helper.StackHelper;

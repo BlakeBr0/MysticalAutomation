@@ -1,9 +1,8 @@
-package com.blakebr0.mysticalautomation.tilentity;
+package com.blakebr0.mysticalautomation.tileentity;
 
 import com.blakebr0.cucumber.energy.DynamicEnergyStorage;
 import com.blakebr0.cucumber.helper.StackHelper;
 import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
-import com.blakebr0.cucumber.inventory.CachedRecipe;
 import com.blakebr0.cucumber.inventory.OnContentsChangedFunction;
 import com.blakebr0.cucumber.inventory.SidedInventoryWrapper;
 import com.blakebr0.cucumber.tileentity.BaseInventoryTileEntity;
@@ -12,7 +11,7 @@ import com.blakebr0.mysticalagriculture.api.machine.IUpgradeableMachine;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeTier;
 import com.blakebr0.mysticalautomation.block.CrafterBlock;
-import com.blakebr0.mysticalautomation.container.CrafterContainer;
+import com.blakebr0.mysticalautomation.container.FertilizerContainer;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,9 +24,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.CraftingRecipe;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,14 +31,13 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
-public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuProvider, IUpgradeableMachine {
-    private static final int[] INPUT_SLOTS = IntStream.rangeClosed(0, 8).toArray();
-    private static final int FUEL_SLOT = 9;
-    private static final int OUTPUT_SLOT = 10;
+public class FertilizerTileEntity extends BaseInventoryTileEntity implements MenuProvider, IUpgradeableMachine {
+    private static final int[] INPUT_SLOTS = IntStream.rangeClosed(0, 2).toArray();
+    private static final int FUEL_SLOT = 3;
+    private static final int OUTPUT_SLOT = 4;
 
     public static final int FUEL_TICK_MULTIPLIER = 20;
     public static final int OPERATION_TIME = 100;
@@ -50,11 +45,9 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
     public static final int FUEL_CAPACITY = 80000;
 
     private final BaseItemStackHandler inventory;
-    private final BaseItemStackHandler recipeInventory;
     private final MachineUpgradeItemStackHandler upgradeInventory;
     private final DynamicEnergyStorage energy;
     private final SidedInventoryWrapper[] sidedInventoryWrappers;
-    private final CachedRecipe<CraftingInput, CraftingRecipe> recipe;
 
     private final ContainerData dataAccess;
 
@@ -63,16 +56,13 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
     private int fuelLeft;
     private int fuelItemValue;
     private boolean isRunning;
-    private boolean isGridChanged = true;
 
-    public CrafterTileEntity(BlockPos pos, BlockState state) {
-        super(ModTileEntities.CRAFTER.get(), pos, state);
-        this.recipeInventory = createRecipeInventoryHandler(slot -> this.isGridChanged = true);
-        this.inventory = createInventoryHandler(this.recipeInventory, slot -> this.setChanged());
+    public FertilizerTileEntity(BlockPos pos, BlockState state) {
+        super(ModTileEntities.FERTILIZER.get(), pos, state);
+        this.inventory = createInventoryHandler(slot -> this.setChanged());
         this.upgradeInventory = new MachineUpgradeItemStackHandler();
         this.energy = new DynamicEnergyStorage(FUEL_CAPACITY, this::setChangedFast);
         this.sidedInventoryWrappers = SidedInventoryWrapper.create(this.inventory, List.of(Direction.UP, Direction.DOWN, Direction.NORTH), this::canInsertStackSided, null);
-        this.recipe = new CachedRecipe<>(RecipeType.CRAFTING);
 
         this.dataAccess = ContainerDataBuilder.builder()
                 .sync(this.energy::getEnergyStored, this.energy::setEnergyStored)
@@ -91,12 +81,12 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("container.mysticalautomation.crafter");
+        return Component.translatable("container.mysticalautomation.fertilizer");
     }
 
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        return new CrafterContainer(i, inventory, this.inventory, this.recipeInventory, this.upgradeInventory, this.dataAccess, this.getBlockPos());
+        return new FertilizerContainer(i, inventory, this.inventory, this.upgradeInventory, this.dataAccess, this.getBlockPos());
     }
 
     @Override
@@ -112,7 +102,6 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
         this.fuelLeft = tag.getInt("FuelLeft");
         this.fuelItemValue = tag.getInt("FuelItemValue");
         this.energy.deserializeNBT(lookup, tag.get("Energy"));
-        this.recipeInventory.deserializeNBT(lookup, tag.getCompound("RecipeInventory"));
         this.upgradeInventory.deserializeNBT(lookup, tag.getCompound("UpgradeInventory"));
     }
 
@@ -124,11 +113,10 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
         tag.putInt("FuelLeft", this.fuelLeft);
         tag.putInt("FuelItemValue", this.fuelItemValue);
         tag.putInt("Energy", this.energy.getEnergyStored());
-        tag.put("RecipeInventory", this.recipeInventory.serializeNBT(lookup));
         tag.put("UpgradeInventory", this.upgradeInventory.serializeNBT(lookup));
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, CrafterTileEntity tile) {
+    public static void tick(Level level, BlockPos pos, BlockState state, FertilizerTileEntity tile) {
         if (tile.energy.getEnergyStored() < tile.energy.getMaxEnergyStored()) {
             var fuel = tile.inventory.getStackInSlot(FUEL_SLOT);
 
@@ -173,39 +161,7 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
         tile.isRunning = false;
 
         if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
-            var recipe = tile.getActiveRecipe();
-            if (recipe != null) {
-                var inputs = tile.getInputResult(recipe);
-                if (inputs.hasAll) {
-                    tile.isRunning = true;
 
-                    if (tile.progress >= tile.getOperationTime()) {
-                        var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
-                        var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
-
-                        if (StackHelper.canCombineStacks(result, output)) {
-                            int[] amounts = inputs.amounts;
-                            for (int i = 0; i < amounts.length; i++) {
-                                var amount = amounts[i];
-                                var input = tile.inventory.getStackInSlot(INPUT_SLOTS[i]);
-
-                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrink(input, amount, true));
-                            }
-
-                            tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
-
-                            tile.progress = 0;
-                        }
-                    } else {
-                        tile.progress++;
-                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
-                    }
-                } else {
-                    tile.progress = 0;
-                }
-            } else {
-                tile.progress = 0;
-            }
         }
 
         if (wasRunning != tile.isRunning) {
@@ -216,33 +172,19 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
     }
 
     public static BaseItemStackHandler createInventoryHandler() {
-        return createInventoryHandler(createRecipeInventoryHandler(), null);
+        return createInventoryHandler(null);
     }
 
-    public static BaseItemStackHandler createInventoryHandler(BaseItemStackHandler recipeInventory, @Nullable OnContentsChangedFunction onContentsChanged) {
+    public static BaseItemStackHandler createInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
         return BaseItemStackHandler.create(11, onContentsChanged, handler -> {
-            handler.setCanInsert((slot, stack) -> {
-                if (ArrayUtils.contains(INPUT_SLOTS, slot)) {
-                    var recipeStack = recipeInventory.getStackInSlot(slot);
-                    return !recipeStack.isEmpty() && StackHelper.areStacksEqual(recipeStack, stack);
-                }
-
-                return true;
+            handler.setCanInsert((slot, stack) -> switch (slot) {
+                default -> true;
             });
 
             handler.setOutputSlots(OUTPUT_SLOT);
             handler.setCanExtract(slot ->
                     slot == OUTPUT_SLOT || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(handler.getStackInSlot(slot)))
             );
-        });
-    }
-
-    public static BaseItemStackHandler createRecipeInventoryHandler() {
-        return createRecipeInventoryHandler(null);
-    }
-
-    public static BaseItemStackHandler createRecipeInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
-        return BaseItemStackHandler.create(9, onContentsChanged, handler -> {
         });
     }
 
@@ -258,56 +200,12 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
         };
     }
 
-    @Nullable
-    public CraftingRecipe getActiveRecipe() {
-        if (this.isGridChanged) {
-            this.isGridChanged = false;
-            return this.recipe.checkAndGet(this.toCraftingInput(), this.level);
-        }
-
-        return this.recipe.get();
-    }
-
     private int getOperationTime() {
         return this.tier == null ? OPERATION_TIME : this.tier.getOperationTime(OPERATION_TIME);
     }
 
     private int getFuelUsage() {
         return this.tier == null ? FUEL_USAGE : this.tier.getFuelUsage(FUEL_USAGE);
-    }
-
-    private CraftingInput toCraftingInput() {
-        return this.recipeInventory.toCraftingInput(3, 3);
-    }
-
-    private InputResult getInputResult(CraftingRecipe recipe) {
-        var amounts = new int[INPUT_SLOTS.length];
-        var remaining = new int[INPUT_SLOTS.length];
-
-        for (int i = 0; i < INPUT_SLOTS.length; i++) {
-            remaining[i] = this.inventory.getStackInSlot(INPUT_SLOTS[i]).getCount();
-        }
-
-        var ingredients = recipe.getIngredients();
-        var required = 0;
-
-        for (var ingredient : ingredients) {
-            if (ingredient.isEmpty())
-                continue;
-
-            required++;
-
-            for (int j = 0; j < INPUT_SLOTS.length; j++) {
-                var slot = INPUT_SLOTS[j];
-                var stack = this.inventory.getStackInSlot(slot);
-                if (remaining[j] > 0 && ingredient.test(stack)) {
-                    remaining[j]--;
-                    amounts[j]++;
-                }
-            }
-        }
-
-        return new InputResult(Arrays.stream(amounts).sum() == required, amounts);
     }
 
     private boolean canInsertStackSided(int slot, ItemStack stack, @Nullable Direction direction) {
@@ -319,8 +217,5 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
             return FurnaceBlockEntity.isFuel(stack);
 
         return false;
-    }
-
-    private record InputResult(boolean hasAll, int[] amounts) {
     }
 }

@@ -7,7 +7,8 @@ import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
-import com.blakebr0.mysticalautomation.tileentity.InfuserTileEntity;
+import com.blakebr0.mysticalautomation.tileentity.AwakeningAltarnatorTileEntity;
+import com.blakebr0.mysticalautomation.tileentity.EnchanternatorTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,35 +19,29 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
-public class InfuserContainer extends BaseContainerMenu {
+public class AwakeningAltarnatorContainer extends BaseContainerMenu {
     private final ContainerData data;
 
-    public InfuserContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(id, playerInventory, InfuserTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(8), buffer.readBlockPos());
+    public AwakeningAltarnatorContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
+        this(id, playerInventory, AwakeningAltarnatorTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(8), buffer.readBlockPos());
     }
 
-    public InfuserContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
-        super(ModMenuTypes.INFUSER.get(), id, pos);
+    public AwakeningAltarnatorContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
+        super(ModMenuTypes.AWAKENING_ALTARNATOR.get(), id, pos);
         this.data = data;
 
         this.addSlot(new SlotItemHandler(upgradeInventory, 0, 192, 9));
 
-        // infusion crystal slot
+        // input slots
         this.addSlot(new BaseItemStackHandlerSlot(inventory, 0, 62, 33));
-
-        // mystical agriculture essence slots
-        for (int i = 0; i < 5; i++) {
-            this.addSlot(new BaseItemStackHandlerSlot(inventory, 1 + i, 102 + i * 18, 33));
-        }
-
-        // mystical agradditions essence slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 6, 192, 33));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 1, 62, 33));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 2, 62, 33));
 
         // fuel slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 7, 30, 56));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 3, 30, 56));
 
         // output slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 8, 162, 74));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 4, 162, 74));
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
@@ -132,13 +127,5 @@ public class InfuserContainer extends BaseContainerMenu {
 
     public int getOperationTime() {
         return this.data.get(5);
-    }
-
-    public int getProgressingIndex() {
-        return this.data.get(6);
-    }
-
-    public int getSelectedIndex() {
-        return this.data.get(7);
     }
 }

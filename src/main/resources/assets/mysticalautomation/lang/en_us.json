@@ -3,7 +3,17 @@
 
   "block.mysticalautomation.infuser": "Infuser",
   "block.mysticalautomation.crafter": "Crafter",
+  "block.mysticalautomation.farmer": "Farmer",
+  "block.mysticalautomation.fertilizer": "Fertilizer",
+  "block.mysticalautomation.enchanternator": "Enchanternator",
+  "block.mysticalautomation.infusion_altarnator": "Infusion Altarnator",
+  "block.mysticalautomation.awakening_altarnator": "Awakening Altarnator",
 
   "container.mysticalautomation.infuser": "Infuser",
-  "container.mysticalautomation.crafter": "Crafter"
+  "container.mysticalautomation.crafter": "Crafter",
+  "container.mysticalautomation.farmer": "Farmer",
+  "container.mysticalautomation.fertilizer": "Fertilizer",
+  "container.mysticalautomation.enchanternator": "Enchanternator",
+  "container.mysticalautomation.infusion_altarnator": "Infusion Altarnator",
+  "container.mysticalautomation.awakening_altarnator": "Awakening Altarnator"
 }

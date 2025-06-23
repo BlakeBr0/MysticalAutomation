@@ -1,10 +1,14 @@
 package com.blakebr0.mysticalautomation.compat;
 
 import com.blakebr0.cucumber.util.Tooltip;
+import com.blakebr0.mysticalagriculture.api.crafting.IAwakeningRecipe;
+import com.blakebr0.mysticalagriculture.api.crafting.IEnchanterRecipe;
+import com.blakebr0.mysticalagriculture.api.crafting.IInfusionRecipe;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 public final class MysticalCompat {
@@ -19,6 +23,12 @@ public final class MysticalCompat {
         public static final DeferredHolder<Item, Item> MASTER_INFUSION_CRYSTAL = DeferredHolder.create(Registries.ITEM.location(), ResourceLocation.parse("mysticalagriculture:master_infusion_crystal"));
 
         public static final DeferredHolder<Item, Item> INSANIUM_ESSENCE = DeferredHolder.create(Registries.ITEM.location(), ResourceLocation.parse("mysticalagradditions:insanium_essence"));
+    }
+
+    public static final class RecipeTypes {
+        public static final DeferredHolder<RecipeType<?>, RecipeType<IInfusionRecipe>> INFUSION = DeferredHolder.create(Registries.RECIPE_TYPE.location(), ResourceLocation.parse("mysticalagriculture:infusion"));
+        public static final DeferredHolder<RecipeType<?>, RecipeType<IAwakeningRecipe>> AWAKENING = DeferredHolder.create(Registries.RECIPE_TYPE.location(), ResourceLocation.parse("mysticalagriculture:awakening"));
+        public static final DeferredHolder<RecipeType<?>, RecipeType<IEnchanterRecipe>> ENCHANTER = DeferredHolder.create(Registries.RECIPE_TYPE.location(), ResourceLocation.parse("mysticalagriculture:enchanter"));
     }
 
     public static final class Tooltips {
