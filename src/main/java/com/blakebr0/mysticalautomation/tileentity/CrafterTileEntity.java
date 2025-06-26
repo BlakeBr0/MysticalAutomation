@@ -67,7 +67,10 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     public CrafterTileEntity(BlockPos pos, BlockState state) {
         super(ModTileEntities.CRAFTER.get(), pos, state);
-        this.recipeInventory = createRecipeInventoryHandler(slot -> this.isGridChanged = true);
+        this.recipeInventory = createRecipeInventoryHandler(slot -> {
+            this.isGridChanged = true;
+            this.setChangedFast();
+        });
         this.inventory = createInventoryHandler(this.recipeInventory, slot -> this.setChanged());
         this.upgradeInventory = new MachineUpgradeItemStackHandler();
         this.energy = new DynamicEnergyStorage(FUEL_CAPACITY, this::setChangedFast);
@@ -195,16 +198,24 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
                             tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
 
                             tile.progress = 0;
+                            tile.setChangedFast();
                         }
                     } else {
                         tile.progress++;
                         tile.energy.extractEnergy(tile.getFuelUsage(), false);
+                        tile.setChangedFast();
                     }
                 } else {
-                    tile.progress = 0;
+                    if (tile.progress > 0) {
+                        tile.progress = 0;
+                        tile.setChangedFast();
+                    }
                 }
             } else {
-                tile.progress = 0;
+                if (tile.progress > 0) {
+                    tile.progress = 0;
+                    tile.setChangedFast();
+                }
             }
         }
 
@@ -242,8 +253,7 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
     }
 
     public static BaseItemStackHandler createRecipeInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
-        return BaseItemStackHandler.create(9, onContentsChanged, handler -> {
-        });
+        return BaseItemStackHandler.create(9, onContentsChanged, handler -> {});
     }
 
     public DynamicEnergyStorage getEnergy() {
@@ -321,6 +331,5 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
         return false;
     }
 
-    private record InputResult(boolean hasAll, int[] amounts) {
-    }
+    private record InputResult(boolean hasAll, int[] amounts) { }
 }

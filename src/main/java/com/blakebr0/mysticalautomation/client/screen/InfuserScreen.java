@@ -44,9 +44,7 @@ public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
 
     @Override
     protected void renderLabels(GuiGraphics gfx, int mouseX, int mouseY) {
-        var title = this.getTitle().getString();
-
-        gfx.drawString(this.font, title, (this.imageWidth / 2 - this.font.width(title) / 2), 6, 4210752, false);
+        gfx.drawString(this.font, this.title, (this.imageWidth / 2 - this.font.width(this.title) / 2), 6, 4210752, false);
         gfx.drawString(this.font, this.playerInventoryTitle, 28, (this.imageHeight - 96 + 2), 4210752, false);
     }
 

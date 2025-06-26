@@ -35,13 +35,14 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
 public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity implements MenuProvider, IUpgradeableMachine {
-    private static final int[] INPUT_SLOTS = IntStream.rangeClosed(0, 2).toArray();
-    private static final int FUEL_SLOT = 3;
-    private static final int OUTPUT_SLOT = 4;
+    private static final int[] INPUT_SLOTS = IntStream.rangeClosed(0, 8).toArray();
+    private static final int FUEL_SLOT = 9;
+    private static final int OUTPUT_SLOT = 10;
 
     public static final int FUEL_TICK_MULTIPLIER = 20;
     public static final int OPERATION_TIME = 100;
@@ -49,6 +50,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
     public static final int FUEL_CAPACITY = 80000;
 
     private final BaseItemStackHandler inventory;
+    private final BaseItemStackHandler recipeInventory;
     private final MachineUpgradeItemStackHandler upgradeInventory;
     private final DynamicEnergyStorage energy;
     private final SidedInventoryWrapper[] sidedInventoryWrappers;
@@ -65,7 +67,11 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
 
     public AwakeningAltarnatorTileEntity(BlockPos pos, BlockState state) {
         super(ModTileEntities.AWAKENING_ALTARNATOR.get(), pos, state);
-        this.inventory = createInventoryHandler(slot -> this.setChanged());
+        this.recipeInventory = createRecipeInventoryHandler(slot -> {
+            this.isGridChanged = true;
+            this.setChangedFast();
+        });
+        this.inventory = createInventoryHandler(this.recipeInventory, slot -> this.setChanged());
         this.upgradeInventory = new MachineUpgradeItemStackHandler();
         this.energy = new DynamicEnergyStorage(FUEL_CAPACITY, this::setChangedFast);
         this.sidedInventoryWrappers = SidedInventoryWrapper.create(this.inventory, List.of(Direction.UP, Direction.DOWN, Direction.NORTH), this::canInsertStackSided, null);
@@ -93,7 +99,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
 
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        return new AwakeningAltarnatorContainer(i, inventory, this.inventory, this.upgradeInventory, this.dataAccess, this.getBlockPos());
+        return new AwakeningAltarnatorContainer(i, inventory, this.inventory, this.recipeInventory, this.upgradeInventory, this.dataAccess, this.getBlockPos());
     }
 
     @Override
@@ -109,6 +115,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
         this.fuelLeft = tag.getInt("FuelLeft");
         this.fuelItemValue = tag.getInt("FuelItemValue");
         this.energy.deserializeNBT(lookup, tag.get("Energy"));
+        this.recipeInventory.deserializeNBT(lookup, tag.getCompound("RecipeInventory"));
         this.upgradeInventory.deserializeNBT(lookup, tag.getCompound("UpgradeInventory"));
     }
 
@@ -120,6 +127,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
         tag.putInt("FuelLeft", this.fuelLeft);
         tag.putInt("FuelItemValue", this.fuelItemValue);
         tag.putInt("Energy", this.energy.getEnergyStored());
+        tag.put("RecipeInventory", this.recipeInventory.serializeNBT(lookup));
         tag.put("UpgradeInventory", this.upgradeInventory.serializeNBT(lookup));
     }
 
@@ -170,23 +178,44 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
         if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
             var recipe = tile.getActiveRecipe();
             if (recipe != null) {
-                tile.isRunning = true;
+                var inputs = tile.getInputResult(recipe);
+                if (inputs.hasAll) {
+                    tile.isRunning = true;
 
-                if (tile.progress >= tile.getOperationTime()) {
-                    var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
-                    var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
+                    if (tile.progress >= tile.getOperationTime()) {
+                        var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
+                        var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
 
-                    if (StackHelper.canCombineStacks(result, output)) {
-                        tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
+                        if (StackHelper.canCombineStacks(result, output)) {
+                            int[] amounts = inputs.amounts;
+                            for (int i = 0; i < amounts.length; i++) {
+                                var amount = amounts[i];
+                                var input = tile.inventory.getStackInSlot(INPUT_SLOTS[i]);
 
-                        tile.progress = 0;
+                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrink(input, amount, true));
+                            }
+
+                            tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
+
+                            tile.progress = 0;
+                            tile.setChangedFast();
+                        }
+                    } else {
+                        tile.progress++;
+                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
+                        tile.setChangedFast();
                     }
                 } else {
-                    tile.progress++;
-                    tile.energy.extractEnergy(tile.getFuelUsage(), false);
+                    if (tile.progress > 0) {
+                        tile.progress = 0;
+                        tile.setChangedFast();
+                    }
                 }
             } else {
-                tile.progress = 0;
+                if (tile.progress > 0) {
+                    tile.progress = 0;
+                    tile.setChangedFast();
+                }
             }
         }
 
@@ -198,13 +227,18 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
     }
 
     public static BaseItemStackHandler createInventoryHandler() {
-        return createInventoryHandler(null);
+        return createInventoryHandler(createRecipeInventoryHandler(), null);
     }
 
-    public static BaseItemStackHandler createInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
+    public static BaseItemStackHandler createInventoryHandler(BaseItemStackHandler recipeInventory, @Nullable OnContentsChangedFunction onContentsChanged) {
         return BaseItemStackHandler.create(11, onContentsChanged, handler -> {
-            handler.setCanInsert((slot, stack) -> switch (slot) {
-                default -> true;
+            handler.setCanInsert((slot, stack) -> {
+                if (ArrayUtils.contains(INPUT_SLOTS, slot)) {
+                    var recipeStack = recipeInventory.getStackInSlot(slot);
+                    return !recipeStack.isEmpty() && StackHelper.areStacksEqual(recipeStack, stack);
+                }
+
+                return true;
             });
 
             handler.setOutputSlots(OUTPUT_SLOT);
@@ -212,6 +246,14 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
                     slot == OUTPUT_SLOT || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(handler.getStackInSlot(slot)))
             );
         });
+    }
+
+    public static BaseItemStackHandler createRecipeInventoryHandler() {
+        return createRecipeInventoryHandler(null);
+    }
+
+    public static BaseItemStackHandler createRecipeInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
+        return BaseItemStackHandler.create(9, onContentsChanged, handler -> {});
     }
 
     public DynamicEnergyStorage getEnergy() {
@@ -245,7 +287,37 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
     }
 
     private CraftingInput toCraftingInput() {
-        return this.inventory.toCraftingInput(3, 1, INPUT_SLOTS[0], INPUT_SLOTS.length);
+        return this.recipeInventory.toCraftingInput(3, 3);
+    }
+
+    private InputResult getInputResult(IAwakeningRecipe recipe) {
+        var amounts = new int[INPUT_SLOTS.length];
+        var remaining = new int[INPUT_SLOTS.length];
+
+        for (int i = 0; i < INPUT_SLOTS.length; i++) {
+            remaining[i] = this.inventory.getStackInSlot(INPUT_SLOTS[i]).getCount();
+        }
+
+        var ingredients = recipe.getIngredients();
+        var required = 0;
+
+        for (var ingredient : ingredients) {
+            if (ingredient.isEmpty())
+                continue;
+
+            required++;
+
+            for (int j = 0; j < INPUT_SLOTS.length; j++) {
+                var slot = INPUT_SLOTS[j];
+                var stack = this.inventory.getStackInSlot(slot);
+                if (remaining[j] > 0 && ingredient.test(stack)) {
+                    remaining[j]--;
+                    amounts[j]++;
+                }
+            }
+        }
+
+        return new InputResult(Arrays.stream(amounts).sum() == required, amounts);
     }
 
     private boolean canInsertStackSided(int slot, ItemStack stack, @Nullable Direction direction) {
@@ -258,4 +330,6 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
 
         return false;
     }
+
+    private record InputResult(boolean hasAll, int[] amounts) { }
 }

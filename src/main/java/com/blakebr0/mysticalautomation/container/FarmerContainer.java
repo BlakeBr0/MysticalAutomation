@@ -7,7 +7,6 @@ import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
-import com.blakebr0.mysticalautomation.tileentity.EnchanternatorTileEntity;
 import com.blakebr0.mysticalautomation.tileentity.FarmerTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -23,34 +22,34 @@ public class FarmerContainer extends BaseContainerMenu {
     private final ContainerData data;
 
     public FarmerContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(id, playerInventory, FarmerTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(8), buffer.readBlockPos());
+        this(id, playerInventory, FarmerTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(6), buffer.readBlockPos());
     }
 
     public FarmerContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
         super(ModMenuTypes.FARMER.get(), id, pos);
         this.data = data;
 
-        this.addSlot(new SlotItemHandler(upgradeInventory, 0, 192, 9));
+        this.addSlot(new SlotItemHandler(upgradeInventory, 0, 152, 9));
 
         // input slots
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 0, 62, 33));
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 1, 62, 33));
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 2, 62, 33));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 0, 74, 30));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 1, 74, 52));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 2, 74, 74));
 
         // fuel slot
         this.addSlot(new BaseItemStackHandlerSlot(inventory, 3, 30, 56));
 
         // output slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 4, 162, 74));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 4, 134, 52));
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
-                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 29 + j * 18, 112 + i * 18));
+                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 112 + i * 18));
             }
         }
 
         for (int i = 0; i < 9; i++) {
-            this.addSlot(new Slot(playerInventory, i, 29 + i * 18, 170));
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 170));
         }
 
         this.addDataSlots(data);

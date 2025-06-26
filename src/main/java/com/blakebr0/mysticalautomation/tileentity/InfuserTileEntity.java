@@ -194,18 +194,24 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
                             tile.inventory.setStackInSlot(INFUSION_CRYSTAL_SLOT, crystal.getCraftingRemainingItem());
 
                             tile.progress = 0;
+                            tile.setChangedFast();
                         }
                     } else {
                         tile.progress++;
                         tile.energy.extractEnergy(tile.getFuelUsage(), false);
+                        tile.setChangedFast();
                     }
-
-                    tile.setChangedFast();
                 } else {
-                    tile.progress = 0;
+                    if (tile.progress > 0) {
+                        tile.progress = 0;
+                        tile.setChangedFast();
+                    }
                 }
             } else {
-                tile.progress = 0;
+                if (tile.progress > 0) {
+                    tile.progress = 0;
+                    tile.setChangedFast();
+                }
             }
         }
 
