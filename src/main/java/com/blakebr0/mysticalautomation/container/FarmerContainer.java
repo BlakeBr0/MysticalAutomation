@@ -3,6 +3,7 @@ package com.blakebr0.mysticalautomation.container;
 import com.blakebr0.cucumber.container.BaseContainerMenu;
 import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
 import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
+import com.blakebr0.cucumber.util.QuickMover;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
@@ -16,10 +17,12 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class FarmerContainer extends BaseContainerMenu {
     private final ContainerData data;
+    private final QuickMover mover;
 
     public FarmerContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
         this(id, playerInventory, FarmerTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(6), buffer.readBlockPos());
@@ -28,6 +31,7 @@ public class FarmerContainer extends BaseContainerMenu {
     public FarmerContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
         super(ModMenuTypes.FARMER.get(), id, pos);
         this.data = data;
+        this.mover = new QuickMover(this::moveItemStackTo);
 
         this.addSlot(new SlotItemHandler(upgradeInventory, 0, 152, 9));
 
@@ -52,6 +56,14 @@ public class FarmerContainer extends BaseContainerMenu {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 170));
         }
 
+        this.mover.after(6)
+                .add((slot, stack, player) -> stack.getItem() instanceof IMachineUpgrade, 0, 1) // machine upgrade
+                .add((slot, stack, player) -> stack.is(Items.WHEAT), 1, 3) // inputs // TODO farmer container valid input
+                .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 4, 1) // fuel
+                .add((slot, stack, player) -> slot < this.slots.size() - 9, this.slots.size() - 9, 9) // hotbar
+                .add((slot, stack, player) -> slot >= this.slots.size() - 9, this.slots.size() - 36, 27); // inventory
+        this.mover.fallback(6, 36);
+
         this.addDataSlots(data);
     }
 
@@ -64,27 +76,7 @@ public class FarmerContainer extends BaseContainerMenu {
             var itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
 
-            if (index > 9) {
-                if (itemstack1.getItem() instanceof IMachineUpgrade) {
-                    if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (MysticalCompat.isEssence(itemstack1) || MysticalCompat.isInfusionCrystal(itemstack1)) {
-                    if (!this.moveItemStackTo(itemstack1, 1, 8, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (itemstack1.getBurnTime(null) > 0) {
-                    if (!this.moveItemStackTo(itemstack1, 8, 9, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index < 37) {
-                    if (!this.moveItemStackTo(itemstack1, 37, 46, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (index < 46 && !this.moveItemStackTo(itemstack1, 10, 36, false)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (!this.moveItemStackTo(itemstack1, 10, 46, false)) {
+            if (!this.mover.run(index, itemstack1, player)) {
                 return ItemStack.EMPTY;
             }
 

@@ -1,8 +1,10 @@
 package com.blakebr0.mysticalautomation.container;
 
 import com.blakebr0.cucumber.container.BaseContainerMenu;
+import com.blakebr0.cucumber.helper.StackHelper;
 import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
 import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
+import com.blakebr0.cucumber.util.QuickMover;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalautomation.container.slot.FakeSlot;
@@ -17,6 +19,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.SlotItemHandler;
@@ -24,6 +27,7 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 public class CrafterContainer extends BaseContainerMenu {
     private final ContainerData data;
     private final BaseItemStackHandler matrix;
+    private final QuickMover mover;
     private ItemStack result;
 
     public CrafterContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
@@ -34,6 +38,7 @@ public class CrafterContainer extends BaseContainerMenu {
         super(ModMenuTypes.CRAFTER.get(), id, pos);
         this.data = data;
         this.matrix = recipeInventory;
+        this.mover = new QuickMover(this::moveItemStackTo);
         this.result = ItemStack.EMPTY;
 
         this.addSlot(new SlotItemHandler(upgradeInventory, 0, 152, 9));
@@ -66,6 +71,14 @@ public class CrafterContainer extends BaseContainerMenu {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 193));
         }
 
+        this.mover.after(21)
+                .add((slot, stack, player) -> stack.getItem() instanceof IMachineUpgrade, 0, 1) // machine upgrade
+                .add((slot, stack, player) -> this.isRecipeInput(stack), 1, 9) // inputs
+                .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 10, 1) // fuel
+                .add((slot, stack, player) -> slot < this.slots.size() - 9, this.slots.size() - 9, 9) // hotbar
+                .add((slot, stack, player) -> slot >= this.slots.size() - 9, this.slots.size() - 36, 27); // inventory
+        this.mover.fallback(21, 36);
+
         this.addDataSlots(data);
         this.onRecipeChanged(playerInventory.player.level());
     }
@@ -79,29 +92,7 @@ public class CrafterContainer extends BaseContainerMenu {
             var itemstack1 = slot.getItem();
             itemstack = itemstack1.copy();
 
-            if (index > 10) {
-                if (itemstack1.getItem() instanceof IMachineUpgrade) {
-                    if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else if (itemstack1.getBurnTime(null) > 0) {
-                    if (!this.moveItemStackTo(itemstack1, 10, 11, false)) {
-                        return ItemStack.EMPTY;
-                    }
-                } else {
-                    if (!this.moveItemStackTo(itemstack1, 1, 9, false)) {
-                        return ItemStack.EMPTY;
-                    } else {
-                        if (index < 48) {
-                            if (!this.moveItemStackTo(itemstack1, 48, 57, false)) {
-                                return ItemStack.EMPTY;
-                            }
-                        } else if (index < 57 && !this.moveItemStackTo(itemstack1, 21, 47, false)) {
-                            return ItemStack.EMPTY;
-                        }
-                    }
-                }
-            } else if (!this.moveItemStackTo(itemstack1, 21, 57, false)) {
+            if (!this.mover.run(index, itemstack1, player)) {
                 return ItemStack.EMPTY;
             }
 
@@ -169,8 +160,18 @@ public class CrafterContainer extends BaseContainerMenu {
 
     private void onRecipeChanged(Level level) {
         var input = this.matrix.toCraftingInput(3, 3);
-        this.result = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level)
-                .map(r -> r.value().assemble(input, level.registryAccess()))
-                .orElse(ItemStack.EMPTY);
+        var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level).map(RecipeHolder::value).orElse(null);
+
+        this.result = recipe == null ? ItemStack.EMPTY : recipe.assemble(input, level.registryAccess());
+    }
+
+    private boolean isRecipeInput(ItemStack stack) {
+        for (int i = 0; i < this.matrix.getSlots(); i++) {
+            var matrixStack = this.matrix.getStackInSlot(i);
+            if (StackHelper.areItemsEqual(stack, matrixStack))
+                return true;
+        }
+
+        return false;
     }
 }
