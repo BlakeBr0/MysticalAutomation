@@ -12,7 +12,7 @@ import com.blakebr0.mysticalagriculture.api.crafting.IEnchanterRecipe;
 import com.blakebr0.mysticalagriculture.api.machine.IUpgradeableMachine;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeTier;
-import com.blakebr0.mysticalautomation.block.CrafterBlock;
+import com.blakebr0.mysticalautomation.block.EnchanternatorBlock;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.container.EnchanternatorContainer;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
@@ -178,29 +178,28 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
             if (recipe != null) {
                 var inputs = tile.getInputResult(recipe);
                 if (inputs.hasAll) {
-                    tile.isRunning = true;
+                    var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
+                    var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
 
-                    if (tile.progress >= tile.getOperationTime()) {
-                        var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
-                        var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
+                    if (StackHelper.canCombineStacks(result, output)) {
+                        tile.isRunning = true;
+                        tile.progress++;
+                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
 
-                        if (StackHelper.canCombineStacks(result, output)) {
+                        if (tile.progress >= tile.getOperationTime()) {
                             int[] amounts = inputs.amounts;
                             for (int i = 0; i < amounts.length; i++) {
                                 var amount = amounts[i];
                                 var input = tile.inventory.getStackInSlot(INPUT_SLOTS[i]);
 
-                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrink(input, amount, true));
+                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrinkAndRetainContainer(input, amount));
                             }
 
                             tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
 
                             tile.progress = 0;
-                            tile.setChangedFast();
                         }
-                    } else {
-                        tile.progress++;
-                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
+
                         tile.setChangedFast();
                     }
                 } else {
@@ -218,7 +217,7 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         }
 
         if (wasRunning != tile.isRunning) {
-            level.setBlock(pos, state.setValue(CrafterBlock.RUNNING, tile.isRunning), 3);
+            level.setBlock(pos, state.setValue(EnchanternatorBlock.RUNNING, tile.isRunning), 3);
 
             tile.setChangedFast();
         }
@@ -303,18 +302,21 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         var ingredients = recipe.getIngredients();
         var required = 0;
 
-        for (var ingredient : ingredients) {
+        for (int i = 0; i < ingredients.size(); i++) {
+            var ingredient = ingredients.get(i);
             if (ingredient.isEmpty())
                 continue;
 
-            required++;
+            var amount = recipe.getCount(i);
+
+            required += amount;
 
             for (int j = 0; j < INPUT_SLOTS.length; j++) {
                 var slot = INPUT_SLOTS[j];
                 var stack = this.inventory.getStackInSlot(slot);
-                if (remaining[j] > 0 && ingredient.test(stack)) {
-                    remaining[j]--;
-                    amounts[j]++;
+                if (remaining[j] >= amount && ingredient.test(stack)) {
+                    remaining[j] -= amount;
+                    amounts[j] += amount;
                 }
             }
         }

@@ -180,29 +180,28 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
             if (recipe != null) {
                 var inputs = tile.getInputResult(recipe);
                 if (inputs.hasAll) {
-                    tile.isRunning = true;
+                    var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
+                    var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
 
-                    if (tile.progress >= tile.getOperationTime()) {
-                        var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
-                        var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
+                    if (StackHelper.canCombineStacks(result, output)) {
+                        tile.isRunning = true;
+                        tile.progress++;
+                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
 
-                        if (StackHelper.canCombineStacks(result, output)) {
+                        if (tile.progress >= tile.getOperationTime()) {
                             int[] amounts = inputs.amounts;
                             for (int i = 0; i < amounts.length; i++) {
                                 var amount = amounts[i];
                                 var input = tile.inventory.getStackInSlot(INPUT_SLOTS[i]);
 
-                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrink(input, amount, true));
+                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrinkAndRetainContainer(input, amount));
                             }
 
                             tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
 
                             tile.progress = 0;
-                            tile.setChangedFast();
                         }
-                    } else {
-                        tile.progress++;
-                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
+
                         tile.setChangedFast();
                     }
                 } else {

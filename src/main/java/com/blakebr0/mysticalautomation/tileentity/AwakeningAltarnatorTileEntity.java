@@ -12,13 +12,14 @@ import com.blakebr0.mysticalagriculture.api.crafting.IAwakeningRecipe;
 import com.blakebr0.mysticalagriculture.api.machine.IUpgradeableMachine;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeTier;
-import com.blakebr0.mysticalautomation.block.CrafterBlock;
+import com.blakebr0.mysticalautomation.block.AwakeningAltarnatorBlock;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.container.AwakeningAltarnatorContainer;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
@@ -28,6 +29,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -180,29 +182,28 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
             if (recipe != null) {
                 var inputs = tile.getInputResult(recipe);
                 if (inputs.hasAll) {
-                    tile.isRunning = true;
+                    var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
+                    var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
 
-                    if (tile.progress >= tile.getOperationTime()) {
-                        var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
-                        var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
+                    if (StackHelper.canCombineStacks(result, output)) {
+                        tile.isRunning = true;
+                        tile.progress++;
+                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
 
-                        if (StackHelper.canCombineStacks(result, output)) {
+                        if (tile.progress >= tile.getOperationTime()) {
                             int[] amounts = inputs.amounts;
                             for (int i = 0; i < amounts.length; i++) {
                                 var amount = amounts[i];
                                 var input = tile.inventory.getStackInSlot(INPUT_SLOTS[i]);
 
-                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrink(input, amount, true));
+                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrinkAndRetainContainer(input, amount));
                             }
 
                             tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
 
                             tile.progress = 0;
-                            tile.setChangedFast();
                         }
-                    } else {
-                        tile.progress++;
-                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
+
                         tile.setChangedFast();
                     }
                 } else {
@@ -220,7 +221,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
         }
 
         if (wasRunning != tile.isRunning) {
-            level.setBlock(pos, state.setValue(CrafterBlock.RUNNING, tile.isRunning), 3);
+            level.setBlock(pos, state.setValue(AwakeningAltarnatorBlock.RUNNING, tile.isRunning), 3);
 
             tile.setChangedFast();
         }
@@ -298,21 +299,36 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
             remaining[i] = this.inventory.getStackInSlot(INPUT_SLOTS[i]).getCount();
         }
 
-        var ingredients = recipe.getIngredients();
-        var required = 0;
+        var ingredients = NonNullList.<Ingredient>create();
 
-        for (var ingredient : ingredients) {
+        ingredients.add(recipe.getAltarIngredient());
+        ingredients.addAll(recipe.getIngredients());
+
+        var essences = recipe.getEssences();
+        var required = 0;
+        var essence = 0;
+
+        for (int i = 0; i < ingredients.size(); i++) {
+            var ingredient = ingredients.get(i);
             if (ingredient.isEmpty())
                 continue;
 
-            required++;
+            var amount = 1;
+
+            // essences can require more than 1
+            if (i % 2 == 1) {
+                amount = essences.get(essence).getCount();
+                essence++;
+            }
+
+            required += amount;
 
             for (int j = 0; j < INPUT_SLOTS.length; j++) {
                 var slot = INPUT_SLOTS[j];
                 var stack = this.inventory.getStackInSlot(slot);
-                if (remaining[j] > 0 && ingredient.test(stack)) {
-                    remaining[j]--;
-                    amounts[j]++;
+                if (remaining[j] >= amount && ingredient.test(stack)) {
+                    remaining[j] -= amount;
+                    amounts[j] += amount;
                 }
             }
         }

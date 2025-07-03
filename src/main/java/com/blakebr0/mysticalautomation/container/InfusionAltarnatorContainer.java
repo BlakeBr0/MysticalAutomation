@@ -59,11 +59,11 @@ public class InfusionAltarnatorContainer extends BaseContainerMenu {
         this.addSlot(new FakeSlot(recipeInventory, 1, 59, 23));
         this.addSlot(new FakeSlot(recipeInventory, 2, 84, 20));
         this.addSlot(new FakeSlot(recipeInventory, 3, 109, 23));
-        this.addSlot(new FakeSlot(recipeInventory, 4, 56, 48));
-        this.addSlot(new FakeSlot(recipeInventory, 5, 111, 48));
-        this.addSlot(new FakeSlot(recipeInventory, 6, 59, 73));
-        this.addSlot(new FakeSlot(recipeInventory, 7, 84, 76));
-        this.addSlot(new FakeSlot(recipeInventory, 8, 109, 73));
+        this.addSlot(new FakeSlot(recipeInventory, 4, 111, 48));
+        this.addSlot(new FakeSlot(recipeInventory, 5, 109, 73));
+        this.addSlot(new FakeSlot(recipeInventory, 6, 84, 76));
+        this.addSlot(new FakeSlot(recipeInventory, 7, 59, 73));
+        this.addSlot(new FakeSlot(recipeInventory, 8, 56, 48));
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {

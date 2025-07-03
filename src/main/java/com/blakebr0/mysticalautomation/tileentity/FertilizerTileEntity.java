@@ -10,7 +10,7 @@ import com.blakebr0.cucumber.util.ContainerDataBuilder;
 import com.blakebr0.mysticalagriculture.api.machine.IUpgradeableMachine;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeTier;
-import com.blakebr0.mysticalautomation.block.CrafterBlock;
+import com.blakebr0.mysticalautomation.block.FertilizerBlock;
 import com.blakebr0.mysticalautomation.container.FertilizerContainer;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
@@ -162,7 +162,7 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
         }
 
         if (wasRunning != tile.isRunning) {
-            level.setBlock(pos, state.setValue(CrafterBlock.RUNNING, tile.isRunning), 3);
+            level.setBlock(pos, state.setValue(FertilizerBlock.RUNNING, tile.isRunning), 3);
 
             tile.setChangedFast();
         }

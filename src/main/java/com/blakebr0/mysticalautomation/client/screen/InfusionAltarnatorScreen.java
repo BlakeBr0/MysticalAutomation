@@ -52,6 +52,6 @@ public class InfusionAltarnatorScreen extends BaseContainerScreen<InfusionAltarn
             GhostItemRenderer.renderItemIntoGui(stack, x + 18 + (i * 18), y + 101, this.minecraft.getItemRenderer());
         }
 
-        GhostItemRenderer.renderItemIntoGui(this.menu.getResult(), x + 148, y + 48, this.minecraft.getItemRenderer());
+        GhostItemRenderer.renderItemIntoGui(this.menu.getResult(), x + 168, y + 49, this.minecraft.getItemRenderer());
     }
 }
