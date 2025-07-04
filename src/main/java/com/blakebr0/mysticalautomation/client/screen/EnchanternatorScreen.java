@@ -6,6 +6,7 @@ import com.blakebr0.cucumber.client.screen.widget.EnergyBarWidget;
 import com.blakebr0.cucumber.client.screen.widget.FuelWidget;
 import com.blakebr0.cucumber.client.screen.widget.ProgressArrowWidget;
 import com.blakebr0.mysticalautomation.MysticalAutomation;
+import com.blakebr0.mysticalautomation.client.screen.widget.EnchanternatorLevelWidget;
 import com.blakebr0.mysticalautomation.container.EnchanternatorContainer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -29,6 +30,12 @@ public class EnchanternatorScreen extends BaseContainerScreen<EnchanternatorCont
         this.addRenderableWidget(new EnergyBarWidget(x + 7, y + 17, this.menu::getEnergyStored, this.menu::getMaxEnergyStored));
         this.addRenderableWidget(new FuelWidget(x + 30, y + 39, this.menu::getFuelItemValue, this.menu::getFuelLeft));
         this.addRenderableWidget(new ProgressArrowWidget(x + 143, y + 47, this.menu::getProgress, this.menu::getOperationTime));
+
+        for (int i = 0; i < 5; i++) {
+            var level = i + 1;
+
+            this.addRenderableWidget(new EnchanternatorLevelWidget(x + 150 + (i * 10), y + 75, this.menu.getBlockPos(), level, () -> this.menu.getSelectedLevel() == level));
+        }
     }
 
     @Override

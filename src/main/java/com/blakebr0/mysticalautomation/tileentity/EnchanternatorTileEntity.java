@@ -1,5 +1,6 @@
 package com.blakebr0.mysticalautomation.tileentity;
 
+import com.blakebr0.cucumber.crafting.ShapelessCraftingInput;
 import com.blakebr0.cucumber.energy.DynamicEnergyStorage;
 import com.blakebr0.cucumber.helper.StackHelper;
 import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
@@ -60,6 +61,7 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
 
     private MachineUpgradeTier tier;
     private int progress;
+    private int selectedLevel;
     private int fuelLeft;
     private int fuelItemValue;
     private boolean isRunning;
@@ -84,6 +86,7 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
                 .sync(() -> this.fuelItemValue, value -> this.fuelItemValue = value)
                 .sync(() -> this.progress, value -> this.progress = value)
                 .sync(this::getOperationTime, value -> {})
+                .sync(() -> this.selectedLevel, value -> this.selectedLevel = value)
                 .build();
     }
 
@@ -112,9 +115,11 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         super.loadAdditional(tag, lookup);
 
         this.progress = tag.getInt("Progress");
+        this.selectedLevel = tag.getInt("SelectedLevel");
         this.fuelLeft = tag.getInt("FuelLeft");
         this.fuelItemValue = tag.getInt("FuelItemValue");
         this.energy.deserializeNBT(lookup, tag.get("Energy"));
+        this.recipeInventory.deserializeNBT(lookup, tag.getCompound("RecipeInventory"));
         this.upgradeInventory.deserializeNBT(lookup, tag.getCompound("UpgradeInventory"));
     }
 
@@ -123,9 +128,11 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         super.saveAdditional(tag, lookup);
 
         tag.putInt("Progress", this.progress);
+        tag.putInt("SelectedLevel", this.selectedLevel);
         tag.putInt("FuelLeft", this.fuelLeft);
         tag.putInt("FuelItemValue", this.fuelItemValue);
         tag.putInt("Energy", this.energy.getEnergyStored());
+        tag.put("RecipeInventory", this.recipeInventory.serializeNBT(lookup));
         tag.put("UpgradeInventory", this.upgradeInventory.serializeNBT(lookup));
     }
 
@@ -175,10 +182,11 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
 
         if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
             var recipe = tile.getActiveRecipe();
-            if (recipe != null) {
+            if (recipe != null && tile.selectedLevel > 0) {
                 var inputs = tile.getInputResult(recipe);
-                if (inputs.hasAll) {
-                    var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
+                var maxLevel = recipe.getMaxResultEnchantmentLevel(tile.toCraftingInput());
+                if (inputs.hasAll && maxLevel >= tile.selectedLevel) {
+                    var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess(), maxLevel);
                     var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
 
                     if (StackHelper.canCombineStacks(result, output)) {
@@ -261,6 +269,10 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         return this.energy;
     }
 
+    public int getSelectedLevel() {
+        return this.selectedLevel;
+    }
+
     public IItemHandler getSidedInventory(@Nullable Direction direction) {
         return switch (direction) {
             case UP -> this.sidedInventoryWrappers[0];
@@ -269,11 +281,27 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         };
     }
 
+    public void setSelectedLevel(int level) {
+        this.selectedLevel = Math.clamp(level, 0, 5);
+        this.setChangedFast();
+    }
+
     @Nullable
     public IEnchanterRecipe getActiveRecipe() {
         if (this.isGridChanged) {
             this.isGridChanged = false;
-            return this.recipe.checkAndGet(this.toCraftingInput(), this.level);
+
+            // to show the proper ghost item as the result, we need to both pretend to have the maximum number of materials
+            // to account for all requirements
+            var items = List.of(
+                    this.recipeInventory.getStackInSlot(0).copyWithCount(512),
+                    this.recipeInventory.getStackInSlot(1).copyWithCount(512),
+                    this.recipeInventory.getStackInSlot(2)
+            );
+
+            var input = new ShapelessCraftingInput(items);
+
+            return this.recipe.checkAndGet(input, this.level);
         }
 
         return this.recipe.get();
@@ -288,7 +316,7 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
     }
 
     private CraftingInput toCraftingInput() {
-        return this.recipeInventory.toCraftingInput(3, 1);
+        return this.inventory.toShapelessCraftingInput(0, 3);
     }
 
     private InputResult getInputResult(IEnchanterRecipe recipe) {

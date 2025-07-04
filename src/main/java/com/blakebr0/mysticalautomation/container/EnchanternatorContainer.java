@@ -1,6 +1,7 @@
 package com.blakebr0.mysticalautomation.container;
 
 import com.blakebr0.cucumber.container.BaseContainerMenu;
+import com.blakebr0.cucumber.crafting.ShapelessCraftingInput;
 import com.blakebr0.cucumber.helper.StackHelper;
 import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
 import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
@@ -24,6 +25,8 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
+import java.util.List;
+
 public class EnchanternatorContainer extends BaseContainerMenu {
     private final ContainerData data;
     private final BaseItemStackHandler matrix;
@@ -31,7 +34,7 @@ public class EnchanternatorContainer extends BaseContainerMenu {
     private ItemStack result;
 
     public EnchanternatorContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(id, playerInventory, EnchanternatorTileEntity.createInventoryHandler(), EnchanternatorTileEntity.createRecipeInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(6), buffer.readBlockPos());
+        this(id, playerInventory, EnchanternatorTileEntity.createInventoryHandler(), EnchanternatorTileEntity.createRecipeInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(7), buffer.readBlockPos());
     }
 
     public EnchanternatorContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, BaseItemStackHandler recipeInventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
@@ -156,8 +159,21 @@ public class EnchanternatorContainer extends BaseContainerMenu {
         return this.data.get(5);
     }
 
+    public int getSelectedLevel() {
+        return this.data.get(6);
+    }
+
+    // TODO: these don't work on the client since the recipe inventory isn't populated right away I guess
     private void onRecipeChanged(Level level) {
-        var input = this.matrix.toCraftingInput(3, 1);
+        // to show the proper ghost item as the result, we need to both pretend to have the maximum number of materials
+        // to account for all requirements
+        var items = List.of(
+                this.matrix.getStackInSlot(0).copyWithCount(512),
+                this.matrix.getStackInSlot(1).copyWithCount(512),
+                this.matrix.getStackInSlot(2)
+        );
+
+        var input = new ShapelessCraftingInput(items);
         var recipe = level.getRecipeManager().getRecipeFor(MysticalCompat.RecipeTypes.ENCHANTER.get(), input, level).map(RecipeHolder::value).orElse(null);
 
         this.result = recipe == null ? ItemStack.EMPTY : recipe.assemble(input, level.registryAccess());

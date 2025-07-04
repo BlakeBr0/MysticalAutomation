@@ -22,6 +22,7 @@ public class InfuserProgressWidget extends AbstractWidget {
         this.progress = progress;
         this.total = total;
         this.isSelected = isSelected;
+        this.active = false; // not a clickable element
     }
 
     @Override
