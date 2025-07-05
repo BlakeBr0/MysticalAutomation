@@ -13,20 +13,24 @@ import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeTier;
 import com.blakebr0.mysticalautomation.block.FertilizerBlock;
 import com.blakebr0.mysticalautomation.container.FertilizerContainer;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
+import com.blakebr0.mysticalautomation.lib.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +46,7 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
     public static final int OPERATION_TIME = 100;
     public static final int FUEL_USAGE = 20;
     public static final int FUEL_CAPACITY = 80000;
+    public static final int BASE_RANGE = 1;
 
     private final BaseItemStackHandler inventory;
     private final MachineUpgradeItemStackHandler upgradeInventory;
@@ -52,6 +57,7 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
 
     private MachineUpgradeTier tier;
     private int progress;
+    private int lastScanIndex = -1;
     private int fuelLeft;
     private int fuelItemValue;
     private boolean isRunning;
@@ -96,6 +102,7 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
         super.loadAdditional(tag, lookup);
 
         this.progress = tag.getInt("Progress");
+        this.lastScanIndex = tag.getInt("LastScanIndex");
         this.fuelLeft = tag.getInt("FuelLeft");
         this.fuelItemValue = tag.getInt("FuelItemValue");
         this.energy.deserializeNBT(lookup, tag.get("Energy"));
@@ -107,6 +114,7 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
         super.saveAdditional(tag, lookup);
 
         tag.putInt("Progress", this.progress);
+        tag.putInt("LastScanIndex", this.lastScanIndex);
         tag.putInt("FuelLeft", this.fuelLeft);
         tag.putInt("FuelItemValue", this.fuelItemValue);
         tag.putInt("Energy", this.energy.getEnergyStored());
@@ -157,8 +165,26 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
         var wasRunning = tile.isRunning;
         tile.isRunning = false;
 
-        if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
+        if (tile.energy.getEnergyStored() >= tile.getFuelUsage() && !level.hasNeighborSignal(pos)) {
+            var slot = tile.findNextFertilizerSlot();
+            if (slot != -1) {
+                tile.isRunning = true;
+                tile.progress++;
+                tile.energy.extractEnergy(tile.getFuelUsage(), false);
 
+                if (tile.progress >= tile.getOperationTime()) {
+                    var nextPos = tile.findNextPosition(state.getValue(FertilizerBlock.FACING));
+                    var stack = tile.inventory.getStackInSlot(slot);
+                    var hitResult = new BlockHitResult(nextPos.getCenter(), Direction.DOWN, nextPos, false);
+                    var context = new UseOnContext(level, null, InteractionHand.MAIN_HAND, stack, hitResult);
+
+                    stack.getItem().useOn(context);
+
+                    tile.progress = 0;
+                }
+
+                tile.setChangedFast();
+            }
         }
 
         if (wasRunning != tile.isRunning) {
@@ -174,8 +200,12 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
 
     public static BaseItemStackHandler createInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
         return BaseItemStackHandler.create(9, onContentsChanged, handler -> {
-            handler.setCanInsert((slot, stack) -> switch (slot) {
-                default -> true;
+            handler.setCanInsert((slot, stack) -> {
+                if (ArrayUtils.contains(INPUT_SLOTS, slot)) {
+                    return stack.is(ModTags.Items.FERTILIZERS);
+                }
+
+                return true;
             });
         });
     }
@@ -198,6 +228,41 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
 
     private int getFuelUsage() {
         return this.tier == null ? FUEL_USAGE : this.tier.getFuelUsage(FUEL_USAGE);
+    }
+
+    private int findNextFertilizerSlot() {
+        for (var slot : INPUT_SLOTS) {
+            var stack = this.inventory.getStackInSlot(slot);
+            if (!stack.isEmpty())
+                return slot;
+        }
+
+        return -1;
+    }
+
+    private BlockPos findNextPosition(Direction direction) {
+        var range = this.tier != null ? BASE_RANGE + this.tier.getAddedRange() : BASE_RANGE;
+        var size = range * 2 + 1;
+
+        var index = this.lastScanIndex + 1;
+        if (index >= (int) Math.pow(size, 2)) {
+            index = 0;
+        }
+
+        this.lastScanIndex = index;
+
+        var xOffset = (index % size) - range;
+        var zOffset = (index / size) - range;
+
+        var center = this.getBlockPos().relative(direction, range + 1);
+
+        return switch (direction) {
+            case Direction.NORTH -> new BlockPos(center.getX() + xOffset, center.getY(), center.getZ() - zOffset);
+            case Direction.SOUTH -> new BlockPos(center.getX() - xOffset, center.getY(), center.getZ() + zOffset);
+            case Direction.EAST -> new BlockPos(center.getX() + zOffset, center.getY(), center.getZ() + xOffset);
+            case Direction.WEST -> new BlockPos(center.getX() - zOffset, center.getY(), center.getZ() - xOffset);
+            default -> center;
+        };
     }
 
     private boolean canInsertStackSided(int slot, ItemStack stack, @Nullable Direction direction) {

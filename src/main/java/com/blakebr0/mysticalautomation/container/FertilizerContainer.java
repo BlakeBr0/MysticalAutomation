@@ -6,8 +6,8 @@ import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
 import com.blakebr0.cucumber.util.QuickMover;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
-import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
+import com.blakebr0.mysticalautomation.lib.ModTags;
 import com.blakebr0.mysticalautomation.tileentity.FertilizerTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -17,7 +17,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class FertilizerContainer extends BaseContainerMenu {
@@ -38,7 +37,7 @@ public class FertilizerContainer extends BaseContainerMenu {
         // input slots
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 4; j++) {
-                this.addSlot(new BaseItemStackHandlerSlot(inventory, i + j, 75 + (j * 18), 39 + (i * 18)));
+                this.addSlot(new BaseItemStackHandlerSlot(inventory, j + i * 4, 75 + (j * 18), 39 + (i * 18)));
             }
         }
 
@@ -57,7 +56,7 @@ public class FertilizerContainer extends BaseContainerMenu {
 
         this.mover.after(10)
                 .add((slot, stack, player) -> stack.getItem() instanceof IMachineUpgrade, 0, 1) // machine upgrade
-                .add((slot, stack, player) -> stack.is(Items.BONE_MEAL), 1, 8) // inputs // TODO valid inputs for fertilizer
+                .add((slot, stack, player) -> stack.is(ModTags.Items.FERTILIZERS), 1, 8) // inputs
                 .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 9, 1) // fuel
                 .add((slot, stack, player) -> slot < this.slots.size() - 9, this.slots.size() - 9, 9) // hotbar
                 .add((slot, stack, player) -> slot >= this.slots.size() - 9, this.slots.size() - 36, 27); // inventory
