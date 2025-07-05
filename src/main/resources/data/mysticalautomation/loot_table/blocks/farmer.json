@@ -2,12 +2,12 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "mysticalagriculture:farmer",
+      "name": "mysticalautomation:farmer",
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "mysticalagriculture:farmer"
+          "name": "mysticalautomation:farmer"
         }
       ],
       "conditions": [

@@ -2,12 +2,12 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "mysticalagriculture:infusion_altarnator",
+      "name": "mysticalautomation:enchanternator",
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "mysticalagriculture:infusion_altarnator"
+          "name": "mysticalautomation:enchanternator"
         }
       ],
       "conditions": [

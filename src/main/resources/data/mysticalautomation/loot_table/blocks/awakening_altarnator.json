@@ -2,12 +2,12 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "mysticalagriculture:fertilizer",
+      "name": "mysticalautomation:awakening_altarnator",
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "mysticalagriculture:fertilizer"
+          "name": "mysticalautomation:awakening_altarnator"
         }
       ],
       "conditions": [
