@@ -5,6 +5,7 @@ import com.blakebr0.cucumber.client.screen.widget.EnergyBarWidget;
 import com.blakebr0.cucumber.client.screen.widget.FuelWidget;
 import com.blakebr0.cucumber.client.screen.widget.ProgressArrowWidget;
 import com.blakebr0.mysticalautomation.MysticalAutomation;
+import com.blakebr0.mysticalautomation.client.screen.widget.FarmerStageProgressWidget;
 import com.blakebr0.mysticalautomation.container.FarmerContainer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -28,6 +29,7 @@ public class FarmerScreen extends BaseContainerScreen<FarmerContainer> {
         this.addRenderableWidget(new EnergyBarWidget(x + 7, y + 17, this.menu::getEnergyStored, this.menu::getMaxEnergyStored));
         this.addRenderableWidget(new FuelWidget(x + 30, y + 39, this.menu::getFuelItemValue, this.menu::getFuelLeft));
         this.addRenderableWidget(new ProgressArrowWidget(x + 99, y + 52, this.menu::getProgress, this.menu::getOperationTime));
+        this.addRenderableWidget(new FarmerStageProgressWidget(x + 93, y + 30, this.menu::getStageProgress, this.menu::getMaxStageProgress, this.menu::getStages));
     }
 
     @Override

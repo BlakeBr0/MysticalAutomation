@@ -3,6 +3,7 @@ package com.blakebr0.mysticalautomation.tileentity;
 import com.blakebr0.cucumber.energy.DynamicEnergyStorage;
 import com.blakebr0.cucumber.helper.StackHelper;
 import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
+import com.blakebr0.cucumber.inventory.CachedRecipe;
 import com.blakebr0.cucumber.inventory.OnContentsChangedFunction;
 import com.blakebr0.cucumber.inventory.SidedInventoryWrapper;
 import com.blakebr0.cucumber.tileentity.BaseInventoryTileEntity;
@@ -12,6 +13,8 @@ import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandl
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeTier;
 import com.blakebr0.mysticalautomation.block.FarmerBlock;
 import com.blakebr0.mysticalautomation.container.FarmerContainer;
+import com.blakebr0.mysticalautomation.crafting.recipe.FarmerRecipe;
+import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -24,6 +27,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -37,7 +42,7 @@ import java.util.stream.IntStream;
 public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuProvider, IUpgradeableMachine {
     private static final int[] INPUT_SLOTS = IntStream.rangeClosed(0, 2).toArray();
     private static final int FUEL_SLOT = 3;
-    private static final int OUTPUT_SLOT = 4;
+    private static final int[] OUTPUT_SLOTS = IntStream.rangeClosed(4, 7).toArray();
 
     public static final int FUEL_TICK_MULTIPLIER = 20;
     public static final int OPERATION_TIME = 100;
@@ -48,11 +53,14 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
     private final MachineUpgradeItemStackHandler upgradeInventory;
     private final DynamicEnergyStorage energy;
     private final SidedInventoryWrapper[] sidedInventoryWrappers;
+    private final CachedRecipe<RecipeInput, FarmerRecipe> recipe;
 
     private final ContainerData dataAccess;
 
     private MachineUpgradeTier tier;
     private int progress;
+    private int stages;
+    private int stageProgress;
     private int fuelLeft;
     private int fuelItemValue;
     private boolean isRunning;
@@ -63,6 +71,7 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
         this.upgradeInventory = new MachineUpgradeItemStackHandler();
         this.energy = new DynamicEnergyStorage(FUEL_CAPACITY, this::setChangedFast);
         this.sidedInventoryWrappers = SidedInventoryWrapper.create(this.inventory, List.of(Direction.UP, Direction.DOWN, Direction.NORTH), this::canInsertStackSided, null);
+        this.recipe = new CachedRecipe<>(ModRecipeTypes.FARMER.get());
 
         this.dataAccess = ContainerDataBuilder.builder()
                 .sync(this.energy::getEnergyStored, this.energy::setEnergyStored)
@@ -71,6 +80,9 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
                 .sync(() -> this.fuelItemValue, value -> this.fuelItemValue = value)
                 .sync(() -> this.progress, value -> this.progress = value)
                 .sync(this::getOperationTime, value -> {})
+                .sync(() -> this.stages, value -> this.stages = value)
+                .sync(() -> this.stageProgress, value -> this.stageProgress = value)
+                .sync(this::getStageOperationTime, value -> {})
                 .build();
     }
 
@@ -99,6 +111,8 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
         super.loadAdditional(tag, lookup);
 
         this.progress = tag.getInt("Progress");
+        this.stages = tag.getInt("Stages");
+        this.stageProgress = tag.getInt("StageProgress");
         this.fuelLeft = tag.getInt("FuelLeft");
         this.fuelItemValue = tag.getInt("FuelItemValue");
         this.energy.deserializeNBT(lookup, tag.get("Energy"));
@@ -110,6 +124,8 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
         super.saveAdditional(tag, lookup);
 
         tag.putInt("Progress", this.progress);
+        tag.putInt("Stages", this.stages);
+        tag.putInt("StageProgress", this.stageProgress);
         tag.putInt("FuelLeft", this.fuelLeft);
         tag.putInt("FuelItemValue", this.fuelItemValue);
         tag.putInt("Energy", this.energy.getEnergyStored());
@@ -161,7 +177,35 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
         tile.isRunning = false;
 
         if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
+            var recipe = tile.getActiveRecipe();
+            if (recipe != null) {
+                tile.isRunning = true;
+                tile.stages = recipe.getStages();
+                tile.energy.extractEnergy(tile.getFuelUsage(), false);
 
+                if (tile.stageProgress >= tile.getStageOperationTime()) {
+                    tile.progress++;
+
+                    if (tile.progress >= tile.getOperationTime()) {
+                        var results = recipe.getRolledResults();
+
+                        for (var result : results) {
+                            tile.addItemToInventory(result);
+                        }
+
+                        tile.reset();
+                    }
+                } else {
+                    tile.stageProgress++;
+                }
+
+                tile.setChangedFast();
+            } else {
+                if (tile.progress > 0 || tile.stageProgress > 0 || tile.stages > 0) {
+                    tile.reset();
+                    tile.setChangedFast();
+                }
+            }
         }
 
         if (wasRunning != tile.isRunning) {
@@ -181,9 +225,9 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
                 default -> true;
             });
 
-            handler.setOutputSlots(OUTPUT_SLOT);
+            handler.setOutputSlots(OUTPUT_SLOTS);
             handler.setCanExtract(slot ->
-                    slot == OUTPUT_SLOT || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(handler.getStackInSlot(slot)))
+                    ArrayUtils.contains(OUTPUT_SLOTS, slot) || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(handler.getStackInSlot(slot)))
             );
         });
     }
@@ -200,12 +244,54 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
         };
     }
 
+    private void reset() {
+        this.progress = 0;
+        this.stages = 0;
+        this.stageProgress = 0;
+    }
+
+    @Nullable
+    private FarmerRecipe getActiveRecipe() {
+        return this.recipe.checkAndGet(this.toCraftingInput(), this.level);
+    }
+
     private int getOperationTime() {
         return this.tier == null ? OPERATION_TIME : this.tier.getOperationTime(OPERATION_TIME);
     }
 
     private int getFuelUsage() {
         return this.tier == null ? FUEL_USAGE : this.tier.getFuelUsage(FUEL_USAGE);
+    }
+
+    private int getStageOperationTime() {
+        return this.tier == null ? OPERATION_TIME * this.stages : this.tier.getOperationTime(OPERATION_TIME) * this.stages;
+    }
+
+    private CraftingInput toCraftingInput() {
+        return this.inventory.toCraftingInput(1, 3);
+    }
+
+    private void addItemToInventory(ItemStack stack) {
+        var remaining = stack.getCount();
+        for (var slot : OUTPUT_SLOTS) {
+            var stackInSlot = this.inventory.getStackInSlot(slot);
+
+            if (stackInSlot.isEmpty()) {
+                this.inventory.setStackInSlot(slot, stack.copy());
+                return;
+            }
+
+            if (StackHelper.areStacksEqual(stackInSlot, stack)) {
+                var insertSize = Math.min(remaining, stackInSlot.getMaxStackSize() - stackInSlot.getCount());
+
+                this.inventory.setStackInSlot(slot, StackHelper.grow(stackInSlot, insertSize));
+
+                remaining -= insertSize;
+            }
+
+            if (remaining == 0)
+                return;
+        }
     }
 
     private boolean canInsertStackSided(int slot, ItemStack stack, @Nullable Direction direction) {

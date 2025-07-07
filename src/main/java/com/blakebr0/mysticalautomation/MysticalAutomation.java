@@ -6,6 +6,8 @@ import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.init.ModCreativeModeTabs;
 import com.blakebr0.mysticalautomation.init.ModItems;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
+import com.blakebr0.mysticalautomation.init.ModRecipeSerializers;
+import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import com.blakebr0.mysticalautomation.network.NetworkHandler;
 import net.minecraft.resources.ResourceLocation;
@@ -28,6 +30,8 @@ public final class MysticalAutomation {
         ModCreativeModeTabs.REGISTRY.register(bus);
         ModMenuTypes.REGISTRY.register(bus);
         ModTileEntities.REGISTRY.register(bus);
+        ModRecipeTypes.REGISTRY.register(bus);
+        ModRecipeSerializers.REGISTRY.register(bus);
 
         bus.register(new NetworkHandler());
         bus.register(new RegisterCapabilityHandler());

@@ -25,7 +25,7 @@ public class FarmerContainer extends BaseContainerMenu {
     private final QuickMover mover;
 
     public FarmerContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
-        this(id, playerInventory, FarmerTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(6), buffer.readBlockPos());
+        this(id, playerInventory, FarmerTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(9), buffer.readBlockPos());
     }
 
     public FarmerContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
@@ -43,8 +43,12 @@ public class FarmerContainer extends BaseContainerMenu {
         // fuel slot
         this.addSlot(new BaseItemStackHandlerSlot(inventory, 3, 30, 56));
 
-        // output slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 4, 134, 52));
+        // output slots
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                this.addSlot(new BaseItemStackHandlerSlot(inventory, 4 + i + j * 2, 130 + j * 18, 43 + i * 18));
+            }
+        }
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
@@ -56,13 +60,13 @@ public class FarmerContainer extends BaseContainerMenu {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 170));
         }
 
-        this.mover.after(6)
+        this.mover.after(9)
                 .add((slot, stack, player) -> stack.getItem() instanceof IMachineUpgrade, 0, 1) // machine upgrade
                 .add((slot, stack, player) -> stack.is(Items.WHEAT), 1, 3) // inputs // TODO farmer container valid input
                 .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 4, 1) // fuel
                 .add((slot, stack, player) -> slot < this.slots.size() - 9, this.slots.size() - 9, 9) // hotbar
                 .add((slot, stack, player) -> slot >= this.slots.size() - 9, this.slots.size() - 36, 27); // inventory
-        this.mover.fallback(6, 36);
+        this.mover.fallback(9, 36);
 
         this.addDataSlots(data);
     }
@@ -118,5 +122,17 @@ public class FarmerContainer extends BaseContainerMenu {
 
     public int getOperationTime() {
         return this.data.get(5);
+    }
+
+    public int getStages() {
+        return this.data.get(6);
+    }
+
+    public int getStageProgress() {
+        return this.data.get(7);
+    }
+
+    public int getMaxStageProgress() {
+        return this.data.get(8);
     }
 }
