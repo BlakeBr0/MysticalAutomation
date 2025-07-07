@@ -15,5 +15,10 @@
   "container.mysticalautomation.fertilizer": "Fertilizer",
   "container.mysticalautomation.enchanternator": "Enchanternator",
   "container.mysticalautomation.infusion_altarnator": "Infusion Altarnator",
-  "container.mysticalautomation.awakening_altarnator": "Awakening Altarnator"
+  "container.mysticalautomation.awakening_altarnator": "Awakening Altarnator",
+
+  "tooltip.mysticalautomation.chance": "%s Chance",
+
+  "jei.category.mysticalautomation.farmer": "Farmer",
+  "jei.category.mysticalautomation.fertilizer": "Fertilizer"
 }

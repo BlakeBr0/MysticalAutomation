@@ -1,8 +1,6 @@
 package com.blakebr0.mysticalautomation.client.screen.widget;
 
-import com.blakebr0.cucumber.util.Formatting;
 import com.blakebr0.mysticalautomation.client.screen.FarmerScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;

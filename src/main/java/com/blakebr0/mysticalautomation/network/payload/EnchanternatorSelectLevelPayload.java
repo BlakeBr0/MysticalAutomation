@@ -2,7 +2,6 @@ package com.blakebr0.mysticalautomation.network.payload;
 
 import com.blakebr0.mysticalautomation.MysticalAutomation;
 import com.blakebr0.mysticalautomation.tileentity.EnchanternatorTileEntity;
-import com.blakebr0.mysticalautomation.tileentity.InfuserTileEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

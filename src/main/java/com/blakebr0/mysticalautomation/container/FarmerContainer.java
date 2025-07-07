@@ -6,7 +6,6 @@ import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
 import com.blakebr0.cucumber.util.QuickMover;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
-import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
 import com.blakebr0.mysticalautomation.tileentity.FarmerTileEntity;
 import net.minecraft.core.BlockPos;
