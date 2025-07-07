@@ -1,6 +1,7 @@
 package com.blakebr0.mysticalautomation;
 
 import com.blakebr0.mysticalautomation.client.ModMenuScreens;
+import com.blakebr0.mysticalautomation.config.ModConfigs;
 import com.blakebr0.mysticalautomation.handler.RegisterCapabilityHandler;
 import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.init.ModCreativeModeTabs;
@@ -13,7 +14,9 @@ import com.blakebr0.mysticalautomation.network.NetworkHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +27,7 @@ public final class MysticalAutomation {
     public static final String NAME = "Mystical Automation";
     public static final Logger LOGGER = LoggerFactory.getLogger(NAME);
 
-    public MysticalAutomation(IEventBus bus) {
+    public MysticalAutomation(IEventBus bus, ModContainer mod) {
         ModBlocks.REGISTRY.register(bus);
         ModItems.REGISTRY.register(bus);
         ModCreativeModeTabs.REGISTRY.register(bus);
@@ -39,6 +42,8 @@ public final class MysticalAutomation {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             bus.register(new ModMenuScreens());
         }
+
+        mod.registerConfig(ModConfig.Type.STARTUP, ModConfigs.COMMON, "mysticalautomation-common.toml");
     }
 
     public static ResourceLocation resource(String path) {
