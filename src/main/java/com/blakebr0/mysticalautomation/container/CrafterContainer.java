@@ -8,6 +8,7 @@ import com.blakebr0.cucumber.util.QuickMover;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalautomation.container.slot.FakeSlot;
+import com.blakebr0.mysticalautomation.container.slot.HiddenSlot;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
 import com.blakebr0.mysticalautomation.tileentity.CrafterTileEntity;
 import net.minecraft.core.BlockPos;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +30,7 @@ public class CrafterContainer extends BaseContainerMenu {
     private final ContainerData data;
     private final BaseItemStackHandler matrix;
     private final QuickMover mover;
-    private ItemStack result;
+    private final Slot result;
 
     public CrafterContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
         this(id, playerInventory, CrafterTileEntity.createInventoryHandler(), CrafterTileEntity.createRecipeInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(6), buffer.readBlockPos());
@@ -39,7 +41,6 @@ public class CrafterContainer extends BaseContainerMenu {
         this.data = data;
         this.matrix = recipeInventory;
         this.mover = new QuickMover(this::moveItemStackTo);
-        this.result = ItemStack.EMPTY;
 
         this.addSlot(new SlotItemHandler(upgradeInventory, 0, 152, 9));
 
@@ -71,12 +72,16 @@ public class CrafterContainer extends BaseContainerMenu {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 193));
         }
 
+        // this must be last since it still counts towards the slot count and needs to be accounted for.
+        // note that this is accounted for in the mover indexes below (9 slots for hotbar + 1 for this)
+        this.result = this.addSlot(new HiddenSlot(new ResultContainer(), 0, 0)); // recipe result
+
         this.mover.after(21)
                 .add((slot, stack, player) -> stack.getItem() instanceof IMachineUpgrade, 0, 1) // machine upgrade
                 .add((slot, stack, player) -> this.isRecipeInput(stack), 1, 9) // inputs
                 .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 10, 1) // fuel
-                .add((slot, stack, player) -> slot < this.slots.size() - 9, this.slots.size() - 9, 9) // hotbar
-                .add((slot, stack, player) -> slot >= this.slots.size() - 9, this.slots.size() - 36, 27); // inventory
+                .add((slot, stack, player) -> slot < this.slots.size() - 10, this.slots.size() - 10, 9) // hotbar
+                .add((slot, stack, player) -> slot >= this.slots.size() - 10, this.slots.size() - 37, 27); // inventory
         this.mover.fallback(21, 36);
 
         this.addDataSlots(data);
@@ -130,6 +135,10 @@ public class CrafterContainer extends BaseContainerMenu {
         super.clicked(slotId, button, clickType, player);
     }
 
+    public ItemStack getResult() {
+        return this.result.getItem();
+    }
+
     public int getEnergyStored() {
         return this.data.get(0);
     }
@@ -154,15 +163,12 @@ public class CrafterContainer extends BaseContainerMenu {
         return this.data.get(5);
     }
 
-    public ItemStack getResult() {
-        return this.result;
-    }
-
     private void onRecipeChanged(Level level) {
         var input = this.matrix.toCraftingInput(3, 3);
         var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level).map(RecipeHolder::value).orElse(null);
+        var item = recipe == null ? ItemStack.EMPTY : recipe.assemble(input, level.registryAccess());
 
-        this.result = recipe == null ? ItemStack.EMPTY : recipe.assemble(input, level.registryAccess());
+        this.result.set(item);
     }
 
     private boolean isRecipeInput(ItemStack stack) {
