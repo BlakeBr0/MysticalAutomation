@@ -96,10 +96,14 @@ public class FertilizerBlock extends BaseTileEntityBlock {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         if (Screen.hasShiftDown()) {
+            var rangeString = String.valueOf(FertilizerTileEntity.BASE_RANGE * 2 + 1);
+
+            var area = Component.literal(rangeString + "x" + rangeString).withStyle(ChatFormatting.WHITE);
             var speed = Formatting.number(FertilizerTileEntity.OPERATION_TIME).withStyle(ChatFormatting.WHITE);
             var fuelRate = Formatting.number(FertilizerTileEntity.FUEL_USAGE).withStyle(ChatFormatting.WHITE);
             var fuelCapacity = Formatting.number(FertilizerTileEntity.FUEL_CAPACITY).withStyle(ChatFormatting.WHITE);
 
+            tooltip.add(MysticalCompat.Tooltips.MACHINE_AREA.args(area).build());
             tooltip.add(MysticalCompat.Tooltips.MACHINE_SPEED.args(speed).build());
             tooltip.add(MysticalCompat.Tooltips.MACHINE_FUEL_RATE.args(fuelRate).build());
             tooltip.add(MysticalCompat.Tooltips.MACHINE_FUEL_CAPACITY.args(fuelCapacity).build());
