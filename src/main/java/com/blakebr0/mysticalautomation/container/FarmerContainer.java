@@ -45,7 +45,7 @@ public class FarmerContainer extends BaseContainerMenu {
         // output slots
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 2; j++) {
-                this.addSlot(new BaseItemStackHandlerSlot(inventory, 4 + i + j * 2, 130 + j * 18, 43 + i * 18));
+                this.addSlot(new BaseItemStackHandlerSlot(inventory, 4 + j + i * 2, 130 + j * 18, 43 + i * 18));
             }
         }
 

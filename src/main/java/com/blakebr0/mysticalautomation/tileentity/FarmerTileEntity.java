@@ -225,6 +225,10 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
                 default -> true;
             });
 
+            for (var slot : INPUT_SLOTS) {
+                handler.addSlotLimit(slot, 1);
+            }
+
             handler.setOutputSlots(OUTPUT_SLOTS);
             handler.setCanExtract(slot ->
                     ArrayUtils.contains(OUTPUT_SLOTS, slot) || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(handler.getStackInSlot(slot)))
