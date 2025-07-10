@@ -1,0 +1,25 @@
+{
+  "type": "crafting_shaped",
+  "pattern": [
+    "IHI",
+    "SBS",
+    "ISI"
+  ],
+  "key": {
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "S": {
+      "item": "mysticalagriculture:soulium_ingot"
+    },
+    "H": {
+      "item": "mysticalagriculture:awakening_altar"
+    },
+    "B": {
+      "item": "mysticalagriculture:machine_frame"
+    }
+  },
+  "result": {
+    "id": "mysticalautomation:awakening_altarnator"
+  }
+}
