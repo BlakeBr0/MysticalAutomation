@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "mysticalautomation:infuser",
+    "mysticalautomation:crafter",
+    "mysticalautomation:farmer",
+    "mysticalautomation:fertilizer",
+    "mysticalautomation:infusion_altarnator",
+    "mysticalautomation:awakening_altarnator",
+    "mysticalautomation:enchanternator"
+  ]
+}
