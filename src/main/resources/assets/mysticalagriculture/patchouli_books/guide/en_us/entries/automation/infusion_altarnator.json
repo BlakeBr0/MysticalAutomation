@@ -1,0 +1,18 @@
+{
+  "name": "book.mysticalagriculture.entry.infusion_altarnator",
+  "category": "mysticalagriculture:automation",
+  "icon": "mysticalautomation:infusion_altarnator",
+  "sortnum": 604,
+  "pages": [
+    {
+      "type": "text",
+      "text": "book.mysticalagriculture.entry.infusion_altarnator.page.1"
+    },
+    {
+      "type": "crafting",
+      "title": "book.mysticalagriculture.crafting",
+      "recipe": "mysticalautomation:infusion_altarnator",
+      "text": "book.mysticalagriculture.entry.infusion_altarnator.page.2"
+    }
+  ]
+}

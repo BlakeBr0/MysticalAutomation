@@ -1,0 +1,18 @@
+{
+  "name": "book.mysticalagriculture.entry.farmer",
+  "category": "mysticalagriculture:automation",
+  "icon": "mysticalautomation:farmer",
+  "sortnum": 602,
+  "pages": [
+    {
+      "type": "text",
+      "text": "book.mysticalagriculture.entry.farmer.page.1"
+    },
+    {
+      "type": "crafting",
+      "title": "book.mysticalagriculture.crafting",
+      "recipe": "mysticalautomation:farmer",
+      "text": "book.mysticalagriculture.entry.infuser.page.2"
+    }
+  ]
+}

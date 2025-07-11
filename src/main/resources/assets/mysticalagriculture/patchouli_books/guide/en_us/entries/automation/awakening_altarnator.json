@@ -1,0 +1,18 @@
+{
+  "name": "book.mysticalagriculture.entry.awakening_altarnator",
+  "category": "mysticalagriculture:automation",
+  "icon": "mysticalautomation:awakening_altarnator",
+  "sortnum": 605,
+  "pages": [
+    {
+      "type": "text",
+      "text": "book.mysticalagriculture.entry.awakening_altarnator.page.1"
+    },
+    {
+      "type": "crafting",
+      "title": "book.mysticalagriculture.crafting",
+      "recipe": "mysticalautomation:awakening_altarnator",
+      "text": "book.mysticalagriculture.entry.awakening_altarnator.page.2"
+    }
+  ]
+}

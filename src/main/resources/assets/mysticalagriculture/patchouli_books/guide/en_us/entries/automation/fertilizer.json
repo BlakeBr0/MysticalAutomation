@@ -1,0 +1,18 @@
+{
+  "name": "book.mysticalagriculture.entry.fertilizer",
+  "category": "mysticalagriculture:automation",
+  "icon": "mysticalautomation:fertilizer",
+  "sortnum": 603,
+  "pages": [
+    {
+      "type": "text",
+      "text": "book.mysticalagriculture.entry.fertilizer.page.1"
+    },
+    {
+      "type": "crafting",
+      "title": "book.mysticalagriculture.crafting",
+      "recipe": "mysticalautomation:fertilizer",
+      "text": "book.mysticalagriculture.entry.fertilizer.page.2"
+    }
+  ]
+}
