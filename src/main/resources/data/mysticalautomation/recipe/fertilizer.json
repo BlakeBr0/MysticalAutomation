@@ -1,5 +1,11 @@
 {
   "type": "crafting_shaped",
+  "neoforge:conditions": [
+    {
+      "type": "cucumber:feature_flag",
+      "flag": "mysticalautomation:fertilizer"
+    }
+  ],
   "pattern": [
     "ISI",
     "HBH",

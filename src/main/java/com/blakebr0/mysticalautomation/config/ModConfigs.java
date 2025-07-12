@@ -9,9 +9,9 @@ public final class ModConfigs {
     public static final ModConfigSpec.BooleanValue CRAFTER_ENABLED;
     public static final ModConfigSpec.BooleanValue FARMER_ENABLED;
     public static final ModConfigSpec.BooleanValue FERTILIZER_ENABLED;
-    public static final ModConfigSpec.BooleanValue ENCHANTERNATOR_ENABLED;
     public static final ModConfigSpec.BooleanValue INFUSION_ALTARNATOR_ENABLED;
     public static final ModConfigSpec.BooleanValue AWAKENING_ALTARNATOR_ENABLED;
+    public static final ModConfigSpec.BooleanValue ENCHANTERNATOR_ENABLED;
 
     // common
     static {
@@ -44,12 +44,6 @@ public final class ModConfigs {
                     .define("enabled", true);
             common.pop();
 
-            common.push("Enchanternator");
-            ENCHANTERNATOR_ENABLED = common
-                    .comment("Should the Enchanternator be enabled?")
-                    .define("enabled", true);
-            common.pop();
-
             common.push("Infusion Altarnator");
             INFUSION_ALTARNATOR_ENABLED = common
                     .comment("Should the Infusion Altarnator be enabled?")
@@ -59,6 +53,12 @@ public final class ModConfigs {
             common.push("Awakening Altarnator");
             AWAKENING_ALTARNATOR_ENABLED = common
                     .comment("Should the Awakening Altar be enabled?")
+                    .define("enabled", true);
+            common.pop();
+
+            common.push("Enchanternator");
+            ENCHANTERNATOR_ENABLED = common
+                    .comment("Should the Enchanternator be enabled?")
                     .define("enabled", true);
             common.pop();
         }
