@@ -1,4 +1,4 @@
-# Mystical Customization
+# Mystical Automation
 
 <p align="left">
     <a href="https://blakesmods.com/mystical-automation" alt="Downloads">
@@ -13,9 +13,12 @@
     <a href="https://blakesmods.com/docs/mysticalautomation" alt="Docs">
         <img src="https://img.shields.io/static/v1?label=docs&message=view&color=brightgreen&style=for-the-badge" />
     </a>
+    <a href="https://blakesmods.com/wiki/mysticalautomation" alt="Wiki">
+        <img src="https://img.shields.io/static/v1?label=wiki&message=view&color=brightgreen&style=for-the-badge" />
+    </a>
 </p>
 
-Allows modpack creators to add new content and modify existing content in Mystical Agriculture.
+Adds machines for automating different aspects of Mystical Agriculture!
 
 ## Download
 
@@ -38,6 +41,7 @@ repositories {
 
 dependencies {
     implementation 'com.blakebr0.cucumber:Cucumber:<minecraft_version>-<mod_version>'
+    implementation 'com.blakebr0.mysticalagriculture:MysticalAgriculture:<minecraft_version>-<mod_version>'
     implementation 'com.blakebr0.mysticalautomation:MysticalAutomation:<minecraft_version>-<mod_version>'
 }
 ```
