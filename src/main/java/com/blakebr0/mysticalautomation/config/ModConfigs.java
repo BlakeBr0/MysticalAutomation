@@ -8,6 +8,7 @@ public final class ModConfigs {
     public static final ModConfigSpec.BooleanValue INFUSER_ENABLED;
     public static final ModConfigSpec.BooleanValue CRAFTER_ENABLED;
     public static final ModConfigSpec.BooleanValue FARMER_ENABLED;
+    public static final ModConfigSpec.BooleanValue FARMER_DYNAMIC_MYSTICAL_AGRICULTURE_RECIPES;
     public static final ModConfigSpec.BooleanValue FERTILIZER_ENABLED;
     public static final ModConfigSpec.BooleanValue INFUSION_ALTARNATOR_ENABLED;
     public static final ModConfigSpec.BooleanValue AWAKENING_ALTARNATOR_ENABLED;
@@ -36,6 +37,9 @@ public final class ModConfigs {
             FARMER_ENABLED = common
                     .comment("Should the Farmer be enabled?")
                     .define("enabled", true);
+            FARMER_DYNAMIC_MYSTICAL_AGRICULTURE_RECIPES = common
+                    .comment("Should recipes be generated dynamically for all Mystical Agriculture crops?")
+                    .define("dynamicMysticalAgricultureRecipes", true);
             common.pop();
 
             common.push("Fertilizer");

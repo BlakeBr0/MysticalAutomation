@@ -2,6 +2,7 @@ package com.blakebr0.mysticalautomation;
 
 import com.blakebr0.mysticalautomation.client.ModMenuScreens;
 import com.blakebr0.mysticalautomation.config.ModConfigs;
+import com.blakebr0.mysticalautomation.crafting.DynamicRecipeManager;
 import com.blakebr0.mysticalautomation.handler.RegisterCapabilityHandler;
 import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.init.ModCreativeModeTabs;
@@ -14,10 +15,13 @@ import com.blakebr0.mysticalautomation.network.NetworkHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +40,7 @@ public final class MysticalAutomation {
         ModRecipeTypes.REGISTRY.register(bus);
         ModRecipeSerializers.REGISTRY.register(bus);
 
+        bus.register(this);
         bus.register(new NetworkHandler());
         bus.register(new RegisterCapabilityHandler());
 
@@ -44,6 +49,11 @@ public final class MysticalAutomation {
         }
 
         mod.registerConfig(ModConfig.Type.STARTUP, ModConfigs.COMMON, "mysticalautomation-common.toml");
+    }
+
+    @SubscribeEvent
+    public void onCommonSetup(FMLCommonSetupEvent event) {
+        NeoForge.EVENT_BUS.register(DynamicRecipeManager.INSTANCE);
     }
 
     public static ResourceLocation resource(String path) {

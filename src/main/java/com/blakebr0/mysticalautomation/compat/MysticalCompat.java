@@ -22,6 +22,8 @@ public final class MysticalCompat {
         public static final DeferredHolder<Item, Item> INFUSION_CRYSTAL = DeferredHolder.create(Registries.ITEM.location(), ResourceLocation.parse("mysticalagriculture:infusion_crystal"));
         public static final DeferredHolder<Item, Item> MASTER_INFUSION_CRYSTAL = DeferredHolder.create(Registries.ITEM.location(), ResourceLocation.parse("mysticalagriculture:master_infusion_crystal"));
 
+        public static final DeferredHolder<Item, Item> FERTILIZED_ESSENCE = DeferredHolder.create(Registries.ITEM.location(), ResourceLocation.parse("mysticalagriculture:fertilized_essence"));
+
         public static final DeferredHolder<Item, Item> INSANIUM_ESSENCE = DeferredHolder.create(Registries.ITEM.location(), ResourceLocation.parse("mysticalagradditions:insanium_essence"));
     }
 
