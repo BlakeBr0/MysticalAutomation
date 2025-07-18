@@ -312,6 +312,7 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
                 if (remaining[j] > 0 && ingredient.test(stack)) {
                     remaining[j]--;
                     amounts[j]++;
+                    break;
                 }
             }
         }
