@@ -38,7 +38,11 @@ public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
             var index = i;
 
             this.addRenderableWidget(new InfuserProgressWidget(x + 103 + i * 18, y + 52, this.menu::getProgress, this.menu::getOperationTime, () -> this.menu.getProgressingIndex() == index));
-            this.addRenderableWidget(new InfuserSelectedWidget(x + 107 + i * 18, y + 57, this.menu.getBlockPos(), i, () -> this.menu.getSelectedIndex() == index));
+
+            // no need to have a button for Inferium since it doesn't do anything
+            if (index > 0) {
+                this.addRenderableWidget(new InfuserSelectedWidget(x + 107 + i * 18, y + 57, this.menu.getBlockPos(), i, () -> this.menu.getSelectedIndex() == index));
+            }
         }
     }
 

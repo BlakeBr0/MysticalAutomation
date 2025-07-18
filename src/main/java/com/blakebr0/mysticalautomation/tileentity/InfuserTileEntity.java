@@ -254,6 +254,10 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
         return this.energy;
     }
 
+    public int getSelectedIndex() {
+        return this.selectedIndex;
+    }
+
     public IItemHandler getSidedInventory(@Nullable Direction direction) {
         return switch (direction) {
             case UP -> this.sidedInventoryWrappers[0];
@@ -263,9 +267,14 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     }
 
     public void setSelectedIndex(int index) {
+        if (index == this.selectedIndex)
+            return;
+
         this.selectedIndex = Math.clamp(index, 0, INPUT_SLOTS.length - 1);
-        if (index < this.progressingIndex)
+
+        if (index <= this.progressingIndex)
             this.progress = 0;
+
         this.setChangedFast();
     }
 

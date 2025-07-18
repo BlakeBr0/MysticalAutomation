@@ -32,7 +32,12 @@ public record InfuserSelectIndexPayload(BlockPos pos, int index) implements Cust
             var tile = level.getBlockEntity(payload.pos);
 
             if (tile instanceof InfuserTileEntity machine) {
-                machine.setSelectedIndex(payload.index);
+                var selectedIndex = machine.getSelectedIndex();
+                if (selectedIndex == payload.index) {
+                    machine.setSelectedIndex(0);
+                } else {
+                    machine.setSelectedIndex(payload.index);
+                }
             }
         });
     }
