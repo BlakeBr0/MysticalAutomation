@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 public class AwakeningAltarnatorScreen extends BaseContainerScreen<AwakeningAltarnatorContainer> {
-    public static final ResourceLocation BACKGROUND = MysticalAutomation.resource("textures/gui/infusion_altarnator.png");
+    public static final ResourceLocation BACKGROUND = MysticalAutomation.resource("textures/gui/awakening_altarnator.png");
 
     public AwakeningAltarnatorScreen(AwakeningAltarnatorContainer container, Inventory inv, Component title) {
         super(container, inv, title, BACKGROUND, 196, 217);
