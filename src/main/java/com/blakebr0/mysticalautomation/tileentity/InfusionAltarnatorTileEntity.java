@@ -318,6 +318,7 @@ public class InfusionAltarnatorTileEntity extends BaseInventoryTileEntity implem
                 if (remaining[j] > 0 && ingredient.test(stack)) {
                     remaining[j]--;
                     amounts[j]++;
+                    break;
                 }
             }
         }

@@ -345,6 +345,7 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
                 if (remaining[j] >= amount && ingredient.test(stack)) {
                     remaining[j] -= amount;
                     amounts[j] += amount;
+                    break;
                 }
             }
         }

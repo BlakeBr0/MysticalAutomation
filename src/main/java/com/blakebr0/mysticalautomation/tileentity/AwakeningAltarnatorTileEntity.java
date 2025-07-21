@@ -329,6 +329,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
                 if (remaining[j] >= amount && ingredient.test(stack)) {
                     remaining[j] -= amount;
                     amounts[j] += amount;
+                    break;
                 }
             }
         }
