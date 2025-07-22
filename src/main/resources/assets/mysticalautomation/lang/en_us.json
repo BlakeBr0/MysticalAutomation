@@ -33,7 +33,7 @@
   "book.mysticalagriculture.entry.crafter.page.2": "These machines can be upgraded with $(l:machines/machine_upgrades)Machine Upgrades$().",
   "book.mysticalagriculture.entry.farmer": "Farmer",
   "book.mysticalagriculture.entry.farmer.page.1": "The Farmer is used to completely automate the process of planting, growing and harvesting crops. $(br2)They run off of solid fuels and have an internal power storage buffer.",
-  "book.mysticalagriculture.entry.farmer.page.2": "These machines can beupgraded with $(l:machines/machine_upgrades)Machine Upgrades$().",
+  "book.mysticalagriculture.entry.farmer.page.2": "These machines can be upgraded with $(l:machines/machine_upgrades)Machine Upgrades$().",
   "book.mysticalagriculture.entry.fertilizer": "Fertilizer",
   "book.mysticalagriculture.entry.fertilizer.page.1": "The Fertilizer is used to automatically fertilize a field of plants using fertilizers such as Bonemeal, $(l:basics/fertilized_essence)Fertilized Essence$() or $(l:advances/mystical_fertilizer)Mystical Fertilizer$(). $(br2)They run off of solid fuels and have an internal power storage buffer.",
   "book.mysticalagriculture.entry.fertilizer.page.2": "These machines can be upgraded with $(l:machines/machine_upgrades)Machine Upgrades$().",
@@ -44,6 +44,6 @@
   "book.mysticalagriculture.entry.awakening_altarnator.page.1": "The Awakening Altarnator is used to automatically create an $(l:elemental/awakening_altar)Awakening Altar$() recipe. $(br2)They run off of solid fuels and have an internal power storage buffer. $(br2)Set a recipe using the grid then place items into their designated input slots.",
   "book.mysticalagriculture.entry.awakening_altarnator.page.2": "These machines can be upgraded with $(l:machines/machine_upgrades)Machine Upgrades$().",
   "book.mysticalagriculture.entry.enchanternator": "Enchanternator",
-  "book.mysticalagriculture.entry.enchanternator.page.1": "The Enchanternator is used to automatically create an $(l:souls/enchanter)Enchanter$() recipe. $()$(br2)They run off of solid fuels and have an internal power storage buffer.",
+  "book.mysticalagriculture.entry.enchanternator.page.1": "The Enchanternator is used to automatically create an $(l:souls/enchanter)Enchanter$() recipe. $()$(br2)They run off of solid fuels and have an internal power storage buffer. $(br2)Set a recipe using the slots above then place items into their designated input slots below.",
   "book.mysticalagriculture.entry.enchanternator.page.2": "These machines can be upgraded with $(l:machines/machine_upgrades)Machine Upgrades$()."
 }
