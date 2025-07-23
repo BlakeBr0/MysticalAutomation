@@ -182,7 +182,8 @@ public class InfusionAltarnatorTileEntity extends BaseInventoryTileEntity implem
             if (recipe != null) {
                 var inputs = tile.getInputResult(recipe);
                 if (inputs.hasAll) {
-                    var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess());
+                    var inventory = tile.toCraftingInput();
+                    var result = recipe.assemble(inventory, level.registryAccess());
                     var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
 
                     if (StackHelper.canCombineStacks(result, output)) {
@@ -196,7 +197,30 @@ public class InfusionAltarnatorTileEntity extends BaseInventoryTileEntity implem
                                 var amount = amounts[i];
                                 var input = tile.inventory.getStackInSlot(INPUT_SLOTS[i]);
 
-                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrinkAndRetainContainer(input, amount));
+                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrink(input, amount, false));
+                            }
+
+                            var remaining = recipe.getRemainingItems(inventory);
+                            for (int i = 0; i < remaining.size(); i++) {
+                                var remainder = remaining.get(i);
+                                if (remainder.isEmpty())
+                                    continue;
+
+                                var recipeStack = tile.recipeInventory.getStackInSlot(i);
+
+                                for (var slot : INPUT_SLOTS) {
+                                    if (!StackHelper.areStacksEqual(recipeStack, tile.recipeInventory.getStackInSlot(slot)))
+                                        continue;
+
+                                    var stack = tile.inventory.getStackInSlot(slot);
+                                    var insertion = StackHelper.insert(stack, remainder);
+
+                                    tile.inventory.setStackInSlot(slot, insertion.result());
+
+                                    remainder = insertion.remainder();
+                                    if (remainder.isEmpty())
+                                        break;
+                                }
                             }
 
                             tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
@@ -245,6 +269,7 @@ public class InfusionAltarnatorTileEntity extends BaseInventoryTileEntity implem
             handler.setOutputSlots(OUTPUT_SLOT);
             handler.setCanExtract(slot ->
                     slot == OUTPUT_SLOT || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(handler.getStackInSlot(slot)))
+                    || (ArrayUtils.contains(INPUT_SLOTS, slot) && !recipeInventory.isItemValid(slot, handler.getStackInSlot(slot)))
             );
         });
     }
