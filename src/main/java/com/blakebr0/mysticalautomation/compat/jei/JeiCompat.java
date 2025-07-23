@@ -79,5 +79,10 @@ public final class JeiCompat implements IModPlugin {
         registration.addRecipeClickArea(EnchanternatorScreen.class, 143, 47, 24, 16, ENCHANTER_RECIPE_TYPE);
         registration.addRecipeClickArea(InfusionAltarnatorScreen.class, 133, 49, 24, 16, INFUSION_ALTARNATOR_RECIPE_TYPE);
         registration.addRecipeClickArea(AwakeningAltarnatorScreen.class, 133, 49, 24, 16, AWAKENING_ALTARNATOR_RECIPE_TYPE);
+
+        registration.addGhostIngredientHandler(CrafterScreen.class, new GhostIngredientHandler<>());
+        registration.addGhostIngredientHandler(EnchanternatorScreen.class, new GhostIngredientHandler<>());
+        registration.addGhostIngredientHandler(InfusionAltarnatorScreen.class, new GhostIngredientHandler<>());
+        registration.addGhostIngredientHandler(AwakeningAltarnatorScreen.class, new GhostIngredientHandler<>());
     }
 }

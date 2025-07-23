@@ -11,6 +11,7 @@ import com.blakebr0.mysticalautomation.container.slot.FakeSlot;
 import com.blakebr0.mysticalautomation.container.slot.HiddenSlot;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
 import com.blakebr0.mysticalautomation.tileentity.CrafterTileEntity;
+import com.blakebr0.mysticalautomation.util.IFakeRecipeContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -26,11 +27,12 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
-public class CrafterContainer extends BaseContainerMenu {
+public class CrafterContainer extends BaseContainerMenu implements IFakeRecipeContainer {
     private final ContainerData data;
     private final BaseItemStackHandler matrix;
     private final QuickMover mover;
     private final Slot result;
+    private final Level level;
 
     public CrafterContainer(int id, Inventory playerInventory, FriendlyByteBuf buffer) {
         this(id, playerInventory, CrafterTileEntity.createInventoryHandler(), CrafterTileEntity.createRecipeInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(6), buffer.readBlockPos());
@@ -41,6 +43,7 @@ public class CrafterContainer extends BaseContainerMenu {
         this.data = data;
         this.matrix = recipeInventory;
         this.mover = new QuickMover(this::moveItemStackTo);
+        this.level = playerInventory.player.level();
 
         this.addSlot(new SlotItemHandler(upgradeInventory, 0, 152, 9));
 
@@ -85,7 +88,10 @@ public class CrafterContainer extends BaseContainerMenu {
         this.mover.fallback(21, 36);
 
         this.addDataSlots(data);
-        this.onRecipeChanged(playerInventory.player.level());
+
+        if (!this.level.isClientSide()) {
+            this.onRecipeChanged();
+        }
     }
 
     @Override
@@ -128,11 +134,17 @@ public class CrafterContainer extends BaseContainerMenu {
                 slot.set(carried.isEmpty() ? ItemStack.EMPTY : carried.copy());
             }
 
-            this.onRecipeChanged(player.level());
+            this.onRecipeChanged();
             return;
         }
 
         super.clicked(slotId, button, clickType, player);
+    }
+
+    @Override
+    public void setFakeRecipeSlot(Slot slot, ItemStack stack) {
+        slot.set(stack);
+        this.onRecipeChanged();
     }
 
     public ItemStack getResult() {
@@ -163,10 +175,10 @@ public class CrafterContainer extends BaseContainerMenu {
         return this.data.get(5);
     }
 
-    private void onRecipeChanged(Level level) {
+    private void onRecipeChanged() {
         var input = this.matrix.toCraftingInput(3, 3);
-        var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level).map(RecipeHolder::value).orElse(null);
-        var item = recipe == null ? ItemStack.EMPTY : recipe.assemble(input, level.registryAccess());
+        var recipe = this.level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, this.level).map(RecipeHolder::value).orElse(null);
+        var item = recipe == null ? ItemStack.EMPTY : recipe.assemble(input, this.level.registryAccess());
 
         this.result.set(item);
     }
