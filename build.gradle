@@ -29,6 +29,27 @@ repositories {
     }
 }
 
+tasks.register('syncTestDatapacks', Sync) {
+    if (file('run/saves').exists()) {
+        file('run/saves').eachDir { dir ->
+            project.sync {
+                from 'src/test/resources/datapacks'
+                into file(dir.path + '/datapacks')
+            }
+        }
+    }
+
+    project.sync {
+        from 'src/test/resources/datapacks'
+        into file('run/world/datapacks')
+    }
+}
+
+tasks.register('syncTestScripts', Sync) {
+    from 'src/test/resources/scripts'
+    into 'run/scripts'
+}
+
 neoForge {
     version = neo_version
 
@@ -61,6 +82,8 @@ neoForge {
             systemProperty 'terminal.jline', 'true'
             logLevel = org.slf4j.event.Level.DEBUG
             ideName = "MysticalAutomation - ${it.ideName.get()}"
+            taskBefore tasks.named('syncTestDatapacks')
+            taskBefore tasks.named('syncTestScripts')
         }
     }
 
@@ -79,6 +102,7 @@ dependencies {
     implementation "com.blakebr0.cucumber:Cucumber:${cucumber_version}"
     implementation "com.blakebr0.mysticalagriculture:MysticalAgriculture:${mysticalagriculture_version}"
     implementation "com.blakebr0.mysticalagradditions:MysticalAgradditions:${mysticalagradditions_version}"
+    implementation "com.blamejared.crafttweaker:CraftTweaker-neoforge-${crafttweaker_version}"
 
     runtimeOnly "curse.maven:jade-324717:${jade_version}"
     runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
