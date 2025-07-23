@@ -21,11 +21,14 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.CropBlock;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FarmerRecipe implements Recipe<RecipeInput> {
+    private static final int DEFAULT_STAGES = 3;
+
     private final NonNullList<Ingredient> ingredients;
     private final Holder<Block> crop;
     private final int stages;
@@ -40,7 +43,7 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
         this.soil = soil;
         this.crux = crux;
         this.crop = crop;
-        this.stages = 3; // TODO
+        this.stages = calculateStages(crop);
 
         this.ingredients = NonNullList.of(Ingredient.EMPTY, seeds, soil, crux);
         this.results = results;
@@ -113,6 +116,17 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
         }
 
         return results;
+    }
+
+    private static int calculateStages(Holder<Block> crop) {
+        if (crop.isBound()) {
+            var block = crop.value();
+
+            if (block instanceof CropBlock cropBlock)
+                return cropBlock.getMaxAge();
+        }
+
+        return DEFAULT_STAGES;
     }
 
     public record FarmerResult(ItemStack stack, float chance) {

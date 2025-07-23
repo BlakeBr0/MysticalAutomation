@@ -8,13 +8,16 @@ import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.lib.ModTooltips;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.gui.widgets.IScrollGridWidgetFactory;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -55,6 +58,13 @@ public class FarmerCategory implements IRecipeCategory<FarmerRecipe> {
     @Override
     public IDrawable getIcon() {
         return this.icon;
+    }
+
+    @Override
+    public void getTooltip(ITooltipBuilder tooltip, FarmerRecipe recipe, IRecipeSlotsView recipeSlotsView, double mouseX, double mouseY) {
+        if (mouseX > 26 && mouseX < 48 && mouseY > 23 && mouseY < 39) {
+            tooltip.add(ModTooltips.STAGES.args(Formatting.number(recipe.getStages())).color(ChatFormatting.WHITE).build());
+        }
     }
 
     @Override
