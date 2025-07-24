@@ -4,5 +4,6 @@ import com.blakebr0.cucumber.util.Tooltip;
 
 public final class ModTooltips {
     public static final Tooltip CHANCE = new Tooltip("tooltip.mysticalautomation.chance");
+    public static final Tooltip STAGE = new Tooltip("tooltip.mysticalautomation.stage");
     public static final Tooltip STAGES = new Tooltip("tooltip.mysticalautomation.stages");
 }
