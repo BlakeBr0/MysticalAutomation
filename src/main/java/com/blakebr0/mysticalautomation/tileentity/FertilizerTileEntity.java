@@ -20,6 +20,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -28,6 +29,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -45,6 +47,7 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
     public static final int FUEL_TICK_MULTIPLIER = 20;
     public static final int OPERATION_TIME = 100;
     public static final int FUEL_USAGE = 20;
+    public static final int SCAN_FUEL_USAGE = 10;
     public static final int FUEL_CAPACITY = 80000;
     public static final int BASE_RANGE = 1;
 
@@ -170,20 +173,35 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
             if (slot != -1) {
                 tile.isRunning = true;
                 tile.progress++;
-                tile.energy.extractEnergy(tile.getFuelUsage(), false);
 
                 if (tile.progress >= tile.getOperationTime()) {
                     var nextPos = tile.findNextPosition(state.getValue(FertilizerBlock.FACING));
-                    var stack = tile.inventory.getStackInSlot(slot);
-                    var hitResult = new BlockHitResult(nextPos.getCenter(), Direction.DOWN, nextPos, false);
-                    var context = new UseOnContext(level, null, InteractionHand.MAIN_HAND, stack, hitResult);
+                    var plantState = level.getBlockState(nextPos);
+                    var plantBlock = plantState.getBlock();
 
-                    stack.getItem().useOn(context);
+                    if (plantBlock instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, nextPos, plantState)) {
+                        var stack = tile.inventory.getStackInSlot(slot);
+                        var hitResult = new BlockHitResult(nextPos.getCenter(), Direction.DOWN, nextPos, false);
+                        var context = new UseOnContext(level, null, InteractionHand.MAIN_HAND, stack, hitResult);
+
+                        if (stack.getItem().useOn(context) == InteractionResult.SUCCESS) {
+                            tile.energy.extractEnergy(tile.getFuelUsage(), false);
+                        } else {
+                            tile.energy.extractEnergy(SCAN_FUEL_USAGE, false);
+                        }
+                    } else {
+                        tile.energy.extractEnergy(SCAN_FUEL_USAGE, false);
+                    }
 
                     tile.progress = 0;
                 }
 
                 tile.setChangedFast();
+            } else {
+                if (tile.progress > 0) {
+                    tile.progress = 0;
+                    tile.setChangedFast();
+                }
             }
         }
 
