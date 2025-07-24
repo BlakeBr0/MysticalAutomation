@@ -42,7 +42,7 @@ import java.util.stream.IntStream;
 public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuProvider, IUpgradeableMachine {
     private static final int[] INPUT_SLOTS = IntStream.rangeClosed(0, 2).toArray();
     private static final int FUEL_SLOT = 3;
-    private static final int[] OUTPUT_SLOTS = IntStream.rangeClosed(4, 7).toArray();
+    private static final int[] OUTPUT_SLOTS = IntStream.rangeClosed(4, 12).toArray();
 
     public static final int FUEL_TICK_MULTIPLIER = 20;
     public static final int OPERATION_TIME = 100;
@@ -220,7 +220,7 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
     }
 
     public static BaseItemStackHandler createInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
-        return BaseItemStackHandler.create(11, onContentsChanged, handler -> {
+        return BaseItemStackHandler.create(16, onContentsChanged, handler -> {
             handler.setCanInsert((slot, stack) -> switch (slot) {
                 default -> true;
             });

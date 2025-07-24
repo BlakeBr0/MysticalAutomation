@@ -28,8 +28,8 @@ public class FarmerScreen extends BaseContainerScreen<FarmerContainer> {
 
         this.addRenderableWidget(new EnergyBarWidget(x + 7, y + 17, this.menu::getEnergyStored, this.menu::getMaxEnergyStored));
         this.addRenderableWidget(new FuelWidget(x + 30, y + 39, this.menu::getFuelItemValue, this.menu::getFuelLeft));
-        this.addRenderableWidget(new ProgressArrowWidget(x + 99, y + 52, this.menu::getProgress, this.menu::getOperationTime));
-        this.addRenderableWidget(new FarmerStageProgressWidget(x + 93, y + 30, this.menu::getStageProgress, this.menu::getMaxStageProgress, this.menu::getStages));
+        this.addRenderableWidget(new ProgressArrowWidget(x + 85, y + 52, this.menu::getProgress, this.menu::getOperationTime));
+        this.addRenderableWidget(new FarmerStageProgressWidget(x + 79, y + 30, this.menu::getStageProgress, this.menu::getMaxStageProgress, this.menu::getStages));
     }
 
     @Override

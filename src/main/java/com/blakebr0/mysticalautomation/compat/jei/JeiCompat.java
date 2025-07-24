@@ -75,7 +75,7 @@ public final class JeiCompat implements IModPlugin {
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addRecipeClickArea(CrafterScreen.class, 114, 48, 24, 16, mezz.jei.api.constants.RecipeTypes.CRAFTING);
-        registration.addRecipeClickArea(FarmerScreen.class, 99, 52, 24, 16, FarmerCategory.RECIPE_TYPE);
+        registration.addRecipeClickArea(FarmerScreen.class, 85, 52, 24, 16, FarmerCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(EnchanternatorScreen.class, 143, 47, 24, 16, ENCHANTER_RECIPE_TYPE);
         registration.addRecipeClickArea(InfusionAltarnatorScreen.class, 133, 49, 24, 16, INFUSION_ALTARNATOR_RECIPE_TYPE);
         registration.addRecipeClickArea(AwakeningAltarnatorScreen.class, 133, 49, 24, 16, AWAKENING_ALTARNATOR_RECIPE_TYPE);

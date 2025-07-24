@@ -35,17 +35,17 @@ public class FarmerContainer extends BaseContainerMenu {
         this.addSlot(new SlotItemHandler(upgradeInventory, 0, 152, 9));
 
         // input slots
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 0, 74, 30));
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 1, 74, 52));
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 2, 74, 74));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 0, 60, 30));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 1, 60, 52));
+        this.addSlot(new BaseItemStackHandlerSlot(inventory, 2, 60, 74));
 
         // fuel slot
         this.addSlot(new BaseItemStackHandlerSlot(inventory, 3, 30, 56));
 
         // output slots
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < 2; j++) {
-                this.addSlot(new BaseItemStackHandlerSlot(inventory, 4 + j + i * 2, 130 + j * 18, 43 + i * 18));
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                this.addSlot(new BaseItemStackHandlerSlot(inventory, 4 + j + i * 3, 116 + j * 18, 34 + i * 18));
             }
         }
 
