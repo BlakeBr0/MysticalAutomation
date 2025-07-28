@@ -8,6 +8,7 @@ import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
 import com.blakebr0.mysticalautomation.init.ModMenuTypes;
 import com.blakebr0.mysticalautomation.tileentity.FarmerTileEntity;
+import com.blakebr0.mysticalautomation.util.RecipeIngredientCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -16,7 +17,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class FarmerContainer extends BaseContainerMenu {
@@ -59,13 +59,15 @@ public class FarmerContainer extends BaseContainerMenu {
             this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 170));
         }
 
-        this.mover.after(9)
+        this.mover.after(14)
                 .add((slot, stack, player) -> stack.getItem() instanceof IMachineUpgrade, 0, 1) // machine upgrade
-                .add((slot, stack, player) -> stack.is(Items.WHEAT), 1, 3) // inputs // TODO farmer container valid input
+                .add((slot, stack, player) -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_SEEDS, stack), 1, 1) // input - seed
+                .add((slot, stack, player) -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_SOIL, stack), 2, 1) // input - soil
+                .add((slot, stack, player) -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_CRUX, stack), 3, 1) // input - crux
                 .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 4, 1) // fuel
                 .add((slot, stack, player) -> slot < this.slots.size() - 9, this.slots.size() - 9, 9) // hotbar
                 .add((slot, stack, player) -> slot >= this.slots.size() - 9, this.slots.size() - 36, 27); // inventory
-        this.mover.fallback(9, 36);
+        this.mover.fallback(14, 36);
 
         this.addDataSlots(data);
     }

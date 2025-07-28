@@ -12,6 +12,7 @@ import com.blakebr0.mysticalautomation.init.ModRecipeSerializers;
 import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import com.blakebr0.mysticalautomation.network.NetworkHandler;
+import com.blakebr0.mysticalautomation.util.RecipeIngredientCache;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -54,6 +55,7 @@ public final class MysticalAutomation {
     @SubscribeEvent
     public void onCommonSetup(FMLCommonSetupEvent event) {
         NeoForge.EVENT_BUS.register(DynamicRecipeManager.INSTANCE);
+        NeoForge.EVENT_BUS.register(RecipeIngredientCache.INSTANCE);
     }
 
     public static ResourceLocation resource(String path) {

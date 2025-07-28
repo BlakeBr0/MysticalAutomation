@@ -16,6 +16,7 @@ import com.blakebr0.mysticalautomation.container.FarmerContainer;
 import com.blakebr0.mysticalautomation.crafting.recipe.FarmerRecipe;
 import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
+import com.blakebr0.mysticalautomation.util.RecipeIngredientCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -222,6 +223,9 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
     public static BaseItemStackHandler createInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
         return BaseItemStackHandler.create(16, onContentsChanged, handler -> {
             handler.setCanInsert((slot, stack) -> switch (slot) {
+                case 0 -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_SEEDS, stack);
+                case 1 -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_SOIL, stack);
+                case 2 -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_CRUX, stack);
                 default -> true;
             });
 
