@@ -30,10 +30,10 @@ public record SetFakeRecipeSlotPayload(int slot, ItemStack stack) implements Cus
             var player = context.player();
             var menu = player.containerMenu;
 
-            if (menu instanceof IFakeRecipeContainer fakeRecipeContainer) {
-                var slot = menu.slots.get(payload.slot());
+            if (payload.slot < menu.slots.size() && menu instanceof IFakeRecipeContainer fakeRecipeContainer) {
+                var slot = menu.slots.get(payload.slot);
 
-                fakeRecipeContainer.setFakeRecipeSlot(slot, payload.stack());
+                fakeRecipeContainer.setFakeRecipeSlot(slot, payload.stack);
             }
         });
     }
