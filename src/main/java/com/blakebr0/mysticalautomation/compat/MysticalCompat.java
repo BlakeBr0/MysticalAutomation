@@ -34,6 +34,7 @@ public final class MysticalCompat {
     }
 
     public static final class Tooltips {
+        public static final Tooltip CHANCE = new Tooltip("tooltip.mysticalagriculture.chance");
         public static final Tooltip MACHINE_AREA = new Tooltip("tooltip.mysticalagriculture.machine_area");
         public static final Tooltip MACHINE_SPEED = new Tooltip("tooltip.mysticalagriculture.machine_speed");
         public static final Tooltip MACHINE_FUEL_RATE = new Tooltip("tooltip.mysticalagriculture.machine_fuel_rate");

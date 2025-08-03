@@ -3,6 +3,7 @@ package com.blakebr0.mysticalautomation.compat.jei.category;
 import com.blakebr0.cucumber.util.Formatting;
 import com.blakebr0.cucumber.util.Localizable;
 import com.blakebr0.mysticalautomation.MysticalAutomation;
+import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.crafting.recipe.FarmerRecipe;
 import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.lib.ModTooltips;
@@ -80,7 +81,7 @@ public class FarmerCategory implements IRecipeCategory<FarmerRecipe> {
                     .addItemStack(result.stack())
                     .addRichTooltipCallback((slots, tooltip) -> {
                         var chance = result.chance() * 100;
-                        tooltip.add(ModTooltips.CHANCE.args(Formatting.percent(chance)).build());
+                        tooltip.add(MysticalCompat.Tooltips.CHANCE.args(Formatting.percent(chance)).build());
                     });
         }
     }
