@@ -1,0 +1,26 @@
+{
+  "type": "mysticalautomation:farmer",
+  "seeds": {
+    "item": "mysticalagriculture:inferium_seeds"
+  },
+  "soil": {
+    "item": "mysticalagriculture:inferium_farmland"
+  },
+  "stages": 7,
+  "results": [
+    {
+      "item": {
+        "id": "mysticalagriculture:inferium_essence",
+        "count": 1
+      },
+      "chance": 1.0
+    },
+    {
+      "item": {
+        "id": "mysticalagriculture:inferium_essence",
+        "count": 1
+      },
+      "chance": 0.5
+    }
+  ]
+}

@@ -21,7 +21,7 @@ public final class DynamicRecipeManager {
     public void onRecipeManagerLoading(RecipeManagerLoadingEvent event) {
         if (ModConfigs.FARMER_DYNAMIC_MYSTICAL_AGRICULTURE_RECIPES.get()) {
             for (var crop : MysticalAgricultureAPI.getCropRegistry().getCrops()) {
-                if (crop.isEnabled()) {
+                if (crop.isEnabled() && !"inferium".equals(crop.getName())) {
                     var id = MysticalAutomation.resource("farmer/mysticalagriculture/" + crop.getName());
                     var recipe = createResourceSeedRecipe(crop);
 
