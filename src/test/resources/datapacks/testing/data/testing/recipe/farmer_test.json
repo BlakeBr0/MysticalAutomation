@@ -1,0 +1,24 @@
+{
+  "type": "mysticalautomation:farmer",
+  "seeds": {
+    "item": "minecraft:carrot"
+  },
+  "soil": {
+    "item": "minecraft:farmland"
+  },
+  "stages": 7,
+  "results": [
+    {
+      "item": {
+        "id": "minecraft:apple"
+      },
+      "chance": 1.0
+    },
+    {
+      "item": {
+        "id": "minecraft:diamond"
+      },
+      "chance": 0.5
+    }
+  ]
+}

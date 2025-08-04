@@ -7,7 +7,6 @@ import com.blakebr0.mysticalautomation.MysticalAutomation;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.config.ModConfigs;
 import com.blakebr0.mysticalautomation.crafting.recipe.FarmerRecipe;
-import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -26,21 +25,35 @@ public final class DynamicRecipeManager {
                     var id = MysticalAutomation.resource("farmer/mysticalagriculture/" + crop.getName());
                     var recipe = createResourceSeedRecipe(crop);
 
-                    event.addRecipe(new RecipeHolder<>(id, recipe));
+                    if (recipe != null) {
+                        event.addRecipe(new RecipeHolder<>(id, recipe));
+                    }
                 }
             }
         }
     }
 
     private static FarmerRecipe createResourceSeedRecipe(Crop crop) {
-        var seeds = crop.getSeedsItem() != null ? Ingredient.of(crop.getSeedsItem()) : Ingredient.EMPTY;
-        var farmland = crop.getTier().getFarmland() != null ? Ingredient.of(crop.getTier().getFarmland()) : Ingredient.EMPTY;
+        var seeds = crop.getSeedsItem();
+        if (seeds == null)
+            return null;
+
+        var farmland = crop.getTier().getFarmland();
+        if (farmland == null)
+            return null;
+
+        var essence = crop.getEssenceItem();
+        if (essence == null)
+            return null;
+
         var crux = crop.getCruxBlock() != null ? Ingredient.of(crop.getCruxBlock()) : Ingredient.EMPTY;
+        var stages = crop.getCropBlock() != null ? crop.getCropBlock().getMaxAge() : 7;
+
         var results = List.of(
                 new FarmerRecipe.FarmerResult(new ItemStack(crop.getEssenceItem()), 1.0F),
                 new FarmerRecipe.FarmerResult(new ItemStack(MysticalCompat.Items.FERTILIZED_ESSENCE), 0.05F)
         );
 
-        return new FarmerRecipe(seeds, farmland, crux, Holder.direct(crop.getCropBlock()), results);
+        return new FarmerRecipe(Ingredient.of(seeds), Ingredient.of(farmland), crux, stages, results);
     }
 }

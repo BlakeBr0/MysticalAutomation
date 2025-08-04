@@ -5,11 +5,8 @@ import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,17 +17,12 @@ import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.CropBlock;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FarmerRecipe implements Recipe<RecipeInput> {
-    private static final int DEFAULT_STAGES = 3;
-
     private final NonNullList<Ingredient> ingredients;
-    private final Holder<Block> crop;
     private final int stages;
     private final List<FarmerResult> results;
 
@@ -38,12 +30,11 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
     private final Ingredient soil;
     private final Ingredient crux;
 
-    public FarmerRecipe(Ingredient seeds, Ingredient soil, Ingredient crux, Holder<Block> crop, List<FarmerResult> results) {
+    public FarmerRecipe(Ingredient seeds, Ingredient soil, Ingredient crux, int stages, List<FarmerResult> results) {
         this.seeds = seeds;
         this.soil = soil;
         this.crux = crux;
-        this.crop = crop;
-        this.stages = calculateStages(crop);
+        this.stages = stages;
 
         this.ingredients = NonNullList.of(Ingredient.EMPTY, seeds, soil, crux);
         this.results = results;
@@ -95,10 +86,6 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
         return ModRecipeTypes.FARMER.get();
     }
 
-    public Holder<Block> getCrop() {
-        return this.crop;
-    }
-
     public int getStages() {
         return this.stages;
     }
@@ -116,17 +103,6 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
         }
 
         return results;
-    }
-
-    private static int calculateStages(Holder<Block> crop) {
-        if (crop.isBound()) {
-            var block = crop.value();
-
-            if (block instanceof CropBlock cropBlock)
-                return cropBlock.getMaxAge();
-        }
-
-        return DEFAULT_STAGES;
     }
 
     public record FarmerResult(ItemStack stack, float chance) {
@@ -147,13 +123,12 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
     }
 
     public static class Serializer implements RecipeSerializer<FarmerRecipe> {
-        private static final StreamCodec<RegistryFriendlyByteBuf, Holder<Block>> BLOCK_STREAM_CODEC = ByteBufCodecs.holderRegistry(Registries.BLOCK);
         private static final MapCodec<FarmerRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(builder ->
                 builder.group(
                         Ingredient.CODEC.fieldOf("seeds").forGetter(recipe -> recipe.seeds),
                         Ingredient.CODEC.fieldOf("soil").forGetter(recipe -> recipe.soil),
                         Ingredient.CODEC.optionalFieldOf("crux", Ingredient.EMPTY).forGetter(recipe -> recipe.crux),
-                        BuiltInRegistries.BLOCK.holderByNameCodec().fieldOf("crop").forGetter(recipe -> recipe.crop),
+                        Codec.INT.fieldOf("stages").forGetter(recipe -> recipe.stages),
                         FarmerResult.CODEC.listOf().fieldOf("results").forGetter(recipe -> recipe.results)
                 ).apply(builder, FarmerRecipe::new)
         );
@@ -176,7 +151,7 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
             var soil = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
             var crux = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
 
-            var crop = BLOCK_STREAM_CODEC.decode(buffer);
+            var stages = ByteBufCodecs.VAR_INT.decode(buffer);
 
             var size = buffer.readVarInt();
             var results = new ArrayList<FarmerResult>();
@@ -185,7 +160,7 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
                 results.add(FarmerResult.STREAM_CODEC.decode(buffer));
             }
 
-            return new FarmerRecipe(seeds, soil, crux, crop, results);
+            return new FarmerRecipe(seeds, soil, crux, stages, results);
         }
 
         private static void toNetwork(RegistryFriendlyByteBuf buffer, FarmerRecipe recipe) {
@@ -193,7 +168,7 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
             Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.soil);
             Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.crux);
 
-            BLOCK_STREAM_CODEC.encode(buffer, recipe.crop);
+            ByteBufCodecs.VAR_INT.encode(buffer, recipe.stages);
 
             buffer.writeVarInt(recipe.results.size());
 

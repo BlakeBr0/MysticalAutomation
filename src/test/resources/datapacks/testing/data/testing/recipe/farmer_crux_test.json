@@ -1,22 +1,25 @@
 {
   "type": "mysticalautomation:farmer",
   "seeds": {
-    "item": "minecraft:carrot"
+    "item": "minecraft:potato"
   },
   "soil": {
     "item": "minecraft:farmland"
   },
-  "crop": "minecraft:carrots",
+  "crux": {
+    "item": "minecraft:cobblestone"
+  },
+  "stages": 7,
   "results": [
     {
       "item": {
-        "id": "minecraft:apple"
+        "id": "minecraft:egg"
       },
       "chance": 1.0
     },
     {
       "item": {
-        "id": "minecraft:diamond"
+        "id": "minecraft:emerald"
       },
       "chance": 0.5
     }
