@@ -49,9 +49,11 @@ public final class DynamicRecipeManager {
         var crux = crop.getCruxBlock() != null ? Ingredient.of(crop.getCruxBlock()) : Ingredient.EMPTY;
         var stages = crop.getCropBlock() != null ? crop.getCropBlock().getMaxAge() : 7;
 
+        var fertilizedEssenceChance = (float) MysticalAgricultureAPI.getConfigValues().getFertilizedEssenceDropChance();
+
         var results = List.of(
                 new FarmerRecipe.FarmerResult(new ItemStack(crop.getEssenceItem()), 1.0F),
-                new FarmerRecipe.FarmerResult(new ItemStack(MysticalCompat.Items.FERTILIZED_ESSENCE), 0.05F)
+                new FarmerRecipe.FarmerResult(new ItemStack(MysticalCompat.Items.FERTILIZED_ESSENCE), fertilizedEssenceChance)
         );
 
         return new FarmerRecipe(Ingredient.of(seeds), Ingredient.of(farmland), crux, stages, results);
