@@ -1,5 +1,6 @@
 package com.blakebr0.mysticalautomation.crafting.recipe;
 
+import com.blakebr0.mysticalautomation.api.crafting.IFarmerRecipe;
 import com.blakebr0.mysticalautomation.init.ModRecipeSerializers;
 import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.mojang.serialization.Codec;
@@ -12,7 +13,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -21,7 +21,7 @@ import net.minecraft.world.level.Level;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FarmerRecipe implements Recipe<RecipeInput> {
+public class FarmerRecipe implements IFarmerRecipe {
     private final NonNullList<Ingredient> ingredients;
     private final int stages;
     private final List<FarmerResult> results;
@@ -86,40 +86,26 @@ public class FarmerRecipe implements Recipe<RecipeInput> {
         return ModRecipeTypes.FARMER.get();
     }
 
+    @Override
     public int getStages() {
         return this.stages;
     }
 
+    @Override
     public List<FarmerResult> getResults() {
         return this.results;
     }
 
+    @Override
     public List<ItemStack> getRolledResults() {
         var results = new ArrayList<ItemStack>();
 
         for (var result : this.results) {
-            if (result.chance > Math.random())
-                results.add(result.stack.copy());
+            if (result.chance() > Math.random())
+                results.add(result.stack().copy());
         }
 
         return results;
-    }
-
-    public record FarmerResult(ItemStack stack, float chance) {
-        public static final MapCodec<FarmerResult> MAP_CODEC = RecordCodecBuilder.mapCodec(builder ->
-                builder.group(
-                        ItemStack.CODEC.fieldOf("item").forGetter(result -> result.stack),
-                        Codec.FLOAT.fieldOf("chance").forGetter(result -> result.chance)
-                ).apply(builder, FarmerResult::new)
-        );
-        public static final Codec<FarmerResult> CODEC = MAP_CODEC.codec();
-        public static final StreamCodec<RegistryFriendlyByteBuf, FarmerResult> STREAM_CODEC = StreamCodec.composite(
-                ItemStack.STREAM_CODEC,
-                FarmerResult::stack,
-                ByteBufCodecs.FLOAT,
-                FarmerResult::chance,
-                FarmerResult::new
-        );
     }
 
     public static class Serializer implements RecipeSerializer<FarmerRecipe> {
