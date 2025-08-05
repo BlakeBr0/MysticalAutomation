@@ -1,0 +1,19 @@
+{
+  "type": "mysticalautomation:farmer",
+  "seeds": {
+    "item": "minecraft:beetroot_seeds"
+  },
+  "soil": {
+    "item": "minecraft:farmland"
+  },
+  "stages": 7,
+  "results": [
+    {
+      "item": {
+        "id": "minecraft:beetroot",
+        "count": 1
+      },
+      "chance": 1.0
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "type": "mysticalautomation:farmer",
+  "seeds": {
+    "item": "minecraft:nether_wart"
+  },
+  "soil": {
+    "item": "minecraft:soul_sand"
+  },
+  "stages": 7,
+  "results": [
+    {
+      "item": {
+        "id": "minecraft:nether_wart",
+        "count": 2
+      },
+      "chance": 1.0
+    },
+    {
+      "item": {
+        "id": "minecraft:nether_wart",
+        "count": 1
+      },
+      "chance": 0.5
+    }
+  ]
+}

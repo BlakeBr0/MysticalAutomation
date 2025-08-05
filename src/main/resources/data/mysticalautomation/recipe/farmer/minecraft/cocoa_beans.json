@@ -1,0 +1,19 @@
+{
+  "type": "mysticalautomation:farmer",
+  "seeds": {
+    "item": "minecraft:cocoa_beans"
+  },
+  "soil": {
+    "item": "minecraft:jungle_log"
+  },
+  "stages": 7,
+  "results": [
+    {
+      "item": {
+        "id": "minecraft:cocoa_beans",
+        "count": 3
+      },
+      "chance": 1.0
+    }
+  ]
+}

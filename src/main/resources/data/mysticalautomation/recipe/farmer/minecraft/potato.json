@@ -1,0 +1,33 @@
+{
+  "type": "mysticalautomation:farmer",
+  "seeds": {
+    "item": "minecraft:potato"
+  },
+  "soil": {
+    "item": "minecraft:farmland"
+  },
+  "stages": 7,
+  "results": [
+    {
+      "item": {
+        "id": "minecraft:potato",
+        "count": 2
+      },
+      "chance": 1.0
+    },
+    {
+      "item": {
+        "id": "minecraft:potato",
+        "count": 1
+      },
+      "chance": 0.5
+    },
+    {
+      "item": {
+        "id": "minecraft:poisonous_potato",
+        "count": 1
+      },
+      "chance": 0.02
+    }
+  ]
+}

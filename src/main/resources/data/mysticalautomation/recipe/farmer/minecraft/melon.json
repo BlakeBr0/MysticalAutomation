@@ -1,0 +1,33 @@
+{
+  "type": "mysticalautomation:farmer",
+  "seeds": {
+    "item": "minecraft:melon_seeds"
+  },
+  "soil": {
+    "item": "minecraft:farmland"
+  },
+  "stages": 7,
+  "results": [
+    {
+      "item": {
+        "id": "minecraft:melon_slice",
+        "count": 3
+      },
+      "chance": 1.0
+    },
+    {
+      "item": {
+        "id": "minecraft:melon_slice",
+        "count": 1
+      },
+      "chance": 0.5
+    },
+    {
+      "item": {
+        "id": "minecraft:melon_slice",
+        "count": 1
+      },
+      "chance": 0.25
+    }
+  ]
+}
