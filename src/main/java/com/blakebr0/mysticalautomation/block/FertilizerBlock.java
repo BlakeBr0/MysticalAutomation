@@ -100,12 +100,14 @@ public class FertilizerBlock extends BaseTileEntityBlock {
 
             var area = Component.literal(rangeString + "x" + rangeString).withStyle(ChatFormatting.WHITE);
             var speed = Formatting.number(FertilizerTileEntity.OPERATION_TIME).withStyle(ChatFormatting.WHITE);
+            var scanFuelUsage = Formatting.number(FertilizerTileEntity.SCAN_FUEL_USAGE).withStyle(ChatFormatting.WHITE);
             var fuelRate = Formatting.number(FertilizerTileEntity.FUEL_USAGE).withStyle(ChatFormatting.WHITE);
             var fuelCapacity = Formatting.number(FertilizerTileEntity.FUEL_CAPACITY).withStyle(ChatFormatting.WHITE);
 
             tooltip.add(MysticalCompat.Tooltips.MACHINE_AREA.args(area).build());
             tooltip.add(MysticalCompat.Tooltips.MACHINE_SPEED.args(speed).build());
-            tooltip.add(MysticalCompat.Tooltips.MACHINE_FUEL_RATE.args(fuelRate).build());
+            tooltip.add(MysticalCompat.Tooltips.MACHINE_SCAN_FUEL_USAGE.args(scanFuelUsage).build());
+            tooltip.add(MysticalCompat.Tooltips.MACHINE_FUEL_USAGE.args(fuelRate).build());
             tooltip.add(MysticalCompat.Tooltips.MACHINE_FUEL_CAPACITY.args(fuelCapacity).build());
         } else {
             tooltip.add(Tooltips.HOLD_SHIFT_FOR_INFO.build());

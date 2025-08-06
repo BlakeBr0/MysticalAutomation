@@ -39,6 +39,8 @@ public final class MysticalCompat {
         public static final Tooltip MACHINE_SPEED = new Tooltip("tooltip.mysticalagriculture.machine_speed");
         public static final Tooltip MACHINE_FUEL_RATE = new Tooltip("tooltip.mysticalagriculture.machine_fuel_rate");
         public static final Tooltip MACHINE_FUEL_CAPACITY = new Tooltip("tooltip.mysticalagriculture.machine_fuel_capacity");
+        public static final Tooltip MACHINE_FUEL_USAGE = new Tooltip("tooltip.mysticalagriculture.machine_fuel_usage");
+        public static final Tooltip MACHINE_SCAN_FUEL_USAGE = new Tooltip("tooltip.mysticalagriculture.machine_scan_fuel_usage");
     }
 
     public static boolean isEssence(ItemStack stack) {
