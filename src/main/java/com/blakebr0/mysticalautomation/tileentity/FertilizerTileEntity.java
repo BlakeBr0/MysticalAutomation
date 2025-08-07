@@ -45,8 +45,8 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
     private static final int FUEL_SLOT = 8;
 
     public static final int FUEL_TICK_MULTIPLIER = 20;
-    public static final int OPERATION_TIME = 100;
-    public static final int FUEL_USAGE = 20;
+    public static final int OPERATION_TIME = 200;
+    public static final int FUEL_USAGE = 40;
     public static final int SCAN_FUEL_USAGE = 10;
     public static final int FUEL_CAPACITY = 80000;
     public static final int BASE_RANGE = 1;

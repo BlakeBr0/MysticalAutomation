@@ -46,7 +46,7 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
     private static final int[] OUTPUT_SLOTS = IntStream.rangeClosed(4, 12).toArray();
 
     public static final int FUEL_TICK_MULTIPLIER = 20;
-    public static final int OPERATION_TIME = 100;
+    public static final int OPERATION_TIME = 800;
     public static final int FUEL_USAGE = 20;
     public static final int FUEL_CAPACITY = 80000;
 

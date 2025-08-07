@@ -47,7 +47,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
     private static final int OUTPUT_SLOT = 10;
 
     public static final int FUEL_TICK_MULTIPLIER = 20;
-    public static final int OPERATION_TIME = 100;
+    public static final int OPERATION_TIME = 200;
     public static final int FUEL_USAGE = 20;
     public static final int FUEL_CAPACITY = 80000;
 
