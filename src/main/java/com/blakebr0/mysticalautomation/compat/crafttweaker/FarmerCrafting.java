@@ -5,6 +5,7 @@ import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.blamejared.crafttweaker.api.CraftTweakerAPI;
 import com.blamejared.crafttweaker.api.CraftTweakerConstants;
 import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
+import com.blamejared.crafttweaker.api.action.recipe.ActionRemoveRecipe;
 import com.blamejared.crafttweaker.api.annotation.ZenRegister;
 import com.blamejared.crafttweaker.api.ingredient.IIngredient;
 import com.blamejared.crafttweaker.api.item.IItemStack;
@@ -45,5 +46,11 @@ public final class FarmerCrafting implements IRecipeManager<FarmerRecipe> {
         );
 
         CraftTweakerAPI.apply(new ActionAddRecipe<>(this, new RecipeHolder<>(id, recipe)));
+    }
+
+    @ZenCodeType.Method
+    public void removeBySeeds(IItemStack seeds) {
+        CraftTweakerAPI.apply(new ActionRemoveRecipe<>(this, holder -> holder.value()
+                .getIngredients().getFirst().test(seeds.getInternal())));
     }
 }

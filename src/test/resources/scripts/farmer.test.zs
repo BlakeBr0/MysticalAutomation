@@ -14,6 +14,8 @@
   }
 );
 
+// <recipetype:mysticalautomation:farmer>.removeBySeeds(<item:mysticalagriculture:emerald_seeds>);
+
 var recipes = <recipetype:mysticalautomation:farmer>.allRecipes;
 
 println("There are " + recipes.length + " farmer recipes");
