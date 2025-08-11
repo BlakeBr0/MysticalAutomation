@@ -30,19 +30,22 @@ public class FarmerRecipe implements IFarmerRecipe {
     private final Ingredient soil;
     private final Ingredient crux;
 
+    private final int inputCount;
+
     public FarmerRecipe(Ingredient seeds, Ingredient soil, Ingredient crux, int stages, List<FarmerResult> results) {
         this.seeds = seeds;
         this.soil = soil;
         this.crux = crux;
-        this.stages = stages;
-
         this.ingredients = NonNullList.of(Ingredient.EMPTY, seeds, soil, crux);
+        this.stages = stages;
         this.results = results;
+
+        this.inputCount = (int) this.ingredients.stream().filter(i -> !i.isEmpty()).count();
     }
 
     @Override
     public boolean matches(RecipeInput input, Level level) {
-        if (input.size() > this.ingredients.size())
+        if (input.size() != this.inputCount)
             return false;
 
         for (int i = 0; i < input.size(); i++) {
