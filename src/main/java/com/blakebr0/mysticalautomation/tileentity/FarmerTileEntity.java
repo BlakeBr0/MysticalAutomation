@@ -276,7 +276,7 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
     }
 
     private CraftingInput toCraftingInput() {
-        return this.inventory.toCraftingInput(1, 3);
+        return this.inventory.toCraftingInput(1, 3, INPUT_SLOTS[0], INPUT_SLOTS[0] + INPUT_SLOTS.length);
     }
 
     private void addItemToInventory(ItemStack stack) {
