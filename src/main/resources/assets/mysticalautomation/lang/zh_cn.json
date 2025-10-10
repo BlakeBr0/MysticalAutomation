@@ -1,0 +1,50 @@
+{
+  "itemGroup.mysticalautomation": "神秘自动化",
+
+  "block.mysticalautomation.infuser": "注魔器",
+  "block.mysticalautomation.crafter": "合成器",
+  "block.mysticalautomation.farmer": "耕作器",
+  "block.mysticalautomation.fertilizer": "施肥器",
+  "block.mysticalautomation.enchanternator": "自动附魔器",
+  "block.mysticalautomation.infusion_altarnator": "自动注魔祭坛",
+  "block.mysticalautomation.awakening_altarnator": "自动觉醒祭坛",
+
+  "container.mysticalautomation.infuser": "注魔器",
+  "container.mysticalautomation.crafter": "合成器",
+  "container.mysticalautomation.farmer": "耕作器",
+  "container.mysticalautomation.fertilizer": "施肥器",
+  "container.mysticalautomation.enchanternator": "自动附魔器",
+  "container.mysticalautomation.infusion_altarnator": "自动注魔祭坛",
+  "container.mysticalautomation.awakening_altarnator": "自动觉醒祭坛",
+
+  "tooltip.mysticalautomation.stage": "阶段 %s / %s",
+  "tooltip.mysticalautomation.stages": "%s 阶段",
+
+  "jei.category.mysticalautomation.farmer": "耕作器",
+  "jei.category.mysticalautomation.fertilizer": "施肥器",
+
+  "book.mysticalagriculture.category.automation.name": "自动化",
+  "book.mysticalagriculture.category.automation.description": "本板块会将介绍由神秘自动化模组添加的额外内容。",
+
+  "book.mysticalagriculture.entry.infuser": "注魔机",
+  "book.mysticalagriculture.entry.infuser.page.1": "注魔器可通过$(l:basics/infusion_crystal)注魔水晶$()，实现自动化$(l:basics/inferium_essence)精华$()升阶。$(br2)消耗固体燃料，并有内部能量缓存。$(br2)使用输入槽位下方的按钮来设置想要自动输出的精华种类。",
+  "book.mysticalagriculture.entry.infuser.page.2": "可使用$(l:machines/machine_upgrades)机器升级$()升级该机器。",
+  "book.mysticalagriculture.entry.crafter": "合成器",
+  "book.mysticalagriculture.entry.crafter.page.1": "合成器可使用提供的输入材料，自动化执行配方合成。$(br2)消耗固体燃料，并有内部能量缓存。$(br2)在合成方格中设置配方，然后将物品放入指定的输入槽位中。",
+  "book.mysticalagriculture.entry.crafter.page.2": "可使用$(l:machines/machine_upgrades)机器升级$()升级该机器。",
+  "book.mysticalagriculture.entry.farmer": "耕作器",
+  "book.mysticalagriculture.entry.farmer.page.1": "耕作器可使种植、催生及收获作物的流程完全自动化。$(br2)消耗固体燃料，并有内部能量缓存。",
+  "book.mysticalagriculture.entry.farmer.page.2": "可使用$(l:machines/machine_upgrades)机器升级$()升级该机器。",
+  "book.mysticalagriculture.entry.fertilizer": "施肥器",
+  "book.mysticalagriculture.entry.fertilizer.page.1": "施肥器可使用如骨粉、$(l:basics/fertilized_essence)肥料精华$()或$(l:advances/mystical_fertilizer)魔法肥料$()等的肥料，自动为范围内的作物施肥。$(br2)消耗固体燃料，并有内部能量缓存。",
+  "book.mysticalagriculture.entry.fertilizer.page.2": "可使用$(l:machines/machine_upgrades)机器升级$()升级该机器。",
+  "book.mysticalagriculture.entry.infusion_altarnator": "自动注魔祭坛",
+  "book.mysticalagriculture.entry.infusion_altarnator.page.1": "自动注魔祭坛可自动执行$(l:basics/infusion_altar)注魔祭坛$()配方。$(br2)消耗固体燃料，并有内部能量缓存。$(br2)在合成方格中设置配方，然后将物品放入指定的输入槽位中。",
+  "book.mysticalagriculture.entry.infusion_altarnator.page.2": "可使用$(l:machines/machine_upgrades)机器升级$()升级该机器。",
+  "book.mysticalagriculture.entry.awakening_altarnator": "自动觉醒祭坛",
+  "book.mysticalagriculture.entry.awakening_altarnator.page.1": "自动觉醒祭坛可自动执行$(l:elemental/awakening_altar)觉醒祭坛$()配方。$(br2)消耗固体燃料，并有内部能量缓存。$(br2)在合成方格中设置配方，然后将物品放入指定的输入槽位中。",
+  "book.mysticalagriculture.entry.awakening_altarnator.page.2": "可使用$(l:machines/machine_upgrades)机器升级$()升级该机器。",
+  "book.mysticalagriculture.entry.enchanternator": "自动附魔器",
+  "book.mysticalagriculture.entry.enchanternator.page.1": "自动附魔器可自动执行$(l:souls/enchanter)附魔器$()配方。$()$(br2)消耗固体燃料，并有内部能量缓存。$(br2)在上方槽位中设置配方，然后将物品放入指定的下方输入槽位中。",
+  "book.mysticalagriculture.entry.enchanternator.page.2": "可使用$(l:machines/machine_upgrades)机器升级$()升级该机器。"
+}
