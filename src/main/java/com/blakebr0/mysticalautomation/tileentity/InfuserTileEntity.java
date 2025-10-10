@@ -279,6 +279,10 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     }
 
     private ItemStack getProcessingItemStack() {
+        // when there's no valid processing index, it's -1
+        if (this.progressingIndex < 0)
+            return ItemStack.EMPTY;
+
         return this.inventory.getStackInSlot(INPUT_SLOTS[this.progressingIndex]);
     }
 
@@ -301,7 +305,7 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
                 return i;
         }
 
-        return 0;
+        return -1;
     }
 
     private boolean canInsertStackSided(int slot, ItemStack stack, @Nullable Direction direction) {
