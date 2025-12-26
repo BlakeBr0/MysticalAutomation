@@ -1,0 +1,50 @@
+{
+  "itemGroup.mysticalautomation": "Mystical Automation",
+
+  "block.mysticalautomation.infuser": "Infusor",
+  "block.mysticalautomation.crafter": "Fabricador",
+  "block.mysticalautomation.farmer": "Fazendeiro",
+  "block.mysticalautomation.fertilizer": "Fertilizador",
+  "block.mysticalautomation.enchanternator": "Encantornador",
+  "block.mysticalautomation.infusion_altarnator": "Altarnador de Infusão",
+  "block.mysticalautomation.awakening_altarnator": "Altarnador do Despertar",
+
+  "container.mysticalautomation.infuser": "Infusor",
+  "container.mysticalautomation.crafter": "Fabricador",
+  "container.mysticalautomation.farmer": "Fazendeiro",
+  "container.mysticalautomation.fertilizer": "Fertilizador",
+  "container.mysticalautomation.enchanternator": "Encantornador",
+  "container.mysticalautomation.infusion_altarnator": "Altarnador de Infusão",
+  "container.mysticalautomation.awakening_altarnator": "Altarnador do Despertar",
+
+  "tooltip.mysticalautomation.stage": "Estágio %s / %s",
+  "tooltip.mysticalautomation.stages": "%s Estágio(s)",
+
+  "jei.category.mysticalautomation.farmer": "Fazendeiro",
+  "jei.category.mysticalautomation.fertilizer": "Fertilizador",
+
+  "book.mysticalagriculture.category.automation.name": "Automação",
+  "book.mysticalagriculture.category.automation.description": "Esta seção aborda o conteúdo adicional adicionado pelo Mystical Automation.",
+
+  "book.mysticalagriculture.entry.infuser": "Infusor",
+  "book.mysticalagriculture.entry.infuser.page.1": "O Infusor é usado para infundir automaticamente $(l:basics/inferium_essence)Essências$() junto com $(l:basics/infusion_crystal)Cristais de Infusão$(). $(br2)Eles funcionam com combustíveis sólidos e possuem um buffer interno de armazenamento de energia. $(br2)Use os botões abaixo dos slots de entrada para definir qual nível de Essência você deseja que seja extraída automaticamente.",
+  "book.mysticalagriculture.entry.infuser.page.2": "Estas máquinas podem ser melhoradas com $(l:machines/machine_upgrades)Melhorias de Máquina$().",
+  "book.mysticalagriculture.entry.crafter": "Fabricador",
+  "book.mysticalagriculture.entry.crafter.page.1": "O Fabricador é usado para fabricar automaticamente uma receita com os insumos fornecidos. $(br2)Eles funcionam com combustíveis sólidos e possuem um buffer interno de armazenamento de energia. $(br2)Defina uma receita usando a grade e coloque os itens em seus slots de entrada designados.",
+  "book.mysticalagriculture.entry.crafter.page.2": "Estas máquinas podem ser melhoradas com $(l:machines/machine_upgrades)Melhorias de Máquina$().",
+  "book.mysticalagriculture.entry.farmer": "Fazendeiro",
+  "book.mysticalagriculture.entry.farmer.page.1": "O Fazendeiro é usado para automatizar completamente o processo de plantio, cultivo e colheita de plantações. $(br2)Eles funcionam com combustíveis sólidos e possuem um buffer interno de armazenamento de energia.",
+  "book.mysticalagriculture.entry.farmer.page.2": "Estas máquinas podem ser melhoradas com $(l:machines/machine_upgrades)Melhorias de Máquina$().",
+  "book.mysticalagriculture.entry.fertilizer": "Fertilizador",
+  "book.mysticalagriculture.entry.fertilizer.page.1": "O Fertilizador é usado para fertilizar automaticamente um campo de plantas usando fertilizantes como Farelo de Osso, $(l:basics/fertilized_essence)Essência Fertilizada$() ou $(l:advances/mystical_fertilizer)Fertilizante Místico$(). $(br2)Eles funcionam com combustíveis sólidos e possuem um buffer interno de armazenamento de energia.",
+  "book.mysticalagriculture.entry.fertilizer.page.2": "Estas máquinas podem ser melhoradas com $(l:machines/machine_upgrades)Melhorias de Máquina$().",
+  "book.mysticalagriculture.entry.infusion_altarnator": "Altarnador de Infusão",
+  "book.mysticalagriculture.entry.infusion_altarnator.page.1": "O Altarnador de Infusão é usado para criar automaticamente uma receita de $(l:basics/infusion_altar)Altar de Infusão$(). $(br2)Eles funcionam com combustíveis sólidos e possuem um buffer interno de armazenamento de energia. $(br2)Defina uma receita usando a grade e coloque os itens em seus slots de entrada designados.",
+  "book.mysticalagriculture.entry.infusion_altarnator.page.2": "Estas máquinas podem ser melhoradas com $(l:machines/machine_upgrades)Melhorias de Máquina$().",
+  "book.mysticalagriculture.entry.awakening_altarnator": "Altarnador do Despertar",
+  "book.mysticalagriculture.entry.awakening_altarnator.page.1": "O Altarnador do Despertar é usado para criar automaticamente uma receita de $(l:elemental/awakening_altar)Altar do Despertar$(). $(br2)Eles funcionam com combustíveis sólidos e possuem um buffer interno de armazenamento de energia. $(br2)Defina uma receita usando a grade e coloque os itens em seus slots de entrada designados.",
+  "book.mysticalagriculture.entry.awakening_altarnator.page.2": "Estas máquinas podem ser melhoradas com $(l:machines/machine_upgrades)Melhorias de Máquina$().",
+  "book.mysticalagriculture.entry.enchanternator": "Encantornador",
+  "book.mysticalagriculture.entry.enchanternator.page.1": "O Encantornador é usado para criar automaticamente uma receita de $(l:souls/enchanter)Encantador$(). $()$(br2)Eles funcionam com combustíveis sólidos e possuem um buffer interno de armazenamento de energia. $(br2)Defina uma receita usando os slots acima e coloque os itens em seus slots de entrada designados abaixo.",
+  "book.mysticalagriculture.entry.enchanternator.page.2": "Estas máquinas podem ser melhoradas com $(l:machines/machine_upgrades)Melhorias de Máquina$()."
+}
