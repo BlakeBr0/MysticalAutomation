@@ -29,6 +29,6 @@ public final class ModTileEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EnchanternatorTileEntity>> ENCHANTERNATOR = register("enchanternator", EnchanternatorTileEntity::new, () -> new Block[] { ModBlocks.ENCHANTERNATOR.get() });
 
     private static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> register(String name, BlockEntityType.BlockEntitySupplier<T> tile, Supplier<Block[]> blocks) {
-        return REGISTRY.register(name, () -> BlockEntityType.Builder.of(tile, blocks.get()).build(null));
+        return REGISTRY.register(name, () -> new BlockEntityType<>(tile, blocks.get()));
     }
 }

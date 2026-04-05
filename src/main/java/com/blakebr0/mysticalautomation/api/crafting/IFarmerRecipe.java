@@ -7,7 +7,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 
 import java.util.List;
@@ -34,21 +37,36 @@ public interface IFarmerRecipe extends Recipe<RecipeInput> {
      */
     List<ItemStack> getRolledResults();
 
+    @Override
+    default String group() {
+        return "mysticalautomation:farmer";
+    }
+
+    @Override
+    default boolean showNotification() {
+        return false;
+    }
+
+    @Override
+    default RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
     /**
      * Represents a possible result item and the associated chance of it rolling
      * @param stack the result item
      * @param chance the chance of getting this item
      */
-    record FarmerResult(ItemStack stack, float chance) {
+    record FarmerResult(ItemStackTemplate stack, float chance) {
         public static final MapCodec<FarmerResult> MAP_CODEC = RecordCodecBuilder.mapCodec(builder ->
                 builder.group(
-                        ItemStack.CODEC.fieldOf("item").forGetter(result -> result.stack),
+                        ItemStackTemplate.CODEC.fieldOf("item").forGetter(result -> result.stack),
                         Codec.FLOAT.fieldOf("chance").forGetter(result -> result.chance)
                 ).apply(builder, FarmerResult::new)
         );
         public static final Codec<FarmerResult> CODEC = MAP_CODEC.codec();
         public static final StreamCodec<RegistryFriendlyByteBuf, FarmerResult> STREAM_CODEC = StreamCodec.composite(
-                ItemStack.STREAM_CODEC,
+                ItemStackTemplate.STREAM_CODEC,
                 FarmerResult::stack,
                 ByteBufCodecs.FLOAT,
                 FarmerResult::chance,

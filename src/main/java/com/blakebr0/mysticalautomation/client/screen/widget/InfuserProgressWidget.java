@@ -1,17 +1,18 @@
 package com.blakebr0.mysticalautomation.client.screen.widget;
 
 import com.blakebr0.mysticalautomation.client.screen.InfuserScreen;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
 public class InfuserProgressWidget extends AbstractWidget {
-    private static final ResourceLocation TEXTURE = InfuserScreen.BACKGROUND;
+    private static final Identifier TEXTURE = InfuserScreen.BACKGROUND;
 
     private final IntSupplier progress;
     private final IntSupplier total;
@@ -26,13 +27,13 @@ public class InfuserProgressWidget extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
-        gfx.blit(TEXTURE, this.getX(), this.getY(), 225, 0, this.width, this.height);
+    protected void extractWidgetRenderState(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float v) {
+        gfx.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, this.getX(), this.getY(), 225, 0, this.width, this.height, 256, 256);
 
         if (this.isSelected.getAsBoolean()) {
             var offset = this.getProgressScaled();
 
-            gfx.blit(TEXTURE, this.getX(), this.getY(), 225, this.height, offset, this.height);
+            gfx.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, this.getX(), this.getY(), 225, this.height, offset, this.height, 256, 256);
         }
     }
 

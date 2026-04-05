@@ -8,7 +8,7 @@ import mezz.jei.api.ingredients.ITypedIngredient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class GhostIngredientHandler<T extends BaseContainerScreen<?>> implements
                                 return;
 
                             slot.set(stack);
-                            PacketDistributor.sendToServer(new SetFakeRecipeSlotPayload(slot.index, stack));
+                            ClientPacketDistributor.sendToServer(new SetFakeRecipeSlotPayload(slot.index, stack));
                         }
                     }
                 });

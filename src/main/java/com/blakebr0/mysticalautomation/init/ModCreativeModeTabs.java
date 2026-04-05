@@ -16,7 +16,7 @@ public final class ModCreativeModeTabs {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> CREATIVE_TAB = REGISTRY.register("creative_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.mysticalautomation"))
             .icon(() -> new ItemStack(ModBlocks.INFUSER.get()))
-            .displayItems(FeatureFlagDisplayItemGenerator.create((parameters, output) -> {
+            .displayItems(FeatureFlagDisplayItemGenerator.create((_, output) -> {
                 output.accept(ModBlocks.INFUSER, ModFeatureFlags.INFUSER_ENABLED);
                 output.accept(ModBlocks.CRAFTER, ModFeatureFlags.CRAFTER_ENABLED);
                 output.accept(ModBlocks.FARMER, ModFeatureFlags.FARMER_ENABLED);

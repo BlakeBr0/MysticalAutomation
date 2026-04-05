@@ -1,44 +1,67 @@
 package com.blakebr0.mysticalautomation.crafting.recipe;
 
 import com.blakebr0.mysticalautomation.api.crafting.IFarmerRecipe;
-import com.blakebr0.mysticalautomation.init.ModRecipeSerializers;
+import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class FarmerRecipe implements IFarmerRecipe {
-    private final NonNullList<Ingredient> ingredients;
+    public static final MapCodec<FarmerRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(builder ->
+            builder.group(
+                    Ingredient.CODEC.fieldOf("seeds").forGetter(recipe -> recipe.seeds),
+                    Ingredient.CODEC.fieldOf("soil").forGetter(recipe -> recipe.soil),
+                    Ingredient.CODEC.optionalFieldOf("crux").forGetter(recipe -> recipe.crux),
+                    Codec.INT.fieldOf("stages").forGetter(recipe -> recipe.stages),
+                    FarmerResult.CODEC.listOf().fieldOf("results").forGetter(recipe -> recipe.results)
+            ).apply(builder, FarmerRecipe::new)
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, FarmerRecipe> STREAM_CODEC = StreamCodec.of(
+            FarmerRecipe::toNetwork, FarmerRecipe::fromNetwork
+    );
+    public static final RecipeSerializer<FarmerRecipe> SERIALIZER = new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
+
+    private final List<Ingredient> ingredients;
     private final int stages;
     private final List<FarmerResult> results;
 
     private final Ingredient seeds;
     private final Ingredient soil;
-    private final Ingredient crux;
+    private final Optional<Ingredient> crux;
 
     private final int inputCount;
 
-    public FarmerRecipe(Ingredient seeds, Ingredient soil, Ingredient crux, int stages, List<FarmerResult> results) {
+    private PlacementInfo placementInfo;
+
+    public FarmerRecipe(Ingredient seeds, Ingredient soil, Optional<Ingredient> crux, int stages, List<FarmerResult> results) {
         this.seeds = seeds;
         this.soil = soil;
         this.crux = crux;
-        this.ingredients = NonNullList.of(Ingredient.EMPTY, seeds, soil, crux);
         this.stages = stages;
         this.results = results;
+
+        this.ingredients = new ArrayList<>();
+        this.ingredients.add(seeds);
+        this.ingredients.add(soil);
+        crux.ifPresent(this.ingredients::add);
 
         this.inputCount = (int) this.ingredients.stream().filter(i -> !i.isEmpty()).count();
     }
@@ -60,32 +83,35 @@ public class FarmerRecipe implements IFarmerRecipe {
     }
 
     @Override
-    public ItemStack assemble(RecipeInput input, HolderLookup.Provider provider) {
-        return this.results.getFirst().stack().copy();
+    public ItemStack assemble(RecipeInput input) {
+        return this.results.getFirst().stack().create();
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width <= 3 && height == 1;
+    public PlacementInfo placementInfo() {
+        if (this.placementInfo == null) {
+            this.placementInfo = PlacementInfo.create(this.ingredients);
+        }
+
+        return this.placementInfo;
     }
 
     @Override
-    public ItemStack getResultItem(HolderLookup.Provider provider) {
-        return this.results.getFirst().stack();
+    public List<RecipeDisplay> display() {
+        return List.of(new ShapelessCraftingRecipeDisplay(
+                this.ingredients.stream().map(Ingredient::display).toList(),
+                new SlotDisplay.ItemStackSlotDisplay(this.results.getFirst().stack()),
+                new SlotDisplay.ItemSlotDisplay(ModBlocks.FARMER.get().asItem())
+        ));
     }
 
     @Override
-    public NonNullList<Ingredient> getIngredients() {
-        return this.ingredients;
+    public RecipeSerializer<FarmerRecipe> getSerializer() {
+        return SERIALIZER;
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
-        return ModRecipeSerializers.FARMER.get();
-    }
-
-    @Override
-    public RecipeType<?> getType() {
+    public RecipeType<IFarmerRecipe> getType() {
         return ModRecipeTypes.FARMER.get();
     }
 
@@ -105,65 +131,40 @@ public class FarmerRecipe implements IFarmerRecipe {
 
         for (var result : this.results) {
             if (result.chance() > Math.random())
-                results.add(result.stack().copy());
+                results.add(result.stack().create());
         }
 
         return results;
     }
 
-    public static class Serializer implements RecipeSerializer<FarmerRecipe> {
-        private static final MapCodec<FarmerRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(builder ->
-                builder.group(
-                        Ingredient.CODEC.fieldOf("seeds").forGetter(recipe -> recipe.seeds),
-                        Ingredient.CODEC.fieldOf("soil").forGetter(recipe -> recipe.soil),
-                        Ingredient.CODEC.optionalFieldOf("crux", Ingredient.EMPTY).forGetter(recipe -> recipe.crux),
-                        Codec.INT.fieldOf("stages").forGetter(recipe -> recipe.stages),
-                        FarmerResult.CODEC.listOf().fieldOf("results").forGetter(recipe -> recipe.results)
-                ).apply(builder, FarmerRecipe::new)
-        );
-        private static final StreamCodec<RegistryFriendlyByteBuf, FarmerRecipe> STREAM_CODEC = StreamCodec.of(
-                Serializer::toNetwork, Serializer::fromNetwork
-        );
+    private static FarmerRecipe fromNetwork(RegistryFriendlyByteBuf buffer) {
+        var seeds = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
+        var soil = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
+        var crux = Ingredient.OPTIONAL_CONTENTS_STREAM_CODEC.decode(buffer);
 
-        @Override
-        public MapCodec<FarmerRecipe> codec() {
-            return MAP_CODEC;
+        var stages = ByteBufCodecs.VAR_INT.decode(buffer);
+
+        var size = buffer.readVarInt();
+        var results = new ArrayList<FarmerResult>();
+
+        for (int i = 0; i < size; i++) {
+            results.add(FarmerResult.STREAM_CODEC.decode(buffer));
         }
 
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, FarmerRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
+        return new FarmerRecipe(seeds, soil, crux, stages, results);
+    }
 
-        private static FarmerRecipe fromNetwork(RegistryFriendlyByteBuf buffer) {
-            var seeds = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
-            var soil = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
-            var crux = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer);
+    private static void toNetwork(RegistryFriendlyByteBuf buffer, FarmerRecipe recipe) {
+        Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.seeds);
+        Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.soil);
+        Ingredient.OPTIONAL_CONTENTS_STREAM_CODEC.encode(buffer, recipe.crux);
 
-            var stages = ByteBufCodecs.VAR_INT.decode(buffer);
+        ByteBufCodecs.VAR_INT.encode(buffer, recipe.stages);
 
-            var size = buffer.readVarInt();
-            var results = new ArrayList<FarmerResult>();
+        buffer.writeVarInt(recipe.results.size());
 
-            for (int i = 0; i < size; i++) {
-                results.add(FarmerResult.STREAM_CODEC.decode(buffer));
-            }
-
-            return new FarmerRecipe(seeds, soil, crux, stages, results);
-        }
-
-        private static void toNetwork(RegistryFriendlyByteBuf buffer, FarmerRecipe recipe) {
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.seeds);
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.soil);
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.crux);
-
-            ByteBufCodecs.VAR_INT.encode(buffer, recipe.stages);
-
-            buffer.writeVarInt(recipe.results.size());
-
-            for (var result : recipe.results) {
-                FarmerResult.STREAM_CODEC.encode(buffer, result);
-            }
+        for (var result : recipe.results) {
+            FarmerResult.STREAM_CODEC.encode(buffer, result);
         }
     }
 }

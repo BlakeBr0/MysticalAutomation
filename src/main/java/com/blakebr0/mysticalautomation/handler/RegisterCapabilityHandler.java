@@ -15,20 +15,20 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 public final class RegisterCapabilityHandler {
     @SubscribeEvent
     public void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModTileEntities.INFUSER.get(), InfuserTileEntity::getSidedInventory);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModTileEntities.CRAFTER.get(), CrafterTileEntity::getSidedInventory);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModTileEntities.FARMER.get(), FarmerTileEntity::getSidedInventory);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModTileEntities.FERTILIZER.get(), FertilizerTileEntity::getSidedInventory);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModTileEntities.INFUSION_ALTARNATOR.get(), InfusionAltarnatorTileEntity::getSidedInventory);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModTileEntities.AWAKENING_ALTARNATOR.get(), AwakeningAltarnatorTileEntity::getSidedInventory);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModTileEntities.ENCHANTERNATOR.get(), EnchanternatorTileEntity::getSidedInventory);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModTileEntities.INFUSER.get(), InfuserTileEntity::getSidedInventory);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModTileEntities.CRAFTER.get(), CrafterTileEntity::getSidedInventory);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModTileEntities.FARMER.get(), FarmerTileEntity::getSidedInventory);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModTileEntities.FERTILIZER.get(), FertilizerTileEntity::getSidedInventory);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModTileEntities.INFUSION_ALTARNATOR.get(), InfusionAltarnatorTileEntity::getSidedInventory);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModTileEntities.AWAKENING_ALTARNATOR.get(), AwakeningAltarnatorTileEntity::getSidedInventory);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModTileEntities.ENCHANTERNATOR.get(), EnchanternatorTileEntity::getSidedInventory);
 
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModTileEntities.INFUSER.get(), (block, direction) -> block.getEnergy());
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModTileEntities.CRAFTER.get(), (block, direction) -> block.getEnergy());
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModTileEntities.FARMER.get(), (block, direction) -> block.getEnergy());
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModTileEntities.FERTILIZER.get(), (block, direction) -> block.getEnergy());
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModTileEntities.INFUSION_ALTARNATOR.get(), (block, direction) -> block.getEnergy());
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModTileEntities.AWAKENING_ALTARNATOR.get(), (block, direction) -> block.getEnergy());
-        event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, ModTileEntities.ENCHANTERNATOR.get(), (block, direction) -> block.getEnergy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModTileEntities.INFUSER.get(), (block, _) -> block.getEnergy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModTileEntities.CRAFTER.get(), (block, _) -> block.getEnergy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModTileEntities.FARMER.get(), (block, _) -> block.getEnergy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModTileEntities.FERTILIZER.get(), (block, _) -> block.getEnergy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModTileEntities.INFUSION_ALTARNATOR.get(), (block, _) -> block.getEnergy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModTileEntities.AWAKENING_ALTARNATOR.get(), (block, _) -> block.getEnergy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModTileEntities.ENCHANTERNATOR.get(), (block, _) -> block.getEnergy());
     }
 }

@@ -1,8 +1,8 @@
 package com.blakebr0.mysticalautomation.container;
 
 import com.blakebr0.cucumber.container.BaseContainerMenu;
-import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
-import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
+import com.blakebr0.cucumber.inventory.CItemStacksHandler;
+import com.blakebr0.cucumber.inventory.slot.CSlot;
 import com.blakebr0.cucumber.util.QuickMover;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
@@ -17,7 +17,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class FarmerContainer extends BaseContainerMenu {
     private final ContainerData data;
@@ -27,25 +27,25 @@ public class FarmerContainer extends BaseContainerMenu {
         this(id, playerInventory, FarmerTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(9), buffer.readBlockPos());
     }
 
-    public FarmerContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
+    public FarmerContainer(int id, Inventory playerInventory, CItemStacksHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
         super(ModMenuTypes.FARMER.get(), id, pos);
         this.data = data;
         this.mover = new QuickMover(this::moveItemStackTo);
 
-        this.addSlot(new SlotItemHandler(upgradeInventory, 0, 152, 9));
+        this.addSlot(new ResourceHandlerSlot(upgradeInventory, upgradeInventory::set, 0, 152, 9));
 
         // input slots
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 0, 60, 30));
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 1, 60, 52));
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 2, 60, 74));
+        this.addSlot(new CSlot(inventory, 0, 60, 30));
+        this.addSlot(new CSlot(inventory, 1, 60, 52));
+        this.addSlot(new CSlot(inventory, 2, 60, 74));
 
         // fuel slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 3, 30, 56));
+        this.addSlot(new CSlot(inventory, 3, 30, 56));
 
         // output slots
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                this.addSlot(new BaseItemStackHandlerSlot(inventory, 4 + j + i * 3, 116 + j * 18, 34 + i * 18));
+                this.addSlot(new CSlot(inventory, 4 + j + i * 3, 116 + j * 18, 34 + i * 18));
             }
         }
 
@@ -64,7 +64,7 @@ public class FarmerContainer extends BaseContainerMenu {
                 .add((slot, stack, player) -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_SEEDS, stack), 1, 1) // input - seed
                 .add((slot, stack, player) -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_SOIL, stack), 2, 1) // input - soil
                 .add((slot, stack, player) -> RecipeIngredientCache.INSTANCE.isValidInput(RecipeIngredientCache.Key.FARMER_CRUX, stack), 3, 1) // input - crux
-                .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 4, 1) // fuel
+                .add((slot, stack, player) -> stack.getBurnTime(null, player.level().fuelValues()) > 0, 4, 1) // fuel
                 .add((slot, stack, player) -> slot < this.slots.size() - 9, this.slots.size() - 9, 9) // hotbar
                 .add((slot, stack, player) -> slot >= this.slots.size() - 9, this.slots.size() - 36, 27); // inventory
         this.mover.fallback(14, 36);

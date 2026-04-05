@@ -10,5 +10,5 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModRecipeSerializers {
     public static final DeferredRegister<RecipeSerializer<?>> REGISTRY = DeferredRegister.create(Registries.RECIPE_SERIALIZER, MysticalAutomation.MOD_ID);
 
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<FarmerRecipe>> FARMER = REGISTRY.register("farmer", FarmerRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<FarmerRecipe>> FARMER = REGISTRY.register("farmer", () -> FarmerRecipe.SERIALIZER);
 }

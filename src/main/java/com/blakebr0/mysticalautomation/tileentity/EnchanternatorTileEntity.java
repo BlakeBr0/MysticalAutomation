@@ -1,9 +1,9 @@
 package com.blakebr0.mysticalautomation.tileentity;
 
 import com.blakebr0.cucumber.crafting.ShapelessCraftingInput;
-import com.blakebr0.cucumber.energy.DynamicEnergyStorage;
-import com.blakebr0.cucumber.helper.StackHelper;
-import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
+import com.blakebr0.cucumber.energy.CEnergyStorage;
+import com.blakebr0.cucumber.helper.ItemResourceHelper;
+import com.blakebr0.cucumber.inventory.CItemStacksHandler;
 import com.blakebr0.cucumber.inventory.CachedRecipe;
 import com.blakebr0.cucumber.inventory.OnContentsChangedFunction;
 import com.blakebr0.cucumber.inventory.SidedInventoryWrapper;
@@ -19,9 +19,9 @@ import com.blakebr0.mysticalautomation.container.EnchanternatorContainer;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.context.ContextMap;
+import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -29,15 +29,21 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandler;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements MenuProvider, IUpgradeableMachine {
@@ -50,10 +56,10 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
     public static final int FUEL_USAGE = 20;
     public static final int FUEL_CAPACITY = 80000;
 
-    private final BaseItemStackHandler inventory;
-    private final BaseItemStackHandler recipeInventory;
+    private final CItemStacksHandler inventory;
+    private final CItemStacksHandler recipeInventory;
     private final MachineUpgradeItemStackHandler upgradeInventory;
-    private final DynamicEnergyStorage energy;
+    private final CEnergyStorage energy;
     private final SidedInventoryWrapper[] sidedInventoryWrappers;
     private final CachedRecipe<CraftingInput, IEnchanterRecipe> recipe;
 
@@ -69,29 +75,29 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
 
     public EnchanternatorTileEntity(BlockPos pos, BlockState state) {
         super(ModTileEntities.ENCHANTERNATOR.get(), pos, state);
-        this.recipeInventory = createRecipeInventoryHandler(slot -> {
+        this.recipeInventory = createRecipeInventoryHandler((_, _) -> {
             this.isGridChanged = true;
             this.setChangedFast();
         });
-        this.inventory = createInventoryHandler(this.recipeInventory, slot -> this.setChanged());
+        this.inventory = createInventoryHandler(this.recipeInventory, (_, _) -> this.setChanged(), this::getLevel);
         this.upgradeInventory = new MachineUpgradeItemStackHandler();
-        this.energy = new DynamicEnergyStorage(FUEL_CAPACITY, this::setChangedFast);
+        this.energy = new CEnergyStorage(FUEL_CAPACITY, _ -> this.setChangedFast());
         this.sidedInventoryWrappers = SidedInventoryWrapper.create(this.inventory, List.of(Direction.UP, Direction.DOWN, Direction.NORTH), this::canInsertStackSided, null);
         this.recipe = new CachedRecipe<>(MysticalCompat.RecipeTypes.ENCHANTER.get());
 
         this.dataAccess = ContainerDataBuilder.builder()
-                .sync(this.energy::getEnergyStored, this.energy::setEnergyStored)
-                .sync(this.energy::getMaxEnergyStored, this.energy::setMaxEnergyStorage)
+                .sync(this.energy::getAmountAsInt, this.energy::set)
+                .sync(this.energy::getCapacityAsInt, this.energy::setMaxCapacity)
                 .sync(() -> this.fuelLeft, value -> this.fuelLeft = value)
                 .sync(() -> this.fuelItemValue, value -> this.fuelItemValue = value)
                 .sync(() -> this.progress, value -> this.progress = value)
-                .sync(this::getOperationTime, value -> {})
+                .sync(this::getOperationTime)
                 .sync(() -> this.selectedLevel, value -> this.selectedLevel = value)
                 .build();
     }
 
     @Override
-    public BaseItemStackHandler getInventory() {
+    public CItemStacksHandler getInventory() {
         return this.inventory;
     }
 
@@ -111,55 +117,68 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
-        super.loadAdditional(tag, lookup);
+    public void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
 
-        this.progress = tag.getInt("Progress");
-        this.selectedLevel = tag.getInt("SelectedLevel");
-        this.fuelLeft = tag.getInt("FuelLeft");
-        this.fuelItemValue = tag.getInt("FuelItemValue");
-        this.energy.deserializeNBT(lookup, tag.get("Energy"));
-        this.recipeInventory.deserializeNBT(lookup, tag.getCompound("RecipeInventory"));
-        this.upgradeInventory.deserializeNBT(lookup, tag.getCompound("UpgradeInventory"));
+        this.progress = input.getIntOr("Progress", 0);
+        this.selectedLevel = input.getIntOr("SelectedLevel", 0);
+        this.fuelLeft = input.getIntOr("FuelLeft", 0);
+        this.fuelItemValue = input.getIntOr("FuelItemValue", 0);
+        this.energy.deserialize(input.childOrEmpty("Energy"));
+        this.recipeInventory.deserialize(input.childOrEmpty("RecipeInventory"));
+        this.upgradeInventory.deserialize(input.childOrEmpty("UpgradeInventory"));
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
-        super.saveAdditional(tag, lookup);
+    public void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
 
-        tag.putInt("Progress", this.progress);
-        tag.putInt("SelectedLevel", this.selectedLevel);
-        tag.putInt("FuelLeft", this.fuelLeft);
-        tag.putInt("FuelItemValue", this.fuelItemValue);
-        tag.putInt("Energy", this.energy.getEnergyStored());
-        tag.put("RecipeInventory", this.recipeInventory.serializeNBT(lookup));
-        tag.put("UpgradeInventory", this.upgradeInventory.serializeNBT(lookup));
+        output.putInt("Progress", this.progress);
+        output.putInt("SelectedLevel", this.selectedLevel);
+        output.putInt("FuelLeft", this.fuelLeft);
+        output.putInt("FuelItemValue", this.fuelItemValue);
+        output.putChild("Energy", this.energy);
+        output.putChild("RecipeInventory", this.recipeInventory);
+        output.putChild("UpgradeInventory", this.upgradeInventory);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+
+        if (this.level != null) {
+            Containers.dropItemStack(this.level, pos.getX(), pos.getY(), pos.getZ(), this.upgradeInventory.getStackCopy());
+        }
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, EnchanternatorTileEntity tile) {
-        if (tile.energy.getEnergyStored() < tile.energy.getMaxEnergyStored()) {
-            var fuel = tile.inventory.getStackInSlot(FUEL_SLOT);
+        if (tile.energy.getAmountAsInt() < tile.energy.getCapacityAsInt()) {
+            var fuel = tile.inventory.getResource(FUEL_SLOT);
 
-            if (tile.fuelLeft <= 0 && !fuel.isEmpty()) {
-                tile.fuelItemValue = fuel.getBurnTime(null);
+            try (var tx = Transaction.openRoot()) {
+                if (tile.fuelLeft <= 0 && !fuel.isEmpty()) {
+                    tile.fuelItemValue = fuel.toStack().getBurnTime(null, level.fuelValues());
 
-                if (tile.fuelItemValue > 0) {
-                    tile.fuelLeft = tile.fuelItemValue *= FUEL_TICK_MULTIPLIER;
-                    tile.inventory.setStackInSlot(FUEL_SLOT, StackHelper.shrink(fuel, 1, true));
+                    if (tile.fuelItemValue > 0) {
+                        tile.fuelLeft = tile.fuelItemValue *= FUEL_TICK_MULTIPLIER;
+                        tile.inventory.extract(FUEL_SLOT, fuel, 1, tx, true);
+
+                        tile.setChangedFast();
+                    }
+                }
+
+                if (tile.fuelLeft > 0) {
+                    var fuelPerTick = Math.min(Math.min(tile.fuelLeft, tile.getFuelUsage() * 2), tile.energy.getCapacityAsInt() - tile.energy.getAmountAsInt());
+
+                    tile.fuelLeft -= tile.energy.insert(fuelPerTick, tx);
+
+                    if (tile.fuelLeft <= 0)
+                        tile.fuelItemValue = 0;
 
                     tile.setChangedFast();
                 }
-            }
 
-            if (tile.fuelLeft > 0) {
-                var fuelPerTick = Math.min(Math.min(tile.fuelLeft, tile.getFuelUsage() * 2), tile.energy.getMaxEnergyStored() - tile.energy.getEnergyStored());
-
-                tile.fuelLeft -= tile.energy.receiveEnergy(fuelPerTick, false);
-
-                if (tile.fuelLeft <= 0)
-                    tile.fuelItemValue = 0;
-
-                tile.setChangedFast();
+                tx.commit();
             }
         }
 
@@ -169,9 +188,9 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
             tile.tier = tier;
 
             if (tier == null) {
-                tile.energy.resetMaxEnergyStorage();
+                tile.energy.resetMaxCapacity();
             } else {
-                tile.energy.setMaxEnergyStorage(tier.getFuelCapacity(FUEL_CAPACITY));
+                tile.energy.setMaxCapacity(tier.getFuelCapacity(FUEL_CAPACITY));
             }
 
             tile.setChangedFast();
@@ -180,32 +199,41 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         var wasRunning = tile.isRunning;
         tile.isRunning = false;
 
-        if (tile.energy.getEnergyStored() >= tile.getFuelUsage()) {
+        if (tile.energy.getAmountAsInt() >= tile.getFuelUsage()) {
             var recipe = tile.getActiveRecipe();
             if (recipe != null && tile.selectedLevel > 0) {
                 var inputs = tile.getInputResult(recipe);
                 var maxLevel = recipe.getMaxResultEnchantmentLevel(tile.toCraftingInput());
                 if (inputs.hasAll && maxLevel >= tile.selectedLevel) {
-                    var result = recipe.assemble(tile.toCraftingInput(), level.registryAccess(), maxLevel);
-                    var output = tile.inventory.getStackInSlot(OUTPUT_SLOT);
+                    var result = recipe.assemble(tile.toCraftingInput(), maxLevel);
 
-                    if (StackHelper.canCombineStacks(result, output)) {
-                        tile.isRunning = true;
-                        tile.progress++;
-                        tile.energy.extractEnergy(tile.getFuelUsage(), false);
+                    if (ItemResourceHelper.canCombine(tile.inventory, OUTPUT_SLOT, result)) {
+                        try (var tx = Transaction.openRoot()) {
+                            tile.isRunning = true;
+                            tile.progress++;
 
-                        if (tile.progress >= tile.getOperationTime()) {
-                            int[] amounts = inputs.amounts;
-                            for (int i = 0; i < amounts.length; i++) {
-                                var amount = amounts[i];
-                                var input = tile.inventory.getStackInSlot(INPUT_SLOTS[i]);
+                            tile.energy.extract(tile.getFuelUsage(), tx);
 
-                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrinkAndRetainContainer(input, amount));
+                            if (tile.progress >= tile.getOperationTime()) {
+                                int[] amounts = inputs.amounts;
+                                for (int i = 0; i < amounts.length; i++) {
+                                    var amount = amounts[i];
+                                    var input = tile.inventory.getResource(INPUT_SLOTS[i]);
+
+                                    if (tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true) == tile.inventory.getAmountAsInt(INPUT_SLOTS[i])) {
+                                        var remainder = input.toStack().getCraftingRemainder();
+                                        if (remainder != null && input.matches(remainder)) {
+                                            tile.inventory.insert(INPUT_SLOTS[i], ItemResource.of(remainder), remainder.count(), tx, true);
+                                        }
+                                    }
+                                }
+
+                                tile.inventory.insert(OUTPUT_SLOT, ItemResource.of(result), result.count(), tx, true);
+
+                                tile.progress = 0;
                             }
 
-                            tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
-
-                            tile.progress = 0;
+                            tx.commit();
                         }
 
                         tile.setChangedFast();
@@ -231,41 +259,7 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         }
     }
 
-    public static BaseItemStackHandler createInventoryHandler() {
-        return createInventoryHandler(createRecipeInventoryHandler(), null);
-    }
-
-    public static BaseItemStackHandler createInventoryHandler(BaseItemStackHandler recipeInventory, @Nullable OnContentsChangedFunction onContentsChanged) {
-        return BaseItemStackHandler.create(5, onContentsChanged, handler -> {
-            for (var slot : INPUT_SLOTS) {
-                handler.addSlotLimit(slot, 512);
-            }
-
-            handler.setCanInsert((slot, stack) -> {
-                if (ArrayUtils.contains(INPUT_SLOTS, slot)) {
-                    var recipeStack = recipeInventory.getStackInSlot(slot);
-                    return !recipeStack.isEmpty() && StackHelper.areStacksEqual(recipeStack, stack);
-                }
-
-                return true;
-            });
-
-            handler.setOutputSlots(OUTPUT_SLOT);
-            handler.setCanExtract(slot ->
-                    slot == OUTPUT_SLOT || (slot == FUEL_SLOT && !FurnaceBlockEntity.isFuel(handler.getStackInSlot(slot)))
-            );
-        });
-    }
-
-    public static BaseItemStackHandler createRecipeInventoryHandler() {
-        return createRecipeInventoryHandler(null);
-    }
-
-    public static BaseItemStackHandler createRecipeInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
-        return BaseItemStackHandler.create(3, onContentsChanged, handler -> {});
-    }
-
-    public DynamicEnergyStorage getEnergy() {
+    public CEnergyStorage getEnergy() {
         return this.energy;
     }
 
@@ -273,7 +267,7 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         return this.selectedLevel;
     }
 
-    public IItemHandler getSidedInventory(@Nullable Direction direction) {
+    public ItemStacksResourceHandler getSidedInventory(@Nullable Direction direction) {
         return switch (direction) {
             case UP -> this.sidedInventoryWrappers[0];
             case DOWN -> this.sidedInventoryWrappers[1];
@@ -294,9 +288,9 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
             // to show the proper ghost item as the result, we need to both pretend to have the maximum number of materials
             // to account for all requirements
             var items = List.of(
-                    this.recipeInventory.getStackInSlot(0).copyWithCount(512),
-                    this.recipeInventory.getStackInSlot(1).copyWithCount(512),
-                    this.recipeInventory.getStackInSlot(2)
+                    this.recipeInventory.getResource(0).toStack(512),
+                    this.recipeInventory.getResource(1).toStack(512),
+                    this.recipeInventory.getResource(2).toStack()
             );
 
             var input = new ShapelessCraftingInput(items);
@@ -324,28 +318,29 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         var remaining = new int[INPUT_SLOTS.length];
 
         for (int i = 0; i < INPUT_SLOTS.length; i++) {
-            remaining[i] = this.inventory.getStackInSlot(INPUT_SLOTS[i]).getCount();
+            remaining[i] = this.inventory.getAmountAsInt(INPUT_SLOTS[i]);
         }
 
-        var ingredients = recipe.getIngredients();
         var required = 0;
 
-        for (int i = 0; i < ingredients.size(); i++) {
-            var ingredient = ingredients.get(i);
-            if (ingredient.isEmpty())
-                continue;
+        var displays = recipe.display();
+        if (!displays.isEmpty() && displays.getFirst() instanceof ShapelessCraftingRecipeDisplay display) {
+            var ingredients = display.ingredients();
+            for (int i = 0; i < ingredients.size(); i++) {
+                var ingredient = ingredients.get(i);
+                var amount = recipe.getCount(i);
 
-            var amount = recipe.getCount(i);
+                required += amount;
 
-            required += amount;
+                for (int j = 0; j < INPUT_SLOTS.length; j++) {
 
-            for (int j = 0; j < INPUT_SLOTS.length; j++) {
-                var slot = INPUT_SLOTS[j];
-                var stack = this.inventory.getStackInSlot(slot);
-                if (remaining[j] >= amount && ingredient.test(stack)) {
-                    remaining[j] -= amount;
-                    amounts[j] += amount;
-                    break;
+                    var slot = INPUT_SLOTS[j];
+                    var stack = ItemUtil.getStack(this.inventory, slot);
+                    if (remaining[j] >= amount && ingredient.resolveForStacks(ContextMap.EMPTY).stream().anyMatch(s -> ItemStack.isSameItem(s, stack))) {
+                        remaining[j] -= amount;
+                        amounts[j] += amount;
+                        break;
+                    }
                 }
             }
         }
@@ -353,16 +348,50 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         return new InputResult(Arrays.stream(amounts).sum() == required, amounts);
     }
 
-    private boolean canInsertStackSided(int slot, ItemStack stack, @Nullable Direction direction) {
+    private boolean canInsertStackSided(int slot, ItemResource resource, @Nullable Direction direction) {
         if (direction == null)
             return true;
         if (ArrayUtils.contains(INPUT_SLOTS, slot) && direction == Direction.UP)
             return true;
         if (slot == FUEL_SLOT && direction == Direction.NORTH)
-            return FurnaceBlockEntity.isFuel(stack);
+            return this.level != null && this.level.fuelValues().isFuel(resource.toStack());
 
         return false;
     }
 
     private record InputResult(boolean hasAll, int[] amounts) { }
+
+    public static CItemStacksHandler createInventoryHandler() {
+        return createInventoryHandler(createRecipeInventoryHandler(), null, () -> null);
+    }
+
+    public static CItemStacksHandler createInventoryHandler(CItemStacksHandler recipeInventory, @Nullable OnContentsChangedFunction onContentsChanged, Supplier<Level> level) {
+        return CItemStacksHandler.create(5, onContentsChanged, handler -> {
+            for (var slot : INPUT_SLOTS) {
+                handler.addSlotLimit(slot, 512);
+            }
+
+            handler.setCanInsert((slot, resource) -> {
+                if (ArrayUtils.contains(INPUT_SLOTS, slot)) {
+                    var recipeStack = ItemUtil.getStack(recipeInventory, slot);
+                    return resource.matches(recipeStack);
+                }
+
+                return true;
+            });
+
+            handler.setOutputSlots(OUTPUT_SLOT);
+            handler.setCanExtract(slot ->
+                    slot == OUTPUT_SLOT || (slot == FUEL_SLOT && level.get() == null || level.get() != null && level.get().fuelValues().isFuel(handler.getResource(slot).toStack()))
+            );
+        });
+    }
+
+    public static CItemStacksHandler createRecipeInventoryHandler() {
+        return createRecipeInventoryHandler(null);
+    }
+
+    public static CItemStacksHandler createRecipeInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
+        return CItemStacksHandler.create(3, onContentsChanged, _ -> {});
+    }
 }

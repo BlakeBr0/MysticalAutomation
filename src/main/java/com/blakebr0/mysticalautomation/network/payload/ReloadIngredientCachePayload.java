@@ -33,7 +33,7 @@ public record ReloadIngredientCachePayload(Map<RecipeIngredientCache.Key, Map<It
             caches.put(key, new HashMap<>());
 
             for (var j = 0; j < items; j++) {
-                var item = BuiltInRegistries.ITEM.get(buffer.readResourceLocation());
+                var item = BuiltInRegistries.ITEM.getValue(buffer.readIdentifier());
                 var ingredients = buffer.readVarInt();
 
                 for (var k = 0; k < ingredients; k++) {
@@ -62,7 +62,7 @@ public record ReloadIngredientCachePayload(Map<RecipeIngredientCache.Key, Map<It
                 var item = BuiltInRegistries.ITEM.getKey(cache.getKey());
                 var ingredients = cache.getValue();
 
-                buffer.writeResourceLocation(item);
+                buffer.writeIdentifier(item);
                 buffer.writeVarInt(ingredients.size());
 
                 for (var ingredient : ingredients) {

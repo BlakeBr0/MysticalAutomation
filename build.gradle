@@ -87,10 +87,12 @@ dependencies {
     implementation "com.blakebr0.cucumber:Cucumber:${cucumber_version}"
     implementation "com.blakebr0.mysticalagriculture:MysticalAgriculture:${mysticalagriculture_version}"
     implementation "com.blakebr0.mysticalagradditions:MysticalAgradditions:${mysticalagradditions_version}"
-    implementation "com.blamejared.crafttweaker:CraftTweaker-neoforge-${crafttweaker_version}"
+//    TODO update crafttweaker
+//    implementation "com.blamejared.crafttweaker:CraftTweaker-neoforge-${crafttweaker_version}"
 
     runtimeOnly "curse.maven:jade-324717:${jade_version}"
-    runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
+//    TODO update patchouli
+    //runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
     runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"

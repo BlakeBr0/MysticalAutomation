@@ -13,7 +13,7 @@ import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import com.blakebr0.mysticalautomation.network.NetworkHandler;
 import com.blakebr0.mysticalautomation.util.RecipeIngredientCache;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -45,7 +45,7 @@ public final class MysticalAutomation {
         bus.register(new NetworkHandler());
         bus.register(new RegisterCapabilityHandler());
 
-        if (FMLEnvironment.dist == Dist.CLIENT) {
+        if (FMLEnvironment.getDist() == Dist.CLIENT) {
             bus.register(new ModMenuScreens());
         }
 
@@ -58,7 +58,7 @@ public final class MysticalAutomation {
         NeoForge.EVENT_BUS.register(RecipeIngredientCache.INSTANCE);
     }
 
-    public static ResourceLocation resource(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static Identifier resource(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 }

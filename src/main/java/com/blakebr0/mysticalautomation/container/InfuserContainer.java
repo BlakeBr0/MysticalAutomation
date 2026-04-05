@@ -1,8 +1,8 @@
 package com.blakebr0.mysticalautomation.container;
 
 import com.blakebr0.cucumber.container.BaseContainerMenu;
-import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
-import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
+import com.blakebr0.cucumber.inventory.CItemStacksHandler;
+import com.blakebr0.cucumber.inventory.slot.CSlot;
 import com.blakebr0.cucumber.util.QuickMover;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
@@ -17,7 +17,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class InfuserContainer extends BaseContainerMenu {
     private final ContainerData data;
@@ -27,29 +27,29 @@ public class InfuserContainer extends BaseContainerMenu {
         this(id, playerInventory, InfuserTileEntity.createInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(8), buffer.readBlockPos());
     }
 
-    public InfuserContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
+    public InfuserContainer(int id, Inventory playerInventory, CItemStacksHandler inventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
         super(ModMenuTypes.INFUSER.get(), id, pos);
         this.data = data;
         this.mover = new QuickMover(this::moveItemStackTo);
 
-        this.addSlot(new SlotItemHandler(upgradeInventory, 0, 192, 9));
+        this.addSlot(new ResourceHandlerSlot(upgradeInventory, upgradeInventory::set, 0, 192, 9));
 
         // infusion crystal slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 0, 62, 33));
+        this.addSlot(new CSlot(inventory, 0, 62, 33));
 
         // mystical agriculture essence slots
         for (int i = 0; i < 5; i++) {
-            this.addSlot(new BaseItemStackHandlerSlot(inventory, 1 + i, 102 + i * 18, 33));
+            this.addSlot(new CSlot(inventory, 1 + i, 102 + i * 18, 33));
         }
 
         // mystical agradditions essence slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 6, 192, 33));
+        this.addSlot(new CSlot(inventory, 6, 192, 33));
 
         // fuel slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 7, 30, 56));
+        this.addSlot(new CSlot(inventory, 7, 30, 56));
 
         // output slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 8, 162, 74));
+        this.addSlot(new CSlot(inventory, 8, 162, 74));
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 9; j++) {
@@ -64,7 +64,7 @@ public class InfuserContainer extends BaseContainerMenu {
         this.mover.after(10)
                 .add((slot, stack, player) -> stack.getItem() instanceof IMachineUpgrade, 0, 1) // machine upgrade
                 .add((slot, stack, player) -> MysticalCompat.isEssence(stack) || MysticalCompat.isInfusionCrystal(stack), 1, 7) // inputs
-                .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 8, 1) // fuel
+                .add((slot, stack, player) -> stack.getBurnTime(null, player.level().fuelValues()) > 0, 8, 1) // fuel
                 .add((slot, stack, player) -> slot < this.slots.size() - 9, this.slots.size() - 9, 9) // hotbar
                 .add((slot, stack, player) -> slot >= this.slots.size() - 9, this.slots.size() - 36, 27); // inventory
         this.mover.fallback(10, 36);

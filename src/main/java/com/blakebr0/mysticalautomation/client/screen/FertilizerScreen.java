@@ -5,13 +5,13 @@ import com.blakebr0.cucumber.client.screen.widget.EnergyBarWidget;
 import com.blakebr0.cucumber.client.screen.widget.FuelWidget;
 import com.blakebr0.mysticalautomation.MysticalAutomation;
 import com.blakebr0.mysticalautomation.container.FertilizerContainer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 public class FertilizerScreen extends BaseContainerScreen<FertilizerContainer> {
-    public static final ResourceLocation BACKGROUND = MysticalAutomation.resource("textures/gui/fertilizer.png");
+    public static final Identifier BACKGROUND = MysticalAutomation.resource("textures/gui/fertilizer.png");
 
     public FertilizerScreen(FertilizerContainer container, Inventory inv, Component title) {
         super(container, inv, title, BACKGROUND, 176, 194);
@@ -29,8 +29,8 @@ public class FertilizerScreen extends BaseContainerScreen<FertilizerContainer> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics gfx, int mouseX, int mouseY) {
-        gfx.drawString(this.font, this.title, (this.imageWidth / 2 - this.font.width(this.title) / 2), 6, 4210752, false);
-        gfx.drawString(this.font, this.playerInventoryTitle, 8, (this.imageHeight - 96 + 2), 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor gfx, int mouseX, int mouseY) {
+        gfx.text(this.font, this.title, (this.imageWidth / 2 - this.font.width(this.title) / 2), 6, 4210752, false);
+        gfx.text(this.font, this.playerInventoryTitle, 8, (this.imageHeight - 96 + 2), 4210752, false);
     }
 }

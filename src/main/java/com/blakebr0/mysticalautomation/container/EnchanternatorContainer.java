@@ -2,9 +2,8 @@ package com.blakebr0.mysticalautomation.container;
 
 import com.blakebr0.cucumber.container.BaseContainerMenu;
 import com.blakebr0.cucumber.crafting.ShapelessCraftingInput;
-import com.blakebr0.cucumber.helper.StackHelper;
-import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
-import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
+import com.blakebr0.cucumber.inventory.CItemStacksHandler;
+import com.blakebr0.cucumber.inventory.slot.CSlot;
 import com.blakebr0.cucumber.util.QuickMover;
 import com.blakebr0.mysticalagriculture.api.machine.IMachineUpgrade;
 import com.blakebr0.mysticalagriculture.api.machine.MachineUpgradeItemStackHandler;
@@ -16,23 +15,24 @@ import com.blakebr0.mysticalautomation.tileentity.EnchanternatorTileEntity;
 import com.blakebr0.mysticalautomation.util.IFakeRecipeContainer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 import java.util.List;
 
 public class EnchanternatorContainer extends BaseContainerMenu implements IFakeRecipeContainer {
     private final ContainerData data;
-    private final BaseItemStackHandler matrix;
+    private final CItemStacksHandler matrix;
     private final QuickMover mover;
     private final Slot result;
     private final Level level;
@@ -41,25 +41,25 @@ public class EnchanternatorContainer extends BaseContainerMenu implements IFakeR
         this(id, playerInventory, EnchanternatorTileEntity.createInventoryHandler(), EnchanternatorTileEntity.createRecipeInventoryHandler(), new MachineUpgradeItemStackHandler(), new SimpleContainerData(7), buffer.readBlockPos());
     }
 
-    public EnchanternatorContainer(int id, Inventory playerInventory, BaseItemStackHandler inventory, BaseItemStackHandler recipeInventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
+    public EnchanternatorContainer(int id, Inventory playerInventory, CItemStacksHandler inventory, CItemStacksHandler recipeInventory, MachineUpgradeItemStackHandler upgradeInventory, ContainerData data, BlockPos pos) {
         super(ModMenuTypes.ENCHANTERNATOR.get(), id, pos);
         this.data = data;
         this.matrix = recipeInventory;
         this.mover = new QuickMover(this::moveItemStackTo);
         this.level = playerInventory.player.level();
 
-        this.addSlot(new SlotItemHandler(upgradeInventory, 0, 182, 9));
+        this.addSlot(new ResourceHandlerSlot(upgradeInventory, upgradeInventory::set, 0, 182, 9));
 
         // input slots
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 0, 56, 67));
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 1, 78, 67));
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 2, 118, 67));
+        this.addSlot(new CSlot(inventory, 0, 56, 67));
+        this.addSlot(new CSlot(inventory, 1, 78, 67));
+        this.addSlot(new CSlot(inventory, 2, 118, 67));
 
         // fuel slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 3, 30, 56));
+        this.addSlot(new CSlot(inventory, 3, 30, 56));
 
         // output slot
-        this.addSlot(new BaseItemStackHandlerSlot(inventory, 4, 178, 47));
+        this.addSlot(new CSlot(inventory, 4, 178, 47));
 
         // recipe slots
         this.addSlot(new FakeSlot(recipeInventory, 0, 56, 47));
@@ -83,7 +83,7 @@ public class EnchanternatorContainer extends BaseContainerMenu implements IFakeR
         this.mover.after(9)
                 .add((slot, stack, player) -> stack.getItem() instanceof IMachineUpgrade, 0, 1) // machine upgrade
                 .add((slot, stack, player) -> this.isRecipeInput(stack), 1, 3) // inputs
-                .add((slot, stack, player) -> stack.getBurnTime(null) > 0, 4, 1) // fuel
+                .add((slot, stack, player) -> stack.getBurnTime(null, this.level.fuelValues()) > 0, 4, 1) // fuel
                 .add((slot, stack, player) -> slot < this.slots.size() - 10, this.slots.size() - 10, 9) // hotbar
                 .add((slot, stack, player) -> slot >= this.slots.size() - 10, this.slots.size() - 37, 27); // inventory
         this.mover.fallback(9, 36);
@@ -125,7 +125,7 @@ public class EnchanternatorContainer extends BaseContainerMenu implements IFakeR
     }
 
     @Override
-    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+    public void clicked(int slotId, int button, ContainerInput input, Player player) {
         var slot = slotId < 0 ? null : this.slots.get(slotId);
         if (slot instanceof FakeSlot) {
             if (button == 2) {
@@ -139,7 +139,7 @@ public class EnchanternatorContainer extends BaseContainerMenu implements IFakeR
             return;
         }
 
-        super.clicked(slotId, button, clickType, player);
+        super.clicked(slotId, button, input, player);
     }
 
     @Override
@@ -181,25 +181,27 @@ public class EnchanternatorContainer extends BaseContainerMenu implements IFakeR
     }
 
     private void onRecipeChanged() {
-        // to show the proper ghost item as the result, we need to both pretend to have the maximum number of materials
-        // to account for all requirements
-        var items = List.of(
-                this.matrix.getStackInSlot(0).copyWithCount(512),
-                this.matrix.getStackInSlot(1).copyWithCount(512),
-                this.matrix.getStackInSlot(2)
-        );
+        if (this.level instanceof ServerLevel serverLevel) {
+            // to show the proper ghost item as the result, we need to both pretend to have the maximum number of materials
+            // to account for all requirements
+            var items = List.of(
+                    this.matrix.getResource(0).toStack(512),
+                    this.matrix.getResource(1).toStack(512),
+                    this.matrix.getResource(2).toStack()
+            );
 
-        var input = new ShapelessCraftingInput(items);
-        var recipe = this.level.getRecipeManager().getRecipeFor(MysticalCompat.RecipeTypes.ENCHANTER.get(), input, this.level).map(RecipeHolder::value).orElse(null);
-        var item = recipe == null ? ItemStack.EMPTY : recipe.assemble(input, this.level.registryAccess());
+            var input = new ShapelessCraftingInput(items);
+            var recipe = serverLevel.recipeAccess().getRecipeFor(MysticalCompat.RecipeTypes.ENCHANTER.get(), input, this.level).map(RecipeHolder::value).orElse(null);
+            var item = recipe == null ? ItemStack.EMPTY : recipe.assemble(input);
 
-        this.result.set(item);
+            this.result.set(item);
+        }
     }
 
     private boolean isRecipeInput(ItemStack stack) {
-        for (int i = 0; i < this.matrix.getSlots(); i++) {
-            var matrixStack = this.matrix.getStackInSlot(i);
-            if (StackHelper.areItemsEqual(stack, matrixStack))
+        for (int i = 0; i < this.matrix.size(); i++) {
+            var matrixStack = this.matrix.getResource(i);
+            if (matrixStack.matches(stack))
                 return true;
         }
 

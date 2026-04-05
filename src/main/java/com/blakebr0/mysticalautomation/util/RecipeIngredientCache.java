@@ -1,9 +1,7 @@
 package com.blakebr0.mysticalautomation.util;
 
 import com.blakebr0.cucumber.event.RecipeManagerLoadedEvent;
-import com.blakebr0.cucumber.helper.RecipeHelper;
 import com.blakebr0.mysticalautomation.MysticalAutomation;
-import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.blakebr0.mysticalautomation.network.payload.ReloadIngredientCachePayload;
 import com.google.common.base.Stopwatch;
 import net.minecraft.util.StringRepresentable;
@@ -15,10 +13,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -72,29 +68,30 @@ public final class RecipeIngredientCache {
         this.caches.put(Key.FARMER_SOIL, new HashMap<>());
         this.caches.put(Key.FARMER_CRUX, new HashMap<>());
 
-        var recipes = RecipeHelper.byType(manager, ModRecipeTypes.FARMER.get());
-        for (var recipe : recipes) {
-            var ingredients = recipe.value().getIngredients();
-            for (var i = 0; i < 3; i++) {
-                var ingredient = ingredients.get(i);
-                var items = new HashSet<>();
-                for (var stack : ingredient.getItems()) {
-                    var item = stack.getItem();
-                    if (items.contains(item))
-                        continue;
-
-                    var cache = switch (i) {
-                        case 0 -> this.caches.get(Key.FARMER_SEEDS);
-                        case 1 -> this.caches.get(Key.FARMER_SOIL);
-                        case 2 -> this.caches.get(Key.FARMER_CRUX);
-                        default -> throw new IllegalStateException("Unexpected value: " + i);
-                    };
-
-                    items.add(item);
-                    cache.computeIfAbsent(item, c -> new ArrayList<>()).add(ingredient);
-                }
-            }
-        }
+//        TODO recipe syncing stuff
+//        var recipes = RecipeHelper.byType(manager, ModRecipeTypes.FARMER.get());
+//        for (var recipe : recipes) {
+//            var ingredients = recipe.value().getIngredients();
+//            for (var i = 0; i < 3; i++) {
+//                var ingredient = ingredients.get(i);
+//                var items = new HashSet<>();
+//                for (var stack : ingredient.items().toList()) {
+//                    var item = stack.value();
+//                    if (items.contains(item))
+//                        continue;
+//
+//                    var cache = switch (i) {
+//                        case 0 -> this.caches.get(Key.FARMER_SEEDS);
+//                        case 1 -> this.caches.get(Key.FARMER_SOIL);
+//                        case 2 -> this.caches.get(Key.FARMER_CRUX);
+//                        default -> throw new IllegalStateException("Unexpected value: " + i);
+//                    };
+//
+//                    items.add(item);
+//                    cache.computeIfAbsent(item, _ -> new ArrayList<>()).add(ingredient);
+//                }
+//            }
+//        }
     }
 
     public enum Key implements StringRepresentable {

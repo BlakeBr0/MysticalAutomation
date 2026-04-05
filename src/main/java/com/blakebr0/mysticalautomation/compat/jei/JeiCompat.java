@@ -1,6 +1,5 @@
 package com.blakebr0.mysticalautomation.compat.jei;
 
-import com.blakebr0.cucumber.helper.RecipeHelper;
 import com.blakebr0.mysticalagriculture.api.MysticalAgricultureAPI;
 import com.blakebr0.mysticalagriculture.api.crafting.IAwakeningRecipe;
 import com.blakebr0.mysticalagriculture.api.crafting.IEnchanterRecipe;
@@ -15,28 +14,26 @@ import com.blakebr0.mysticalautomation.compat.jei.category.FarmerCategory;
 import com.blakebr0.mysticalautomation.compat.jei.category.FertilizerCategory;
 import com.blakebr0.mysticalautomation.compat.jei.recipe.FertilizerFakeRecipe;
 import com.blakebr0.mysticalautomation.init.ModBlocks;
-import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
-import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 @JeiPlugin
 public final class JeiCompat implements IModPlugin {
-    private static final RecipeType<IEnchanterRecipe> ENCHANTER_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "enchanter", IEnchanterRecipe.class);
-    private static final RecipeType<IInfusionRecipe>  INFUSION_ALTARNATOR_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "infusion", IInfusionRecipe.class);
-    private static final RecipeType<IAwakeningRecipe> AWAKENING_ALTARNATOR_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "awakening", IAwakeningRecipe.class);
+    private static final IRecipeHolderType<IEnchanterRecipe> ENCHANTER_RECIPE_TYPE = IRecipeHolderType.create(MysticalAgricultureAPI.resource("enchanter"));
+    private static final IRecipeHolderType<IInfusionRecipe>  INFUSION_ALTARNATOR_RECIPE_TYPE = IRecipeHolderType.create(MysticalAgricultureAPI.resource("infusion"));
+    private static final IRecipeHolderType<IAwakeningRecipe> AWAKENING_ALTARNATOR_RECIPE_TYPE = IRecipeHolderType.create(MysticalAgricultureAPI.resource("awakening"));
 
-    public static final ResourceLocation UID = MysticalAutomation.resource("jei_plugin");
+    public static final Identifier UID = MysticalAutomation.resource("jei_plugin");
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return UID;
     }
 
@@ -52,22 +49,23 @@ public final class JeiCompat implements IModPlugin {
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRAFTER.get()), mezz.jei.api.constants.RecipeTypes.CRAFTING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FARMER.get()), FarmerCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FERTILIZER.get()), FertilizerCategory.RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.ENCHANTERNATOR.get()), ENCHANTER_RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.INFUSION_ALTARNATOR.get()), INFUSION_ALTARNATOR_RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.AWAKENING_ALTARNATOR.get()), AWAKENING_ALTARNATOR_RECIPE_TYPE);
+        registration.addCraftingStation(mezz.jei.api.constants.RecipeTypes.CRAFTING, new ItemStack(ModBlocks.CRAFTER.get()));
+        registration.addCraftingStation(FarmerCategory.RECIPE_TYPE, new ItemStack(ModBlocks.FARMER.get()));
+        registration.addCraftingStation(FertilizerCategory.RECIPE_TYPE, new ItemStack(ModBlocks.FERTILIZER.get()));
+        registration.addCraftingStation(ENCHANTER_RECIPE_TYPE, new ItemStack(ModBlocks.ENCHANTERNATOR.get()));
+        registration.addCraftingStation(INFUSION_ALTARNATOR_RECIPE_TYPE, new ItemStack(ModBlocks.INFUSION_ALTARNATOR.get()));
+        registration.addCraftingStation(AWAKENING_ALTARNATOR_RECIPE_TYPE, new ItemStack(ModBlocks.AWAKENING_ALTARNATOR.get()));
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        var level = Minecraft.getInstance().level;
-        if (level != null) {
-            var manager = level.getRecipeManager();
-
-            registration.addRecipes(FarmerCategory.RECIPE_TYPE, RecipeHelper.byTypeValues(manager, ModRecipeTypes.FARMER.get()));
-        }
+//        TODO recipe syncing stuff
+//        var level = Minecraft.getInstance().level;
+//        if (level != null) {
+//            var manager = level.getRecipeManager();
+//
+//            registration.addRecipes(FarmerCategory.RECIPE_TYPE, RecipeHelper.byTypeValues(manager, ModRecipeTypes.FARMER.get()));
+//        }
 
         registration.addRecipes(FertilizerCategory.RECIPE_TYPE, FertilizerFakeRecipe.createAll());
     }

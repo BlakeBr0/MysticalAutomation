@@ -1,16 +1,13 @@
 package com.blakebr0.mysticalautomation.container.slot;
 
-import com.blakebr0.cucumber.inventory.BaseItemStackHandler;
-import com.blakebr0.cucumber.inventory.slot.BaseItemStackHandlerSlot;
+import com.blakebr0.cucumber.inventory.CItemStacksHandler;
+import com.blakebr0.cucumber.inventory.slot.CSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public class FakeSlot extends BaseItemStackHandlerSlot {
-    private final BaseItemStackHandler inventory;
-
-    public FakeSlot(BaseItemStackHandler container, int slot, int x, int y) {
+public class FakeSlot extends CSlot {
+    public FakeSlot(CItemStacksHandler container, int slot, int x, int y) {
         super(container, slot, x, y);
-        this.inventory = container;
     }
 
     @Override
@@ -19,12 +16,12 @@ public class FakeSlot extends BaseItemStackHandlerSlot {
     }
 
     @Override
-    public void set(ItemStack stack) {
+    protected void setStackCopy(ItemStack stack) {
         if (!stack.isEmpty()) {
             stack.setCount(1);
         }
 
-        this.inventory.setStackInSlot(this.getContainerSlot(), stack);
+        super.setStackCopy(stack);
         this.setChanged();
     }
 }

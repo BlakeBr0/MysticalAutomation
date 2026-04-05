@@ -4,16 +4,17 @@ import com.blakebr0.mysticalautomation.client.screen.FarmerScreen;
 import com.blakebr0.mysticalautomation.lib.ModTooltips;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.IntSupplier;
 
 public class FarmerStageProgressWidget extends AbstractWidget {
-    private static final ResourceLocation TEXTURE = FarmerScreen.BACKGROUND;
+    private static final Identifier TEXTURE = FarmerScreen.BACKGROUND;
 
     private final IntSupplier progress;
     private final IntSupplier total;
@@ -28,20 +29,20 @@ public class FarmerStageProgressWidget extends AbstractWidget {
     }
 
     @Override
-    protected void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
+    protected void extractWidgetRenderState(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float v) {
         var offset = this.getProgressScaled();
 
-        gfx.blit(TEXTURE, this.getX(), this.getY(), 177, 0, this.width, this.height);
-        gfx.blit(TEXTURE, this.getX(), this.getY() + this.height - offset, 177 + this.width, this.height - offset, this.width, offset);
+        gfx.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, this.getX(), this.getY(), 177, 0, this.width, this.height, 256, 256);
+        gfx.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, this.getX(), this.getY() + this.height - offset, 177 + this.width, this.height - offset, this.width, offset, 256, 256);
 
         var stages = this.stages.getAsInt();
 
         if (stages > 0 && mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.width && mouseY < this.getY() + this.height) {
             var font = Minecraft.getInstance().font;
             var stage = stages * ((double) this.progress.getAsInt() / (double) this.total.getAsInt());
-            var text = ModTooltips.STAGE.args((int) Math.floor(stage), stages).color(ChatFormatting.WHITE).build();
+            var text = ModTooltips.STAGE.args((int) Math.floor(stage), stages).color(ChatFormatting.WHITE).toComponent();
 
-            gfx.renderTooltip(font, text, mouseX, mouseY);
+            gfx.setTooltipForNextFrame(font, text, mouseX, mouseY);
         }
     }
 

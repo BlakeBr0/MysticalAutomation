@@ -1,6 +1,5 @@
 package com.blakebr0.mysticalautomation.client.screen;
 
-import com.blakebr0.cucumber.client.render.GhostItemRenderer;
 import com.blakebr0.cucumber.client.screen.BaseContainerScreen;
 import com.blakebr0.cucumber.client.screen.widget.EnergyBarWidget;
 import com.blakebr0.cucumber.client.screen.widget.FuelWidget;
@@ -9,16 +8,15 @@ import com.blakebr0.mysticalautomation.client.screen.widget.InfuserProgressWidge
 import com.blakebr0.mysticalautomation.client.screen.widget.InfuserSelectedWidget;
 import com.blakebr0.mysticalautomation.compat.MysticalCompat;
 import com.blakebr0.mysticalautomation.container.InfuserContainer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 
 public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
-    public static final ResourceLocation BACKGROUND = MysticalAutomation.resource("textures/gui/infuser.png");
+    public static final Identifier BACKGROUND = MysticalAutomation.resource("textures/gui/infuser.png");
 
     public InfuserScreen(InfuserContainer container, Inventory inv, Component title) {
         super(container, inv, title, BACKGROUND, 217, 194);
@@ -47,14 +45,14 @@ public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
     }
 
     @Override
-    protected void renderLabels(GuiGraphics gfx, int mouseX, int mouseY) {
-        gfx.drawString(this.font, this.title, (this.imageWidth / 2 - this.font.width(this.title) / 2), 6, 4210752, false);
-        gfx.drawString(this.font, this.playerInventoryTitle, 28, (this.imageHeight - 96 + 2), 4210752, false);
+    protected void extractLabels(GuiGraphicsExtractor gfx, int mouseX, int mouseY) {
+        gfx.text(this.font, this.title, (this.imageWidth / 2 - this.font.width(this.title) / 2), 6, 4210752, false);
+        gfx.text(this.font, this.playerInventoryTitle, 28, (this.imageHeight - 96 + 2), 4210752, false);
     }
 
     @Override
-    protected void renderBg(GuiGraphics gfx, float partialTicks, int mouseX, int mouseY) {
-        super.renderBg(gfx, partialTicks, mouseX, mouseY);
+    public void extractBackground(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float a) {
+        super.extractBackground(gfx, mouseX, mouseY, a);
 
         var x = this.getGuiLeft();
         var y = this.getGuiTop();
@@ -69,15 +67,16 @@ public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
     }
 
     private void renderGhostItem(int index, int x, int y, Holder<Item> item) {
-        if (this.minecraft == null)
-            return;
-
-        if (!item.isBound())
-            return;
-
-        if (this.menu.slots.get(index).hasItem())
-            return;
-
-        GhostItemRenderer.renderItemIntoGui(new ItemStack(item), x, y, this.minecraft.getItemRenderer());
+//        TODO ghost items
+//        if (this.minecraft == null)
+//            return;
+//
+//        if (!item.isBound())
+//            return;
+//
+//        if (this.menu.slots.get(index).hasItem())
+//            return;
+//
+//        GhostItemRenderer.renderItemIntoGui(new ItemStack(item), x, y, this.minecraft.getItemRenderer());
     }
 }
