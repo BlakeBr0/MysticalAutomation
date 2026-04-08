@@ -40,7 +40,7 @@ public final class DynamicRecipeManager {
         if (seeds == null)
             return null;
 
-        var farmland = crop.getTier().getFarmland();
+        var farmland = crop.getTier().getFarmlandBlock();
         if (farmland == null)
             return null;
 
