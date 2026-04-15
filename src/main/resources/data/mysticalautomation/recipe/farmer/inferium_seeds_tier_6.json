@@ -6,12 +6,8 @@
       "modid": "mysticalagradditions"
     }
   ],
-  "seeds": {
-    "item": "mysticalagriculture:inferium_seeds"
-  },
-  "soil": {
-    "item": "mysticalagradditions:insanium_farmland"
-  },
+  "seeds": "mysticalagriculture:inferium_seeds",
+  "soil": "mysticalagradditions:insanium_farmland",
   "stages": 7,
   "results": [
     {

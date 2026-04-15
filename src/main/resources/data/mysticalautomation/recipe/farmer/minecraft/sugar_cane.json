@@ -1,15 +1,9 @@
 {
   "type": "mysticalautomation:farmer",
-  "seeds": {
-    "item": "minecraft:sugar_cane"
-  },
+  "seeds": "minecraft:sugar_cane",
   "soil": [
-    {
-      "item": "minecraft:dirt"
-    },
-    {
-      "item": "minecraft:sand"
-    }
+    "minecraft:dirt",
+    "minecraft:sand"
   ],
   "stages": 7,
   "results": [

@@ -1,11 +1,7 @@
 {
   "type": "mysticalautomation:farmer",
-  "seeds": {
-    "item": "minecraft:cactus"
-  },
-  "soil": {
-    "item": "minecraft:sand"
-  },
+  "seeds": "minecraft:cactus",
+  "soil": "minecraft:sand",
   "stages": 7,
   "results": [
     {

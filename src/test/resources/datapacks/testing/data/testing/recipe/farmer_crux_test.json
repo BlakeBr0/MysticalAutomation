@@ -1,14 +1,8 @@
 {
   "type": "mysticalautomation:farmer",
-  "seeds": {
-    "item": "minecraft:potato"
-  },
-  "soil": {
-    "item": "minecraft:farmland"
-  },
-  "crux": {
-    "item": "minecraft:cobblestone"
-  },
+  "seeds": "minecraft:potato",
+  "soil": "minecraft:farmland",
+  "crux": "minecraft:cobblestone",
   "stages": 7,
   "results": [
     {

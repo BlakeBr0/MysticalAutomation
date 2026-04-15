@@ -1,11 +1,7 @@
 {
   "type": "mysticalautomation:farmer",
-  "seeds": {
-    "item": "minecraft:carrot"
-  },
-  "soil": {
-    "item": "minecraft:farmland"
-  },
+  "seeds": "minecraft:carrot",
+  "soil": "minecraft:farmland",
   "stages": 7,
   "results": [
     {

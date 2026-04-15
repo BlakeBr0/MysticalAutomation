@@ -1,11 +1,7 @@
 {
   "type": "mysticalautomation:farmer",
-  "seeds": {
-    "item": "mysticalagriculture:inferium_seeds"
-  },
-  "soil": {
-    "item": "minecraft:farmland"
-  },
+  "seeds": "mysticalagriculture:inferium_seeds",
+  "soil": "minecraft:farmland",
   "stages": 7,
   "results": [
     {

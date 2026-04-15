@@ -1,22 +1,15 @@
 {
   "type": "mysticalautomation:farmer",
   "seeds": "mysticalagriculture:inferium_seeds",
-  "soil": "mysticalagriculture:inferium_farmland",
+  "soil": "mysticalagriculture:awakened_supremium_farmland",
   "stages": 7,
   "results": [
     {
       "item": {
         "id": "mysticalagriculture:inferium_essence",
-        "count": 1
+        "count": 4
       },
       "chance": 1.0
-    },
-    {
-      "item": {
-        "id": "mysticalagriculture:inferium_essence",
-        "count": 1
-      },
-      "chance": 0.5
     }
   ]
 }

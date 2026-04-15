@@ -2,38 +2,28 @@
   "type": "mysticalagriculture:awakening",
   "essences": [
     {
-      "id": "mysticalagriculture:diamond_essence",
+      "ingredient": "mysticalagriculture:diamond_essence",
       "count": 20
     },
     {
-      "id": "minecraft:carrot",
+      "ingredient": "minecraft:carrot",
       "count": 40
     },
     {
-      "id": "minecraft:cobblestone",
+      "ingredient": "minecraft:cobblestone",
       "count": 10
     },
     {
-      "id": "mysticalagriculture:supremium_essence",
+      "ingredient": "mysticalagriculture:supremium_essence",
       "count": 15
     }
   ],
-  "input": {
-    "item": "minecraft:apple"
-  },
+  "input": "minecraft:apple",
   "ingredients": [
-    {
-      "item": "minecraft:carrot"
-    },
-    {
-      "item": "minecraft:carrot"
-    },
-    {
-      "item": "minecraft:carrot"
-    },
-    {
-      "item": "minecraft:carrot"
-    }
+    "minecraft:carrot",
+    "minecraft:carrot",
+    "minecraft:carrot",
+    "minecraft:carrot"
   ],
   "result": {
     "id": "minecraft:potato"

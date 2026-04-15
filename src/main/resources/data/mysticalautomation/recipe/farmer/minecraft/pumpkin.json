@@ -1,11 +1,7 @@
 {
   "type": "mysticalautomation:farmer",
-  "seeds": {
-    "item": "minecraft:pumpkin_seeds"
-  },
-  "soil": {
-    "item": "minecraft:farmland"
-  },
+  "seeds": "minecraft:pumpkin_seeds",
+  "soil": "minecraft:farmland",
   "stages": 7,
   "results": [
     {

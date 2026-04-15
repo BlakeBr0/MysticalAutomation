@@ -12,18 +12,10 @@
     "ISI"
   ],
   "key": {
-    "I": {
-      "tag": "c:ingots/iron"
-    },
-    "S": {
-      "item": "mysticalagriculture:soulium_ingot"
-    },
-    "H": {
-      "item": "mysticalagriculture:infusion_altar"
-    },
-    "B": {
-      "item": "mysticalagriculture:machine_frame"
-    }
+    "I": "#c:ingots/iron",
+    "S": "mysticalagriculture:soulium_ingot",
+    "H": "mysticalagriculture:infusion_altar",
+    "B": "mysticalagriculture:machine_frame"
   },
   "result": {
     "id": "mysticalautomation:infusion_altarnator"

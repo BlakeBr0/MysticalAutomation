@@ -1,11 +1,7 @@
 {
   "type": "mysticalautomation:farmer",
-  "seeds": {
-    "item": "minecraft:beetroot_seeds"
-  },
-  "soil": {
-    "item": "minecraft:farmland"
-  },
+  "seeds": "minecraft:beetroot_seeds",
+  "soil": "minecraft:farmland",
   "stages": 7,
   "results": [
     {

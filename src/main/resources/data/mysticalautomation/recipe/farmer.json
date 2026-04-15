@@ -12,18 +12,10 @@
     "ISI"
   ],
   "key": {
-    "I": {
-      "tag": "c:ingots/iron"
-    },
-    "S": {
-      "item": "mysticalagriculture:soulium_ingot"
-    },
-    "H": {
-      "tag": "mysticalagriculture:diamond_sickles"
-    },
-    "B": {
-      "item": "mysticalagriculture:machine_frame"
-    }
+    "I": "#c:ingots/iron",
+    "S": "mysticalagriculture:soulium_ingot",
+    "H": "mysticalagriculture:diamond_sickle",
+    "B": "mysticalagriculture:machine_frame"
   },
   "result": {
     "id": "mysticalautomation:farmer"
