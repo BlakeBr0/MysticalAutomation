@@ -5,6 +5,7 @@ import com.blakebr0.mysticalagriculture.api.crafting.IAwakeningRecipe;
 import com.blakebr0.mysticalagriculture.api.crafting.IEnchanterRecipe;
 import com.blakebr0.mysticalagriculture.api.crafting.IInfusionRecipe;
 import com.blakebr0.mysticalautomation.MysticalAutomation;
+import com.blakebr0.mysticalautomation.client.handler.ClientRecipeHandler;
 import com.blakebr0.mysticalautomation.client.screen.AwakeningAltarnatorScreen;
 import com.blakebr0.mysticalautomation.client.screen.CrafterScreen;
 import com.blakebr0.mysticalautomation.client.screen.EnchanternatorScreen;
@@ -65,8 +66,8 @@ public final class JeiCompat implements IModPlugin {
 //            var manager = level.getRecipeManager();
 //
 //            registration.addRecipes(FarmerCategory.RECIPE_TYPE, RecipeHelper.byTypeValues(manager, ModRecipeTypes.FARMER.get()));
-//        }
-
+//
+        registration.addRecipes(FarmerCategory.RECIPE_TYPE, ClientRecipeHandler.FARMER_RECIPES);
         registration.addRecipes(FertilizerCategory.RECIPE_TYPE, FertilizerFakeRecipe.createAll());
     }
 

@@ -1,6 +1,7 @@
 package com.blakebr0.mysticalautomation;
 
 import com.blakebr0.mysticalautomation.client.ModMenuScreens;
+import com.blakebr0.mysticalautomation.client.handler.ClientRecipeHandler;
 import com.blakebr0.mysticalautomation.config.ModConfigs;
 import com.blakebr0.mysticalautomation.crafting.DynamicRecipeManager;
 import com.blakebr0.mysticalautomation.handler.RegisterCapabilityHandler;
@@ -20,6 +21,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.NeoForge;
@@ -56,6 +58,13 @@ public final class MysticalAutomation {
     public void onCommonSetup(FMLCommonSetupEvent event) {
         NeoForge.EVENT_BUS.register(DynamicRecipeManager.INSTANCE);
         NeoForge.EVENT_BUS.register(RecipeIngredientCache.INSTANCE);
+
+        NeoForge.EVENT_BUS.addListener(ModRecipeTypes::onDatapackSync);
+    }
+
+    @SubscribeEvent
+    public void onClientSetup(FMLClientSetupEvent event) {
+        NeoForge.EVENT_BUS.register(new ClientRecipeHandler());
     }
 
     public static Identifier resource(String path) {

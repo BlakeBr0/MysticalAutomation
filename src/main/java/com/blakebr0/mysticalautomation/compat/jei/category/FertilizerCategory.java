@@ -6,9 +6,10 @@ import com.blakebr0.mysticalautomation.init.ModBlocks;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.widgets.IScrollBoxWidget;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 import net.minecraft.network.chat.Component;
@@ -20,13 +21,11 @@ public class FertilizerCategory implements IRecipeCategory<FertilizerFakeRecipe>
     private final IDrawable background;
     private final IDrawable icon;
     private final Component title;
-    private final IScrollBoxWidget scrollGridFactory;
 
     public FertilizerCategory(IGuiHelper helper) {
         this.background = helper.createBlankDrawable(142, 110);
         this.icon = helper.createDrawableIngredient(VanillaTypes.ITEM_STACK, new ItemStack(ModBlocks.FERTILIZER.get()));
         this.title = Component.translatable("jei.category.mysticalautomation.fertilizer");
-        this.scrollGridFactory = helper.createScrollBoxWidget(7, 6, 0, 0);
     }
 
     @Override
@@ -55,10 +54,15 @@ public class FertilizerCategory implements IRecipeCategory<FertilizerFakeRecipe>
     }
 
     @Override
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, FertilizerFakeRecipe recipe, IFocusGroup focuses) {
+        var outputs = builder.getRecipeSlots().getSlots(RecipeIngredientRole.OUTPUT);
+        builder.addScrollGridWidget(outputs, 7, 6);
+    }
+
+    @Override
     public void setRecipe(IRecipeLayoutBuilder builder, FertilizerFakeRecipe recipe, IFocusGroup focuses) {
         for (var stack : recipe.getItems()) {
-//            TODO scroll grid factory
-//            builder.addSlot(RecipeIngredientRole.OUTPUT, this.scrollGridFactory).addItemStack(stack);
+            builder.addOutputSlot().add(stack);
         }
     }
 }
