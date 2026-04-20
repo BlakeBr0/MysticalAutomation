@@ -314,7 +314,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
 
         var displays = recipe.display();
         if (!displays.isEmpty() && displays.getFirst() instanceof ShapelessCraftingRecipeDisplay display) {
-            var essences = recipe.getEssences();
+            var essences = recipe.getEssenceIngredients();
             var ingredients = display.ingredients();
 
             for (int i = 0; i < ingredients.size(); i++) {
