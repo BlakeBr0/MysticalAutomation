@@ -60,13 +60,6 @@ public final class JeiCompat implements IModPlugin {
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-//        TODO recipe syncing stuff
-//        var level = Minecraft.getInstance().level;
-//        if (level != null) {
-//            var manager = level.getRecipeManager();
-//
-//            registration.addRecipes(FarmerCategory.RECIPE_TYPE, RecipeHelper.byTypeValues(manager, ModRecipeTypes.FARMER.get()));
-//
         registration.addRecipes(FarmerCategory.RECIPE_TYPE, ClientRecipeHandler.FARMER_RECIPES);
         registration.addRecipes(FertilizerCategory.RECIPE_TYPE, FertilizerFakeRecipe.createAll());
     }

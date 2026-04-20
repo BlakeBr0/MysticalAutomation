@@ -24,7 +24,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 
 public class FarmerCategory implements IRecipeCategory<RecipeHolder<IFarmerRecipe>> {
     private static final Identifier TEXTURE = MysticalAutomation.resource("textures/jei/farmer.png");
@@ -86,26 +85,24 @@ public class FarmerCategory implements IRecipeCategory<RecipeHolder<IFarmerRecip
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<IFarmerRecipe> recipe, IFocusGroup focuses) {
-        var displays = recipe.value().display();
-        if (!displays.isEmpty() && displays.getFirst() instanceof ShapelessCraftingRecipeDisplay display) {
-            var ingredients = display.ingredients();
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<IFarmerRecipe> recipeHolder, IFocusGroup focuses) {
+        var recipe = recipeHolder.value();
+        var seeds = recipe.getSeedsIngredient();
+        var soil = recipe.getSoilIngredient();
+        var crux = recipe.getCruxIngredient();
 
-            builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).add(ingredients.get(0));
-            builder.addSlot(RecipeIngredientRole.INPUT, 1, 23).add(ingredients.get(1));
+        builder.addSlot(RecipeIngredientRole.INPUT, 1, 1).add(seeds);
+        builder.addSlot(RecipeIngredientRole.INPUT, 1, 23).add(soil);
 
-            if (ingredients.size() > 2) {
-                builder.addSlot(RecipeIngredientRole.INPUT, 1, 45).add(ingredients.get(2));
-            }
+        crux.ifPresent(i -> builder.addSlot(RecipeIngredientRole.INPUT, 1, 45).add(i));
 
-            for (var result : recipe.value().getResults()) {
-                builder.addOutputSlot()
-                        .add(result.stack().create())
-                        .addRichTooltipCallback((_, tooltip) -> {
-                            var chance = result.chance() * 100;
-                            tooltip.add(MysticalCompat.Tooltips.CHANCE.args(Formatting.percent(chance)).toComponent());
-                        });
-            }
+        for (var result : recipe.getResults()) {
+            builder.addOutputSlot()
+                    .add(result.stack().create())
+                    .addRichTooltipCallback((_, tooltip) -> {
+                        var chance = result.chance() * 100;
+                        tooltip.add(MysticalCompat.Tooltips.CHANCE.args(Formatting.percent(chance)).toComponent());
+                    });
         }
     }
 }

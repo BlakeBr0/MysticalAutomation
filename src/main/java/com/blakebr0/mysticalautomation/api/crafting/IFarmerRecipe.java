@@ -8,17 +8,24 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategories;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Used to represent a Farmer recipe for the recipe type
  */
 public interface IFarmerRecipe extends Recipe<RecipeInput> {
+    Ingredient getSeedsIngredient();
+    Ingredient getSoilIngredient();
+    Optional<Ingredient> getCruxIngredient();
+
     /**
      * The required number of growth stages this plant must go through before being harvested
      * @return the number of growth stages
@@ -50,6 +57,11 @@ public interface IFarmerRecipe extends Recipe<RecipeInput> {
     @Override
     default RecipeBookCategory recipeBookCategory() {
         return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @Override
+    default PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     /**

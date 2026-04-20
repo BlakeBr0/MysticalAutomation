@@ -1,7 +1,6 @@
 package com.blakebr0.mysticalautomation.crafting.recipe;
 
 import com.blakebr0.mysticalautomation.api.crafting.IFarmerRecipe;
-import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -15,9 +14,6 @@ import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.display.RecipeDisplay;
-import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
-import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
@@ -88,21 +84,18 @@ public class FarmerRecipe implements IFarmerRecipe {
     }
 
     @Override
-    public PlacementInfo placementInfo() {
-        if (this.placementInfo == null) {
-            this.placementInfo = PlacementInfo.create(this.ingredients);
-        }
-
-        return this.placementInfo;
+    public Ingredient getSeedsIngredient() {
+        return this.seeds;
     }
 
     @Override
-    public List<RecipeDisplay> display() {
-        return List.of(new ShapelessCraftingRecipeDisplay(
-                this.ingredients.stream().map(Ingredient::display).toList(),
-                new SlotDisplay.ItemStackSlotDisplay(this.results.getFirst().stack()),
-                new SlotDisplay.ItemSlotDisplay(ModBlocks.FARMER.get().asItem())
-        ));
+    public Ingredient getSoilIngredient() {
+        return this.soil;
+    }
+
+    @Override
+    public Optional<Ingredient> getCruxIngredient() {
+        return this.crux;
     }
 
     @Override
