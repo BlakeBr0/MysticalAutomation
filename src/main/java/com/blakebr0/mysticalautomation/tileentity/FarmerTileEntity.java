@@ -113,26 +113,26 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        this.progress = input.getIntOr("Progress", 0);
-        this.stages = input.getIntOr("Stages", 0);
-        this.stageProgress = input.getIntOr("StageProgress", 0);
-        this.fuelLeft = input.getIntOr("FuelLeft", 0);
-        this.fuelItemValue = input.getIntOr("FuelItemValue", 0);
-        this.energy.deserialize(input.childOrEmpty("Energy"));
-        this.upgradeInventory.deserialize(input.childOrEmpty("UpgradeInventory"));
+        this.progress = input.getIntOr("progress", 0);
+        this.stages = input.getIntOr("stages", 0);
+        this.stageProgress = input.getIntOr("stage_progress", 0);
+        this.fuelLeft = input.getIntOr("fuel_left", 0);
+        this.fuelItemValue = input.getIntOr("fuel_item_value", 0);
+        this.energy.deserialize(input.childOrEmpty("energy"));
+        this.upgradeInventory.deserialize(input.childOrEmpty("upgrade_inventory"));
     }
 
     @Override
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
 
-        output.putInt("Progress", this.progress);
-        output.putInt("Stages", this.stages);
-        output.putInt("StageProgress", this.stageProgress);
-        output.putInt("FuelLeft", this.fuelLeft);
-        output.putInt("FuelItemValue", this.fuelItemValue);
-        output.putChild("Energy", this.energy);
-        output.putChild("UpgradeInventory", this.upgradeInventory);
+        output.putInt("progress", this.progress);
+        output.putInt("stages", this.stages);
+        output.putInt("stage_progress", this.stageProgress);
+        output.putInt("fuel_left", this.fuelLeft);
+        output.putInt("fuel_item_value", this.fuelItemValue);
+        output.putChild("energy", this.energy);
+        output.putChild("upgrade_inventory", this.upgradeInventory);
     }
 
     @Override

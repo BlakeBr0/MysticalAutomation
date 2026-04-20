@@ -109,26 +109,26 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        this.progress = input.getIntOr("Progress", 0);
-        this.progressingIndex = input.getIntOr("ProgressingIndex", 0);
-        this.selectedIndex = input.getIntOr("SelectedIndex", 0);
-        this.fuelLeft = input.getIntOr("FuelLeft", 0);
-        this.fuelItemValue = input.getIntOr("FuelItemValue", 0);
-        this.energy.deserialize(input.childOrEmpty("Energy"));
-        this.upgradeInventory.deserialize(input.childOrEmpty("UpgradeInventory"));
+        this.progress = input.getIntOr("progress", 0);
+        this.progressingIndex = input.getIntOr("progressing_index", 0);
+        this.selectedIndex = input.getIntOr("selected_index", 0);
+        this.fuelLeft = input.getIntOr("fuel_left", 0);
+        this.fuelItemValue = input.getIntOr("fuel_item_value", 0);
+        this.energy.deserialize(input.childOrEmpty("energy"));
+        this.upgradeInventory.deserialize(input.childOrEmpty("upgrade_inventory"));
     }
 
     @Override
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
 
-        output.putInt("Progress", this.progress);
-        output.putInt("ProgressingIndex", this.progressingIndex);
-        output.putInt("SelectedIndex", this.selectedIndex);
-        output.putInt("FuelLeft", this.fuelLeft);
-        output.putInt("FuelItemValue", this.fuelItemValue);
-        output.putChild("Energy", this.energy);
-        output.putChild("UpgradeInventory", this.upgradeInventory);
+        output.putInt("progress", this.progress);
+        output.putInt("progressing_index", this.progressingIndex);
+        output.putInt("selected_index", this.selectedIndex);
+        output.putInt("fuel_left", this.fuelLeft);
+        output.putInt("fuel_item_value", this.fuelItemValue);
+        output.putChild("energy", this.energy);
+        output.putChild("upgrade_inventory", this.upgradeInventory);
     }
 
     @Override
