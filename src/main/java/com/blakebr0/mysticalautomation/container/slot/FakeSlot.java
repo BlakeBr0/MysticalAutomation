@@ -17,11 +17,6 @@ public class FakeSlot extends CSlot {
 
     @Override
     protected void setStackCopy(ItemStack stack) {
-        if (!stack.isEmpty()) {
-            stack.setCount(1);
-        }
-
-        super.setStackCopy(stack);
-        this.setChanged();
+        super.setStackCopy(stack.copyWithCount(1));
     }
 }
