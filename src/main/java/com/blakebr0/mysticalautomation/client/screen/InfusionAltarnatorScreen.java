@@ -40,18 +40,14 @@ public class InfusionAltarnatorScreen extends BaseContainerScreen<InfusionAltarn
     public void extractBackground(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float a) {
         super.extractBackground(gfx, mouseX, mouseY, a);
 
-//        TODO ghost items
-//        var x = this.getGuiLeft();
-//        var y = this.getGuiTop();
-//
-//        if (this.minecraft == null)
-//            return;
-//
-//        for (int i = 0; i < 9; i++) {
-//            var stack = this.menu.slots.get(i + 12).getItem(); // recipe slots start at index 11
-//            GhostItemRenderer.renderItemIntoGui(stack, x + 18 + (i * 18), y + 101, this.minecraft.getItemRenderer());
-//        }
-//
-//        GhostItemRenderer.renderItemIntoGui(this.menu.getResult(), x + 168, y + 49, this.minecraft.getItemRenderer());
+        var x = this.getGuiLeft();
+        var y = this.getGuiTop();
+
+        for (int i = 0; i < 9; i++) {
+            var stack = this.menu.slots.get(i + 12).getItem(); // recipe slots start at index 11
+            this.extractGhostItem(gfx, x + 18 + (i * 18), y + 101, stack);
+        }
+
+        this.extractGhostItem(gfx, x + 168, y + 49, this.menu.getResult());
     }
 }

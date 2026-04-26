@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
     public static final Identifier BACKGROUND = MysticalAutomation.resource("textures/gui/infuser.png");
@@ -57,26 +58,22 @@ public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
         var x = this.getGuiLeft();
         var y = this.getGuiTop();
 
-        this.renderGhostItem(1, x + 62, y + 33, MysticalCompat.Items.INFUSION_CRYSTAL);
-        this.renderGhostItem(2, x + 102, y + 33, MysticalCompat.Items.INFERIUM_ESSENCE);
-        this.renderGhostItem(3, x + 120, y + 33, MysticalCompat.Items.PRUDENTIUM_ESSENCE);
-        this.renderGhostItem(4, x + 138, y + 33, MysticalCompat.Items.TERTIUM_ESSENCE);
-        this.renderGhostItem(5, x + 156, y + 33, MysticalCompat.Items.IMPERIUM_ESSENCE);
-        this.renderGhostItem(6, x + 174, y + 33, MysticalCompat.Items.SUPREMIUM_ESSENCE);
-        this.renderGhostItem(7, x + 192, y + 33, MysticalCompat.Items.INSANIUM_ESSENCE);
+        this.renderGhostItem(gfx, 1, x + 62, y + 33, MysticalCompat.Items.INFUSION_CRYSTAL);
+        this.renderGhostItem(gfx, 2, x + 102, y + 33, MysticalCompat.Items.INFERIUM_ESSENCE);
+        this.renderGhostItem(gfx, 3, x + 120, y + 33, MysticalCompat.Items.PRUDENTIUM_ESSENCE);
+        this.renderGhostItem(gfx, 4, x + 138, y + 33, MysticalCompat.Items.TERTIUM_ESSENCE);
+        this.renderGhostItem(gfx, 5, x + 156, y + 33, MysticalCompat.Items.IMPERIUM_ESSENCE);
+        this.renderGhostItem(gfx, 6, x + 174, y + 33, MysticalCompat.Items.SUPREMIUM_ESSENCE);
+        this.renderGhostItem(gfx, 7, x + 192, y + 33, MysticalCompat.Items.INSANIUM_ESSENCE);
     }
 
-    private void renderGhostItem(int index, int x, int y, Holder<Item> item) {
-//        TODO ghost items
-//        if (this.minecraft == null)
-//            return;
-//
-//        if (!item.isBound())
-//            return;
-//
-//        if (this.menu.slots.get(index).hasItem())
-//            return;
-//
-//        GhostItemRenderer.renderItemIntoGui(new ItemStack(item), x, y, this.minecraft.getItemRenderer());
+    private void renderGhostItem(GuiGraphicsExtractor gfx, int index, int x, int y, Holder<Item> item) {
+        if (!item.isBound())
+            return;
+
+        if (this.menu.slots.get(index).hasItem())
+            return;
+
+        this.extractGhostItem(gfx, x, y, new ItemStack(item));
     }
 }

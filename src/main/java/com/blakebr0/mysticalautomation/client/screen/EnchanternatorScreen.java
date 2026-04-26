@@ -47,17 +47,13 @@ public class EnchanternatorScreen extends BaseContainerScreen<EnchanternatorCont
     public void extractBackground(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float a) {
         super.extractBackground(gfx, mouseX, mouseY, a);
 
-//        TODO ghost items
-//        var x = this.getGuiLeft();
-//        var y = this.getGuiTop();
-//
-//        if (this.minecraft == null)
-//            return;
-//
-//        GhostItemRenderer.renderItemIntoGui(this.menu.slots.get(6).getItem(), x + 56, y + 67, this.minecraft.getItemRenderer());
-//        GhostItemRenderer.renderItemIntoGui(this.menu.slots.get(7).getItem(), x + 78, y + 67, this.minecraft.getItemRenderer());
-//        GhostItemRenderer.renderItemIntoGui(this.menu.slots.get(8).getItem(), x + 118, y + 67, this.minecraft.getItemRenderer());
-//
-//        GhostItemRenderer.renderItemIntoGui(this.menu.getResult(), x + 178, y + 47, this.minecraft.getItemRenderer());
+        var x = this.getGuiLeft();
+        var y = this.getGuiTop();
+
+        this.extractGhostItem(gfx, x + 56, y + 67, this.menu.slots.get(6).getItem());
+        this.extractGhostItem(gfx, x + 78, y + 67, this.menu.slots.get(7).getItem());
+        this.extractGhostItem(gfx, x + 118, y + 67, this.menu.slots.get(8).getItem());
+
+        this.extractGhostItem(gfx, x + 178, y + 47, this.menu.getResult());
     }
 }
