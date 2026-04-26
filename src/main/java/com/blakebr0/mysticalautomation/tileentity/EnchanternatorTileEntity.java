@@ -20,16 +20,13 @@ import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -323,24 +320,19 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
 
         var required = 0;
 
-        var displays = recipe.display();
-        if (!displays.isEmpty() && displays.getFirst() instanceof ShapelessCraftingRecipeDisplay display) {
-            var ingredients = display.ingredients();
-            for (int i = 0; i < ingredients.size(); i++) {
-                var ingredient = ingredients.get(i);
-                var amount = recipe.getCount(i);
+        var ingredients = recipe.getIngredients();
+        for (var ingredient : ingredients) {
+            var amount = ingredient.count();
 
-                required += amount;
+            required += amount;
 
-                for (int j = 0; j < INPUT_SLOTS.length; j++) {
-
-                    var slot = INPUT_SLOTS[j];
-                    var stack = ItemUtil.getStack(this.inventory, slot);
-                    if (remaining[j] >= amount && ingredient.resolveForStacks(ContextMap.EMPTY).stream().anyMatch(s -> ItemStack.isSameItem(s, stack))) {
-                        remaining[j] -= amount;
-                        amounts[j] += amount;
-                        break;
-                    }
+            for (int j = 0; j < INPUT_SLOTS.length; j++) {
+                var slot = INPUT_SLOTS[j];
+                var stack = ItemUtil.getStack(this.inventory, slot);
+                if (remaining[j] >= amount && ingredient.ingredient().test(stack)) {
+                    remaining[j] -= amount;
+                    amounts[j] += amount;
+                    break;
                 }
             }
         }
