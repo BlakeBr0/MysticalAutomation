@@ -45,6 +45,11 @@ public interface IFarmerRecipe extends Recipe<RecipeInput> {
     List<ItemStack> getRolledResults();
 
     @Override
+    default boolean isSpecial() {
+        return true;
+    }
+
+    @Override
     default String group() {
         return "mysticalautomation:farmer";
     }
