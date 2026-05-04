@@ -136,6 +136,11 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         tag.put("UpgradeInventory", this.upgradeInventory.serializeNBT(lookup));
     }
 
+    @Override
+    protected void clearAdditional() {
+        this.upgradeInventory.getStacks().clear();
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState state, EnchanternatorTileEntity tile) {
         if (tile.energy.getEnergyStored() < tile.energy.getMaxEnergyStored()) {
             var fuel = tile.inventory.getStackInSlot(FUEL_SLOT);

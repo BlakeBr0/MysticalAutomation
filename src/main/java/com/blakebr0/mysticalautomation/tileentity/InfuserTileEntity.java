@@ -127,6 +127,11 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
         tag.put("UpgradeInventory", this.upgradeInventory.serializeNBT(lookup));
     }
 
+    @Override
+    protected void clearAdditional() {
+        this.upgradeInventory.getStacks().clear();
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState state, InfuserTileEntity tile) {
         if (tile.energy.getEnergyStored() < tile.energy.getMaxEnergyStored()) {
             var fuel = tile.inventory.getStackInSlot(FUEL_SLOT);
