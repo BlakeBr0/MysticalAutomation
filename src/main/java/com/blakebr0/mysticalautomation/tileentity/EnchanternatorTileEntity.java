@@ -148,6 +148,11 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
         }
     }
 
+    @Override
+    protected void clearAdditional() {
+        this.upgradeInventory.clear();
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState state, EnchanternatorTileEntity tile) {
         if (tile.energy.getAmountAsInt() < tile.energy.getCapacityAsInt()) {
             var fuel = tile.inventory.getResource(FUEL_SLOT);

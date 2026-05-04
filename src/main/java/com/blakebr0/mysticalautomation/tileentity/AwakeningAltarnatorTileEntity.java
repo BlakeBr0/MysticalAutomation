@@ -146,6 +146,11 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
         }
     }
 
+    @Override
+    protected void clearAdditional() {
+        this.upgradeInventory.clear();
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState state, AwakeningAltarnatorTileEntity tile) {
         if (tile.energy.getAmountAsInt() < tile.energy.getCapacityAsInt()) {
             var fuel = tile.inventory.getResource(FUEL_SLOT);

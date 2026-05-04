@@ -146,6 +146,11 @@ public class InfusionAltarnatorTileEntity extends BaseInventoryTileEntity implem
         }
     }
 
+    @Override
+    protected void clearAdditional() {
+        this.upgradeInventory.clear();
+    }
+
     public static void tick(Level level, BlockPos pos, BlockState state, InfusionAltarnatorTileEntity tile) {
         if (tile.energy.getAmountAsInt() < tile.energy.getCapacityAsInt()) {
             var fuel = tile.inventory.getResource(FUEL_SLOT);
