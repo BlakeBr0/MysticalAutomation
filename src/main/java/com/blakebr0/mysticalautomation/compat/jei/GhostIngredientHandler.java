@@ -23,7 +23,7 @@ public class GhostIngredientHandler<T extends BaseContainerScreen<?>> implements
                 targets.add(new Target<>() {
                     @Override
                     public Rect2i getArea() {
-                        return new Rect2i(screen.getGuiLeft() + slot.x, screen.getGuiTop() + slot.y, 16, 16);
+                        return new Rect2i(screen.getLeftPos() + slot.x, screen.getTopPos() + slot.y, 16, 16);
                     }
 
                     @Override

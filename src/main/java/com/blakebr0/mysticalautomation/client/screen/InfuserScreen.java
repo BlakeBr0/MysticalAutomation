@@ -27,8 +27,8 @@ public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
     protected void init() {
         super.init();
 
-        int x = this.getGuiLeft();
-        int y = this.getGuiTop();
+        int x = this.getLeftPos();
+        int y = this.getTopPos();
 
         this.addRenderableWidget(new EnergyBarWidget(x + 7, y + 17, this.menu::getEnergyStored, this.menu::getMaxEnergyStored));
         this.addRenderableWidget(new FuelWidget(x + 30, y + 39, this.menu::getFuelItemValue, this.menu::getFuelLeft));
@@ -55,8 +55,8 @@ public class InfuserScreen extends BaseContainerScreen<InfuserContainer> {
     public void extractBackground(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float a) {
         super.extractBackground(gfx, mouseX, mouseY, a);
 
-        var x = this.getGuiLeft();
-        var y = this.getGuiTop();
+        var x = this.getLeftPos();
+        var y = this.getTopPos();
 
         this.renderGhostItem(gfx, 1, x + 62, y + 33, MysticalCompat.Items.INFUSION_CRYSTAL);
         this.renderGhostItem(gfx, 2, x + 102, y + 33, MysticalCompat.Items.INFERIUM_ESSENCE);

@@ -22,8 +22,8 @@ public class AwakeningAltarnatorScreen extends BaseContainerScreen<AwakeningAlta
     protected void init() {
         super.init();
 
-        int x = this.getGuiLeft();
-        int y = this.getGuiTop();
+        int x = this.getLeftPos();
+        int y = this.getTopPos();
 
         this.addRenderableWidget(new EnergyBarWidget(x + 7, y + 17, this.menu::getEnergyStored, this.menu::getMaxEnergyStored));
         this.addRenderableWidget(new FuelWidget(x + 30, y + 39, this.menu::getFuelItemValue, this.menu::getFuelLeft));
@@ -40,8 +40,8 @@ public class AwakeningAltarnatorScreen extends BaseContainerScreen<AwakeningAlta
     public void extractBackground(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float a) {
         super.extractBackground(gfx, mouseX, mouseY, a);
 
-        var x = this.getGuiLeft();
-        var y = this.getGuiTop();
+        var x = this.getLeftPos();
+        var y = this.getTopPos();
 
         for (int i = 0; i < 9; i++) {
             var stack = this.menu.slots.get(i + 12).getItem(); // recipe slots start at index 11

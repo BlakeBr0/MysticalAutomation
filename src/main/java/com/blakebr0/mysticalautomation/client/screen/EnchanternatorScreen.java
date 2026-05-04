@@ -23,8 +23,8 @@ public class EnchanternatorScreen extends BaseContainerScreen<EnchanternatorCont
     protected void init() {
         super.init();
 
-        int x = this.getGuiLeft();
-        int y = this.getGuiTop();
+        int x = this.getLeftPos();
+        int y = this.getTopPos();
 
         this.addRenderableWidget(new EnergyBarWidget(x + 7, y + 17, this.menu::getEnergyStored, this.menu::getMaxEnergyStored));
         this.addRenderableWidget(new FuelWidget(x + 30, y + 39, this.menu::getFuelItemValue, this.menu::getFuelLeft));
@@ -47,8 +47,8 @@ public class EnchanternatorScreen extends BaseContainerScreen<EnchanternatorCont
     public void extractBackground(GuiGraphicsExtractor gfx, int mouseX, int mouseY, float a) {
         super.extractBackground(gfx, mouseX, mouseY, a);
 
-        var x = this.getGuiLeft();
-        var y = this.getGuiTop();
+        var x = this.getLeftPos();
+        var y = this.getTopPos();
 
         this.extractGhostItem(gfx, x + 56, y + 67, this.menu.slots.get(6).getItem());
         this.extractGhostItem(gfx, x + 78, y + 67, this.menu.slots.get(7).getItem());

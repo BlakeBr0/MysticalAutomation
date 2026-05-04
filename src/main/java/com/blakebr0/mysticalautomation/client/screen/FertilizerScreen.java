@@ -21,8 +21,8 @@ public class FertilizerScreen extends BaseContainerScreen<FertilizerContainer> {
     protected void init() {
         super.init();
 
-        int x = this.getGuiLeft();
-        int y = this.getGuiTop();
+        int x = this.getLeftPos();
+        int y = this.getTopPos();
 
         this.addRenderableWidget(new EnergyBarWidget(x + 7, y + 17, this.menu::getEnergyStored, this.menu::getMaxEnergyStored));
         this.addRenderableWidget(new FuelWidget(x + 30, y + 39, this.menu::getFuelItemValue, this.menu::getFuelLeft));
