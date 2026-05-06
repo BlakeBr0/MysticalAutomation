@@ -105,8 +105,8 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
 
-        this.progress = input.getIntOr("Progress", 0);
-        this.lastScanIndex = input.getIntOr("LastScanIndex", 0);
+        this.progress = input.getIntOr("progress", 0);
+        this.lastScanIndex = input.getIntOr("last_scan_index", 0);
         this.fuelLeft = input.getIntOr("fuel_left", 0);
         this.fuelItemValue = input.getIntOr("fuel_item_value", 0);
         this.energy.deserialize(input.childOrEmpty("energy"));
