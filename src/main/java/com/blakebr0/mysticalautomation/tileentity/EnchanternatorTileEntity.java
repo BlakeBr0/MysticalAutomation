@@ -334,11 +334,24 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
             for (int j = 0; j < INPUT_SLOTS.length; j++) {
                 var slot = INPUT_SLOTS[j];
                 var stack = ItemUtil.getStack(this.inventory, slot);
-                if (remaining[j] >= amount && ingredient.ingredient().test(stack)) {
+                if (remaining[j] >= amount && ingredient.test(stack)) {
                     remaining[j] -= amount;
                     amounts[j] += amount;
                     break;
                 }
+            }
+        }
+
+        // special case for the item to be enchanted
+        {
+            required += 1;
+            
+            var slot = INPUT_SLOTS[2];
+            var stack = ItemUtil.getStack(this.inventory, slot);
+
+            if (remaining[slot] >= 1 && !stack.isEmpty()) {
+                remaining[slot] -= 1;
+                amounts[slot] += 1;
             }
         }
 

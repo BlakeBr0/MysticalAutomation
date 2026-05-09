@@ -218,9 +218,11 @@ public class InfusionAltarnatorTileEntity extends BaseInventoryTileEntity implem
                                 int[] amounts = inputs.amounts;
                                 for (int i = 0; i < amounts.length; i++) {
                                     var amount = amounts[i];
-                                    var input = tile.inventory.getResource(INPUT_SLOTS[i]);
+                                    if (amount > 0) {
+                                        var input = tile.inventory.getResource(INPUT_SLOTS[i]);
 
-                                    tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true);
+                                        tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true);
+                                    }
                                 }
 
                                 var remaining = recipe.getRemainingItems(inventory);

@@ -205,6 +205,7 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
                             var context = new UseOnContext(level, null, InteractionHand.MAIN_HAND, stack, hitResult);
 
                             if (stack.getItem().useOn(context) == InteractionResult.SUCCESS) {
+                                tile.inventory.set(slot, ItemResource.of(stack), stack.count());
                                 tile.energy.extract(tile.getFuelUsage(), tx);
                             } else {
                                 tile.energy.extract(SCAN_FUEL_USAGE, tx);
@@ -314,6 +315,7 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
 
                 return true;
             });
+            handler.setOutputSlots();
         });
     }
 }

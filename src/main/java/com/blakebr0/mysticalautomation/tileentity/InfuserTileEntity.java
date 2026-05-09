@@ -205,29 +205,33 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
                 if (!processingStack.isEmpty() && essenceTier != null && essenceTier.getNextTier() != null && essenceTier.getNextTier().getItem() != null) {
                     tile.isRunning = true;
 
-                    try (var tx = Transaction.openRoot()) {
-                        if (tile.progress >= tile.getOperationTime()) {
-                            var result = new ItemStack(essenceTier.getNextTier().getItem());
-                            var outputSlot = tile.progressingIndex + 1 == tile.selectedIndex ? OUTPUT_SLOT : INPUT_SLOTS[tile.progressingIndex + 1];
+                    if (tile.progress >= tile.getOperationTime()) {
+                        var result = new ItemStack(essenceTier.getNextTier().getItem());
+                        var outputSlot = tile.progressingIndex + 1 == tile.selectedIndex ? OUTPUT_SLOT : INPUT_SLOTS[tile.progressingIndex + 1];
 
-                            if (ItemResourceHelper.canCombine(tile.inventory, outputSlot, result)) {
+                        if (ItemResourceHelper.canCombine(tile.inventory, outputSlot, result)) {
+                            try (var tx = Transaction.openRoot()) {
                                 tile.inventory.insert(outputSlot, ItemResource.of(result), result.count(), tx, true);
                                 tile.inventory.extract(INPUT_SLOTS[tile.progressingIndex], ItemResource.of(processingStack), 4, tx, true);
 
-                                var remainder = crystal.toStack().getCraftingRemainder();
-
-                                tile.inventory.set(INFUSION_CRYSTAL_SLOT, ItemResource.of(remainder), 1);
-
-                                tile.progress = 0;
-                                tile.setChangedFast();
+                                tx.commit();
                             }
-                        } else {
+
+                            var remainder = crystal.toStack().getCraftingRemainder();
+
+                            tile.inventory.set(INFUSION_CRYSTAL_SLOT, ItemResource.of(remainder), 1);
+
+                            tile.progress = 0;
+                            tile.setChangedFast();
+                        }
+                    } else {
+                        try (var tx = Transaction.openRoot()) {
                             tile.progress++;
                             tile.energy.extract(tile.getFuelUsage(), tx);
                             tile.setChangedFast();
-                        }
 
-                        tx.commit();
+                            tx.commit();
+                        }
                     }
                 } else {
                     if (tile.progress > 0) {

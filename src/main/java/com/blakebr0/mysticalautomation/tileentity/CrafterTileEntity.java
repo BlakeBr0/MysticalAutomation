@@ -17,7 +17,6 @@ import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -28,7 +27,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -218,12 +220,14 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
                                 int[] amounts = inputs.amounts;
                                 for (int i = 0; i < amounts.length; i++) {
                                     var amount = amounts[i];
-                                    var input = tile.inventory.getResource(INPUT_SLOTS[i]);
+                                    if (amount > 0) {
+                                        var input = tile.inventory.getResource(INPUT_SLOTS[i]);
 
-                                    if (tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true) == tile.inventory.getAmountAsInt(INPUT_SLOTS[i])) {
-                                        var remainder = input.toStack().getCraftingRemainder();
-                                        if (remainder != null && input.matches(remainder)) {
-                                            tile.inventory.insert(INPUT_SLOTS[i], ItemResource.of(remainder), remainder.count(), tx, true);
+                                        if (tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true) == amount) {
+                                            var remainder = input.toStack().getCraftingRemainder();
+                                            if (remainder != null && input.matches(remainder)) {
+                                                tile.inventory.insert(INPUT_SLOTS[i], ItemResource.of(remainder), remainder.count(), tx, true);
+                                            }
                                         }
                                     }
                                 }
@@ -322,18 +326,34 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
         var required = 0;
 
         var displays = recipe.display();
-        if (!displays.isEmpty() && displays.getFirst() instanceof ShapelessCraftingRecipeDisplay display) {
-            for (var ingredient : display.ingredients()) {
-                required++;
+        if (!displays.isEmpty()) {
+            var display = displays.getFirst();
+            List<SlotDisplay> ingredients = null;
 
-                for (int j = 0; j < INPUT_SLOTS.length; j++) {
-                    var slot = INPUT_SLOTS[j];
-                    var stack = ItemUtil.getStack(this.inventory, slot);
+            if (display instanceof ShapedCraftingRecipeDisplay shaped) {
+                ingredients = shaped.ingredients();
+            }
 
-                    if (remaining[j] > 0 && ingredient.resolveForStacks(ContextMap.EMPTY).stream().anyMatch(s -> ItemStack.isSameItem(s, stack))) {
-                        remaining[j]--;
-                        amounts[j]++;
-                        break;
+            if (display instanceof ShapelessCraftingRecipeDisplay shapeless) {
+                ingredients = shapeless.ingredients();
+            }
+
+            if (ingredients != null) {
+                assert this.level != null;
+                var context = SlotDisplayContext.fromLevel(this.level);
+
+                for (var ingredient : ingredients) {
+                    required++;
+
+                    for (int j = 0; j < INPUT_SLOTS.length; j++) {
+                        var slot = INPUT_SLOTS[j];
+                        var stack = ItemUtil.getStack(this.inventory, slot);
+
+                        if (remaining[j] > 0 && ingredient.resolveForStacks(context).stream().anyMatch(s -> ItemStack.isSameItem(s, stack))) {
+                            remaining[j]--;
+                            amounts[j]++;
+                            break;
+                        }
                     }
                 }
             }

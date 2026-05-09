@@ -33,7 +33,6 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
-import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
@@ -214,9 +213,9 @@ public class FarmerTileEntity extends BaseInventoryTileEntity implements MenuPro
                             for (var result : results) {
                                 var remaining = result.count();
                                 for (var slot : OUTPUT_SLOTS) {
-                                    remaining = ItemUtil.insertItemReturnRemaining(tile.inventory, slot, result, false, tx).count();
+                                    remaining -= tile.inventory.insert(slot, ItemResource.of(result), remaining, tx, true);
                                     if (remaining == 0)
-                                        return;
+                                        break;
                                 }
                             }
 

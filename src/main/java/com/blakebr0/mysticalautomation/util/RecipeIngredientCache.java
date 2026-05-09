@@ -93,7 +93,7 @@ public final class RecipeIngredientCache {
                         continue;
 
                     items.add(item);
-                    this.caches.get(Key.FARMER_SOIL).computeIfAbsent(item.value(), _ -> new ArrayList<>()).add(seeds);
+                    this.caches.get(Key.FARMER_SOIL).computeIfAbsent(item.value(), _ -> new ArrayList<>()).add(soil);
                 }
             }
 
@@ -105,7 +105,7 @@ public final class RecipeIngredientCache {
                         continue;
 
                     items.add(item);
-                    this.caches.get(Key.FARMER_CRUX).computeIfAbsent(item.value(), _ -> new ArrayList<>()).add(seeds);
+                    this.caches.get(Key.FARMER_CRUX).computeIfAbsent(item.value(), _ -> new ArrayList<>()).add(crux.get());
                 }
             }
         }
