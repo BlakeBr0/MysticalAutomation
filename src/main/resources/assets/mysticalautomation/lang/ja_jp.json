@@ -17,8 +17,8 @@
   "container.mysticalautomation.infusion_altarnator": "自動注入の祭壇",
   "container.mysticalautomation.awakening_altarnator": "自動覚醒の祭壇",
 
-  "tooltip.mysticalautomation.stage": "ステージ%s／%s",
-  "tooltip.mysticalautomation.stages": "%sステージ",
+  "tooltip.mysticalautomation.stage": "成長段階：%s／%s",
+  "tooltip.mysticalautomation.stages": "成長段階：%s",
 
   "jei.category.mysticalautomation.farmer": "耕作機",
   "jei.category.mysticalautomation.fertilizer": "施肥機",
