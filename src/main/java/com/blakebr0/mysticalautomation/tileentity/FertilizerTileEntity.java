@@ -16,6 +16,7 @@ import com.blakebr0.mysticalautomation.lib.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
@@ -202,9 +204,10 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
                         if (plantBlock instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, nextPos, plantState)) {
                             var stack = ItemUtil.getStack(tile.inventory, slot);
                             var hitResult = new BlockHitResult(nextPos.getCenter(), Direction.DOWN, nextPos, false);
-                            var context = new UseOnContext(level, null, InteractionHand.MAIN_HAND, stack, hitResult);
+                            var fakePlayer = FakePlayerFactory.getMinecraft((ServerLevel) level);
+                            var context = new UseOnContext(level, fakePlayer, InteractionHand.MAIN_HAND, stack, hitResult);
 
-                            if (stack.getItem().useOn(context) == InteractionResult.SUCCESS) {
+                            if (stack.getItem().useOn(context).consumesAction()) {
                                 tile.inventory.set(slot, ItemResource.of(stack), stack.count());
                                 tile.energy.extract(tile.getFuelUsage(), tx);
                             } else {
