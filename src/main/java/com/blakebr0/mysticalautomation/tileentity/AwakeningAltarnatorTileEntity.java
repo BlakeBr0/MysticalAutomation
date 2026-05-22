@@ -317,33 +317,50 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
         }
 
         var required = 0;
-        var essence = 0;
 
-        var displays = recipe.display();
-        if (!displays.isEmpty() && displays.getFirst() instanceof ShapelessCraftingRecipeDisplay display) {
-            var essences = recipe.getEssenceIngredients();
-            var ingredients = display.ingredients();
+        {
+            required++;
 
-            for (int i = 0; i < ingredients.size(); i++) {
-                var ingredient = ingredients.get(i);
-                var amount = 1;
+            var ingredient = recipe.getAltarIngredient();
 
-                // essences can require more than 1
-                if (i % 2 == 1) {
-                    amount = essences.get(essence).count();
-                    essence++;
+            var slot = INPUT_SLOTS[0];
+            var stack = ItemUtil.getStack(this.inventory, slot);
+
+            if (remaining[slot] > 0 && ingredient.test(stack)) {
+                remaining[slot]--;
+                amounts[slot]++;
+            }
+        }
+
+        for (var ingredient : recipe.getPedestalIngredients()) {
+            required++;
+
+            for (int j = 2; j < INPUT_SLOTS.length; j += 2) {
+                var slot = INPUT_SLOTS[j];
+                var stack = ItemUtil.getStack(this.inventory, slot);
+
+                if (remaining[j] > 0 && ingredient.test(stack)) {
+                    remaining[j]--;
+                    amounts[j]++;
+                    break;
                 }
+            }
+        }
 
-                required += amount;
+        for (var ingredient : recipe.getEssenceIngredients()) {
+            var amount = ingredient.count();
 
-                for (int j = 0; j < INPUT_SLOTS.length; j++) {
-                    var slot = INPUT_SLOTS[j];
-                    var stack = ItemUtil.getStack(this.inventory, slot);
-                    if (remaining[j] >= amount && ingredient.resolveForStacks(ContextMap.EMPTY).stream().anyMatch(s -> ItemStack.isSameItem(s, stack))) {
-                        remaining[j] -= amount;
-                        amounts[j] += amount;
-                        break;
-                    }
+            required += amount;
+
+            for (int j = 1; j < INPUT_SLOTS.length; j += 2) {
+                var slot = INPUT_SLOTS[j];
+                var stack = ItemUtil.getStack(this.inventory, slot);
+                var count = stack.count();
+
+                if (remaining[j] >= count && ingredient.ingredient().test(stack)) {
+                    remaining[j] -= Math.min(count, amount);
+                    amounts[j] += Math.min(count, amount);
+                    break;
                 }
             }
         }
@@ -362,7 +379,8 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
         return false;
     }
 
-    private record InputResult(boolean hasAll, int[] amounts) { }
+    private record InputResult(boolean hasAll, int[] amounts) {
+    }
 
     public static CItemStacksHandler createInventoryHandler() {
         return createInventoryHandler(createRecipeInventoryHandler(), null, () -> null);
@@ -392,6 +410,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
     }
 
     public static CItemStacksHandler createRecipeInventoryHandler(@Nullable OnContentsChangedFunction onContentsChanged) {
-        return CItemStacksHandler.create(9, onContentsChanged, _ -> {});
+        return CItemStacksHandler.create(9, onContentsChanged, _ -> {
+        });
     }
 }

@@ -318,20 +318,31 @@ public class InfusionAltarnatorTileEntity extends BaseInventoryTileEntity implem
 
         var required = 0;
 
-        var displays = recipe.display();
-        if (!displays.isEmpty() && displays.getFirst() instanceof ShapelessCraftingRecipeDisplay display) {
-            for (var ingredient : display.ingredients()) {
-                required++;
+        {
+            required++;
 
-                for (int j = 0; j < INPUT_SLOTS.length; j++) {
-                    var slot = INPUT_SLOTS[j];
-                    var stack = ItemUtil.getStack(this.inventory, slot);
+            var ingredient = recipe.getAltarIngredient();
 
-                    if (remaining[j] > 0 && ingredient.resolveForStacks(ContextMap.EMPTY).stream().anyMatch(s -> ItemStack.isSameItem(s, stack))) {
-                        remaining[j]--;
-                        amounts[j]++;
-                        break;
-                    }
+            var slot = INPUT_SLOTS[0];
+            var stack = ItemUtil.getStack(this.inventory, slot);
+
+            if (remaining[slot] > 0 && ingredient.test(stack)) {
+                remaining[slot]--;
+                amounts[slot]++;
+            }
+        }
+
+        for (var ingredient : recipe.getPedestalIngredients()) {
+            required++;
+
+            for (int j = 1; j < INPUT_SLOTS.length; j++) {
+                var slot = INPUT_SLOTS[j];
+                var stack = ItemUtil.getStack(this.inventory, slot);
+
+                if (remaining[j] > 0 && ingredient.test(stack)) {
+                    remaining[j]--;
+                    amounts[j]++;
+                    break;
                 }
             }
         }
