@@ -362,6 +362,10 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
             }
         }
 
+        if (required == 0) {
+            return new InputResult(false, amounts);
+        }
+
         return new InputResult(Arrays.stream(amounts).sum() == required, amounts);
     }
 
