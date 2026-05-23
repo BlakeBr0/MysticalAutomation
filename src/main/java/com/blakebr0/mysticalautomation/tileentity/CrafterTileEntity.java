@@ -343,6 +343,9 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
                 var context = SlotDisplayContext.fromLevel(this.level);
 
                 for (var ingredient : ingredients) {
+                    if (ingredient == SlotDisplay.Empty.INSTANCE)
+                        continue;
+
                     required++;
 
                     for (int j = 0; j < INPUT_SLOTS.length; j++) {
