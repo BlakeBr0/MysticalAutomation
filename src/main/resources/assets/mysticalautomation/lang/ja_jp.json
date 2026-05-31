@@ -1,0 +1,50 @@
+{
+  "itemGroup.mysticalautomation": "Mystical Automation",
+
+  "block.mysticalautomation.infuser": "注入機",
+  "block.mysticalautomation.crafter": "クラフト機",
+  "block.mysticalautomation.farmer": "耕作機",
+  "block.mysticalautomation.fertilizer": "施肥機",
+  "block.mysticalautomation.enchanternator": "自動エンチャンター",
+  "block.mysticalautomation.infusion_altarnator": "自動注入の祭壇",
+  "block.mysticalautomation.awakening_altarnator": "自動覚醒の祭壇",
+
+  "container.mysticalautomation.infuser": "注入機",
+  "container.mysticalautomation.crafter": "クラフト機",
+  "container.mysticalautomation.farmer": "耕作機",
+  "container.mysticalautomation.fertilizer": "施肥機",
+  "container.mysticalautomation.enchanternator": "自動エンチャンター",
+  "container.mysticalautomation.infusion_altarnator": "自動注入の祭壇",
+  "container.mysticalautomation.awakening_altarnator": "自動覚醒の祭壇",
+
+  "tooltip.mysticalautomation.stage": "成長段階：%s／%s",
+  "tooltip.mysticalautomation.stages": "成長段階：%s",
+
+  "jei.category.mysticalautomation.farmer": "耕作機",
+  "jei.category.mysticalautomation.fertilizer": "施肥機",
+
+  "book.mysticalagriculture.category.automation.name": "Automation",
+  "book.mysticalagriculture.category.automation.description": "このセクションでは、Mystical Automationによって追加された要素について説明しています。",
+
+  "book.mysticalagriculture.entry.infuser": "注入機",
+  "book.mysticalagriculture.entry.infuser.page.1": "注入機は、$(l:basics/inferium_essence)エッセンス$()と$(l:basics/infusion_crystal)注入のクリスタル$()を自動的に合成します。$(br2)固形燃料を使用でき、内部に電力貯蔵バッファーを持っています。$(br2)入力スロットの下にあるボタンで、出力するエッセンスのランクを設定してください。",
+  "book.mysticalagriculture.entry.infuser.page.2": "この機械は$(l:machines/machine_upgrades)マシンアップグレード$()で強化することができます。",
+  "book.mysticalagriculture.entry.crafter": "クラフト機",
+  "book.mysticalagriculture.entry.crafter.page.1": "クラフト機は、用意された素材を使用してレシピを自動的にクラフトします。$(br2)固形燃料を使用でき、内部に電力貯蔵バッファーを持っています。$(br2)グリッドでレシピを設定し、指定された入力スロットにアイテムを置いてください。",
+  "book.mysticalagriculture.entry.crafter.page.2": "この機械は$(l:machines/machine_upgrades)マシンアップグレード$()で強化することができます。",
+  "book.mysticalagriculture.entry.farmer": "耕作機",
+  "book.mysticalagriculture.entry.farmer.page.1": "耕作機は、作物の植え付け、成長、収穫のプロセスを完全に自動化します。$(br2)固形燃料を使用でき、内部に電力貯蔵バッファーを持っています。",
+  "book.mysticalagriculture.entry.farmer.page.2": "この機械は$(l:machines/machine_upgrades)マシンアップグレード$()で強化することができます。",
+  "book.mysticalagriculture.entry.fertilizer": "施肥機",
+  "book.mysticalagriculture.entry.fertilizer.page.1": "施肥機は、骨粉、$(l:basics/fertilized_essence)肥料のエッセンス$()、$(l:advances/mystical_fertilizer)神秘の肥料$()などの肥料を使用して、畑の作物を自動的に施肥します。$(br2)固形燃料を使用でき、内部に電力貯蔵バッファーを持っています。",
+  "book.mysticalagriculture.entry.fertilizer.page.2": "この機械は$(l:machines/machine_upgrades)マシンアップグレード$()で強化することができます。",
+  "book.mysticalagriculture.entry.infusion_altarnator": "自動注入の祭壇",
+  "book.mysticalagriculture.entry.infusion_altarnator.page.1": "自動注入の祭壇は、$(l:basics/infusion_altar)注入の祭壇$()のレシピを自動化します。$(br2)固形燃料を使用でき、内部に電力貯蔵バッファーを持っています。$(br2)グリッドでレシピを設定し、指定された入力スロットにアイテムを置いてください。",
+  "book.mysticalagriculture.entry.infusion_altarnator.page.2": "この機械は$(l:machines/machine_upgrades)マシンアップグレード$()で強化することができます。",
+  "book.mysticalagriculture.entry.awakening_altarnator": "自動覚醒の祭壇",
+  "book.mysticalagriculture.entry.awakening_altarnator.page.1": "自動覚醒の祭壇は、$(l:elemental/awakening_altar)覚醒の祭壇$()のレシピを自動化します。$(br2)固形燃料を使用でき、内部に電力貯蔵バッファーを持っています。$(br2)グリッドでレシピを設定し、指定された入力スロットにアイテムを置いてください。",
+  "book.mysticalagriculture.entry.awakening_altarnator.page.2": "この機械は$(l:machines/machine_upgrades)マシンアップグレード$()で強化することができます。",
+  "book.mysticalagriculture.entry.enchanternator": "自動エンチャンター",
+  "book.mysticalagriculture.entry.enchanternator.page.1": "自動エンチャンターは、$(l:souls/enchanter)エンチャンター$()のレシピを自動化します。$()$(br2)固形燃料を使用でき、内部に電力貯蔵バッファーを持っています。$(br2)上のスロットでレシピを設定し、下の指定された入力スロットにアイテムを置いてください。",
+  "book.mysticalagriculture.entry.enchanternator.page.2": "この機械は$(l:machines/machine_upgrades)マシンアップグレード$()で強化することができます。"
+}
