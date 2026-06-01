@@ -15,7 +15,7 @@ public record SetFakeRecipeSlotPayload(int slot, ItemStack stack) implements Cus
     public static final StreamCodec<RegistryFriendlyByteBuf, SetFakeRecipeSlotPayload> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             SetFakeRecipeSlotPayload::slot,
-            ItemStack.STREAM_CODEC,
+            ItemStack.OPTIONAL_STREAM_CODEC,
             SetFakeRecipeSlotPayload::stack,
             SetFakeRecipeSlotPayload::new
     );
