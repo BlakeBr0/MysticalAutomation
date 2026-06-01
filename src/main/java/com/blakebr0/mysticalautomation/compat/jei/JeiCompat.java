@@ -14,6 +14,10 @@ import com.blakebr0.mysticalautomation.client.screen.InfusionAltarnatorScreen;
 import com.blakebr0.mysticalautomation.compat.jei.category.FarmerCategory;
 import com.blakebr0.mysticalautomation.compat.jei.category.FertilizerCategory;
 import com.blakebr0.mysticalautomation.compat.jei.recipe.FertilizerFakeRecipe;
+import com.blakebr0.mysticalautomation.compat.jei.transfer.AwakeningAltarnatorRecipeTransferHandler;
+import com.blakebr0.mysticalautomation.compat.jei.transfer.CrafterRecipeTransferHandler;
+import com.blakebr0.mysticalautomation.compat.jei.transfer.EnchanternatorRecipeTransferHandler;
+import com.blakebr0.mysticalautomation.compat.jei.transfer.InfusionAltarnatorRecipeTransferHandler;
 import com.blakebr0.mysticalautomation.init.ModBlocks;
 import com.blakebr0.mysticalautomation.init.ModRecipeTypes;
 import mezz.jei.api.IModPlugin;
@@ -23,15 +27,16 @@ import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.IRecipeTransferRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 @JeiPlugin
 public final class JeiCompat implements IModPlugin {
-    private static final RecipeType<IEnchanterRecipe> ENCHANTER_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "enchanter", IEnchanterRecipe.class);
-    private static final RecipeType<IInfusionRecipe>  INFUSION_ALTARNATOR_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "infusion", IInfusionRecipe.class);
-    private static final RecipeType<IAwakeningRecipe> AWAKENING_ALTARNATOR_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "awakening", IAwakeningRecipe.class);
+    public static final RecipeType<IEnchanterRecipe> ENCHANTER_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "enchanter", IEnchanterRecipe.class);
+    public static final RecipeType<IInfusionRecipe>  INFUSION_ALTAR_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "infusion", IInfusionRecipe.class);
+    public static final RecipeType<IAwakeningRecipe> AWAKENING_ALTAR_RECIPE_TYPE = RecipeType.create(MysticalAgricultureAPI.MOD_ID, "awakening", IAwakeningRecipe.class);
 
     public static final ResourceLocation UID = MysticalAutomation.resource("jei_plugin");
 
@@ -56,8 +61,8 @@ public final class JeiCompat implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FARMER.get()), FarmerCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.FERTILIZER.get()), FertilizerCategory.RECIPE_TYPE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.ENCHANTERNATOR.get()), ENCHANTER_RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.INFUSION_ALTARNATOR.get()), INFUSION_ALTARNATOR_RECIPE_TYPE);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.AWAKENING_ALTARNATOR.get()), AWAKENING_ALTARNATOR_RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.INFUSION_ALTARNATOR.get()), INFUSION_ALTAR_RECIPE_TYPE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.AWAKENING_ALTARNATOR.get()), AWAKENING_ALTAR_RECIPE_TYPE);
     }
 
     @Override
@@ -77,12 +82,20 @@ public final class JeiCompat implements IModPlugin {
         registration.addRecipeClickArea(CrafterScreen.class, 114, 48, 24, 16, mezz.jei.api.constants.RecipeTypes.CRAFTING);
         registration.addRecipeClickArea(FarmerScreen.class, 85, 52, 24, 16, FarmerCategory.RECIPE_TYPE);
         registration.addRecipeClickArea(EnchanternatorScreen.class, 143, 47, 24, 16, ENCHANTER_RECIPE_TYPE);
-        registration.addRecipeClickArea(InfusionAltarnatorScreen.class, 133, 49, 24, 16, INFUSION_ALTARNATOR_RECIPE_TYPE);
-        registration.addRecipeClickArea(AwakeningAltarnatorScreen.class, 133, 49, 24, 16, AWAKENING_ALTARNATOR_RECIPE_TYPE);
+        registration.addRecipeClickArea(InfusionAltarnatorScreen.class, 133, 49, 24, 16, INFUSION_ALTAR_RECIPE_TYPE);
+        registration.addRecipeClickArea(AwakeningAltarnatorScreen.class, 133, 49, 24, 16, AWAKENING_ALTAR_RECIPE_TYPE);
 
         registration.addGhostIngredientHandler(CrafterScreen.class, new GhostIngredientHandler<>());
         registration.addGhostIngredientHandler(EnchanternatorScreen.class, new GhostIngredientHandler<>());
         registration.addGhostIngredientHandler(InfusionAltarnatorScreen.class, new GhostIngredientHandler<>());
         registration.addGhostIngredientHandler(AwakeningAltarnatorScreen.class, new GhostIngredientHandler<>());
+    }
+
+    @Override
+    public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
+        registration.addRecipeTransferHandler(new CrafterRecipeTransferHandler(), mezz.jei.api.constants.RecipeTypes.CRAFTING);
+        registration.addRecipeTransferHandler(new InfusionAltarnatorRecipeTransferHandler(), INFUSION_ALTAR_RECIPE_TYPE);
+        registration.addRecipeTransferHandler(new AwakeningAltarnatorRecipeTransferHandler(), AWAKENING_ALTAR_RECIPE_TYPE);
+        registration.addRecipeTransferHandler(new EnchanternatorRecipeTransferHandler(), ENCHANTER_RECIPE_TYPE);
     }
 }
