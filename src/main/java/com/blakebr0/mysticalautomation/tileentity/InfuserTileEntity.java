@@ -219,7 +219,11 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
                             var remainder = crystal.toStack().getCraftingRemainder();
 
-                            tile.inventory.set(INFUSION_CRYSTAL_SLOT, ItemResource.of(remainder), 1);
+                            if (remainder != null) {
+                                tile.inventory.set(INFUSION_CRYSTAL_SLOT, ItemResource.of(remainder), 1);
+                            } else {
+                                tile.inventory.set(INFUSION_CRYSTAL_SLOT, ItemResource.EMPTY, 0);
+                            }
 
                             tile.progress = 0;
                             tile.setChangedFast();
