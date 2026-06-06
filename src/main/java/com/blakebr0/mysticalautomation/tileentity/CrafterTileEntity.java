@@ -223,30 +223,12 @@ public class CrafterTileEntity extends BaseInventoryTileEntity implements MenuPr
                                     if (amount > 0) {
                                         var input = tile.inventory.getResource(INPUT_SLOTS[i]);
 
-                                        if (tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true) == amount) {
+                                        if (tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true) == amount && amount == 1) {
                                             var remainder = input.toStack().getCraftingRemainder();
-                                            if (remainder != null && input.matches(remainder)) {
+                                            if (remainder != null) {
                                                 tile.inventory.insert(INPUT_SLOTS[i], ItemResource.of(remainder), remainder.count(), tx, true);
                                             }
                                         }
-                                    }
-                                }
-
-                                var remaining = recipe.getRemainingItems(inventory);
-                                for (int i = 0; i < remaining.size(); i++) {
-                                    var remainder = remaining.get(i);
-                                    if (remainder.isEmpty())
-                                        continue;
-
-                                    var recipeStack = tile.recipeInventory.getResource(i);
-
-                                    for (var slot : INPUT_SLOTS) {
-                                        if (!recipeStack.matches(ItemUtil.getStack(tile.recipeInventory, slot)))
-                                            continue;
-
-                                        remainder = ItemUtil.insertItemReturnRemaining(tile.inventory, i, ItemUtil.getStack(tile.inventory, slot), false, tx);
-                                        if (remainder.isEmpty())
-                                            break;
                                     }
                                 }
 

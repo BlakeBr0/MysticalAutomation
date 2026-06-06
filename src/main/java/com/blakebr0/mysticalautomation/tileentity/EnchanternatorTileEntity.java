@@ -207,7 +207,8 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
                 var inputs = tile.getInputResult(recipe);
                 var maxLevel = recipe.getMaxResultEnchantmentLevel(tile.toCraftingInput());
                 if (inputs.hasAll && maxLevel >= tile.selectedLevel) {
-                    var result = recipe.assemble(tile.toCraftingInput(), maxLevel);
+                    var inventory = tile.toCraftingInput();
+                    var result = recipe.assemble(inventory, maxLevel);
 
                     if (ItemResourceHelper.canCombine(tile.inventory, OUTPUT_SLOT, result)) {
                         try (var tx = Transaction.openRoot()) {
@@ -222,12 +223,7 @@ public class EnchanternatorTileEntity extends BaseInventoryTileEntity implements
                                     var amount = amounts[i];
                                     var input = tile.inventory.getResource(INPUT_SLOTS[i]);
 
-                                    if (tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true) == tile.inventory.getAmountAsInt(INPUT_SLOTS[i])) {
-                                        var remainder = input.toStack().getCraftingRemainder();
-                                        if (remainder != null && input.matches(remainder)) {
-                                            tile.inventory.insert(INPUT_SLOTS[i], ItemResource.of(remainder), remainder.count(), tx, true);
-                                        }
-                                    }
+                                    tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true);
                                 }
 
                                 tile.inventory.insert(OUTPUT_SLOT, ItemResource.of(result), result.count(), tx, true);

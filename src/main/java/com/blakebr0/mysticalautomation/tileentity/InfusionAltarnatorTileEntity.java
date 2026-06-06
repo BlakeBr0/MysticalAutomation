@@ -19,16 +19,13 @@ import com.blakebr0.mysticalautomation.init.ModTileEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.context.ContextMap;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.display.ShapelessCraftingRecipeDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
@@ -221,25 +218,12 @@ public class InfusionAltarnatorTileEntity extends BaseInventoryTileEntity implem
                                     if (amount > 0) {
                                         var input = tile.inventory.getResource(INPUT_SLOTS[i]);
 
-                                        tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true);
-                                    }
-                                }
-
-                                var remaining = recipe.getRemainingItems(inventory);
-                                for (int i = 0; i < remaining.size(); i++) {
-                                    var remainder = remaining.get(i);
-                                    if (remainder.isEmpty())
-                                        continue;
-
-                                    var recipeStack = tile.recipeInventory.getResource(i);
-
-                                    for (var slot : INPUT_SLOTS) {
-                                        if (!recipeStack.matches(ItemUtil.getStack(tile.recipeInventory, slot)))
-                                            continue;
-
-                                        remainder = ItemUtil.insertItemReturnRemaining(tile.inventory, i, ItemUtil.getStack(tile.inventory, slot), false, tx);
-                                        if (remainder.isEmpty())
-                                            break;
+                                        if (tile.inventory.extract(INPUT_SLOTS[i], input, amount, tx, true) == amount && amount == 1) {
+                                            var remainder = input.toStack().getCraftingRemainder();
+                                            if (remainder != null) {
+                                                tile.inventory.insert(INPUT_SLOTS[i], ItemResource.of(remainder), remainder.count(), tx, true);
+                                            }
+                                        }
                                     }
                                 }
 
