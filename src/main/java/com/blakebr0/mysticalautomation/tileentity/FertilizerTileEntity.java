@@ -19,6 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -33,6 +34,7 @@ import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.jetbrains.annotations.Nullable;
@@ -187,7 +189,8 @@ public class FertilizerTileEntity extends BaseInventoryTileEntity implements Men
                     if (plantBlock instanceof BonemealableBlock bonemealable && bonemealable.isValidBonemealTarget(level, nextPos, plantState)) {
                         var stack = tile.inventory.getStackInSlot(slot);
                         var hitResult = new BlockHitResult(nextPos.getCenter(), Direction.DOWN, nextPos, false);
-                        var context = new UseOnContext(level, null, InteractionHand.MAIN_HAND, stack, hitResult);
+                        var fakePlayer = FakePlayerFactory.getMinecraft((ServerLevel) level);
+                        var context = new UseOnContext(level, fakePlayer, InteractionHand.MAIN_HAND, stack, hitResult);
 
                         if (stack.getItem().useOn(context) == InteractionResult.SUCCESS) {
                             tile.energy.extractEnergy(tile.getFuelUsage(), false);
