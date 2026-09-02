@@ -202,30 +202,7 @@ public class AwakeningAltarnatorTileEntity extends BaseInventoryTileEntity imple
                                 var amount = amounts[i];
                                 var input = tile.inventory.getStackInSlot(INPUT_SLOTS[i]);
 
-                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrink(input, amount, false));
-                            }
-
-                            var remaining = recipe.getRemainingItems(inventory);
-                            for (int i = 0; i < remaining.size(); i++) {
-                                var remainder = remaining.get(i);
-                                if (remainder.isEmpty())
-                                    continue;
-
-                                var recipeStack = tile.recipeInventory.getStackInSlot(i);
-
-                                for (var slot : INPUT_SLOTS) {
-                                    if (!StackHelper.areStacksEqual(recipeStack, tile.recipeInventory.getStackInSlot(slot)))
-                                        continue;
-
-                                    var stack = tile.inventory.getStackInSlot(slot);
-                                    var insertion = StackHelper.insert(stack, remainder);
-
-                                    tile.inventory.setStackInSlot(slot, insertion.result());
-
-                                    remainder = insertion.remainder();
-                                    if (remainder.isEmpty())
-                                        break;
-                                }
+                                tile.inventory.setStackInSlot(INPUT_SLOTS[i], StackHelper.shrink(input, amount, amount == 1));
                             }
 
                             tile.inventory.setStackInSlot(OUTPUT_SLOT, StackHelper.combineStacks(output, result));
