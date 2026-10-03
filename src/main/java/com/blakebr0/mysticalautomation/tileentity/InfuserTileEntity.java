@@ -304,7 +304,12 @@ public class InfuserTileEntity extends BaseInventoryTileEntity implements MenuPr
 
     private int getNextProgressingIndex() {
         if (this.progress > 0) {
-            return this.progressingIndex;
+            var amount = this.inventory.getAmountAsInt(INPUT_SLOTS[this.progressingIndex]);
+            if (amount >= 4) {
+                return this.progressingIndex;
+            } else {
+                this.progress = 0;
+            }
         }
 
         for (var i = this.selectedIndex - 1; i >= 0; i--) {
