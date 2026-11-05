@@ -1,6 +1,7 @@
 package com.blakebr0.mysticalautomation.network.payload;
 
 import com.blakebr0.mysticalautomation.MysticalAutomation;
+import com.blakebr0.mysticalautomation.container.slot.FakeSlot;
 import com.blakebr0.mysticalautomation.util.IFakeRecipeContainer;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -32,8 +33,9 @@ public record SetFakeRecipeSlotPayload(int slot, ItemStack stack) implements Cus
 
             if (payload.slot < menu.slots.size() && menu instanceof IFakeRecipeContainer fakeRecipeContainer) {
                 var slot = menu.slots.get(payload.slot);
-
-                fakeRecipeContainer.setFakeRecipeSlot(slot, payload.stack);
+                if (slot instanceof FakeSlot) {
+                    fakeRecipeContainer.setFakeRecipeSlot(slot, payload.stack);
+                }
             }
         });
     }
